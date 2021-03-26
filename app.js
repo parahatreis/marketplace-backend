@@ -21,6 +21,7 @@ app.use('/v1/brands', require('./routes/v1/brands'));
 app.use('/v1/admins', require('./routes/v1/admins'));
 app.use('/v1/stores', require('./routes/v1/stores'));
 app.use('/v1/store_admins', require('./routes/v1/store_admins'));
+app.use('/v1/products', require('./routes/v1/products'));
 
 
 // Start Server

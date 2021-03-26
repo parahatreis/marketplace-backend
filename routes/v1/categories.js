@@ -163,28 +163,34 @@ const upload = multer({
 });
 router.post('/image/:categorie_id', upload.single('image'), async (req, res) => {
 
-   const categorie = await Categorie.findOne({
-      where: { categorie_id: req.params.categorie_id },
-   });
-
-   if (!categorie) {
-      return res.status(404).send('Categorie not found')
+   try {
+      const categorie = await Categorie.findOne({
+         where: { categorie_id: req.params.categorie_id },
+      });
+   
+      if (!categorie) {
+         return res.status(404).send('Categorie not found')
+      }
+   
+      // Convert image to png with sharp 
+      await sharp(req.file.buffer).resize({
+         width: 1000,
+         height: 1000
+      }).webp().toFile(`./public/categorie-images/${req.file.originalname + '-' + req.params.categorie_id}.webp`)
+   
+      // Pathname of new categorie image
+      let image = `./public/categorie-images/${req.file.originalname + '-' + req.params.categorie_id}.webp`;
+   
+      categorie.categorie_image = image;
+   
+      categorie.save();
+   
+      return res.send(image);   
    }
-
-   // Convert image to png with sharp 
-   await sharp(req.file.buffer).resize({
-      width: 1000,
-      height: 1000
-   }).webp().toFile(`./public/categorie-images/${req.file.originalname + '-' + req.params.categorie_id}.webp`)
-
-   // Pathname of new categorie image
-   let image = `./public/categorie-images/${req.file.originalname + '-' + req.params.categorie_id}.webp`;
-
-   categorie.categorie_image = image;
-
-   categorie.save();
-
-   res.send(image);
+   catch (error) {
+      console.log(error);
+      res.status(500).send('Server error')
+   }
 },
 (error, req, res, next) => {
    res.status(400).send({

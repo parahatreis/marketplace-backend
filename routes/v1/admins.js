@@ -33,7 +33,7 @@ router.post('/', async (req, res) => {
 
         // Encrypt password
         const salt = await bcrypt.genSalt(10);
-        generated_password = await bcrypt.hash(admin_password, salt);
+        const generated_password = await bcrypt.hash(admin_password, salt);
 
         const newAdmin = await Admin.create({
             admin_name,

@@ -52,6 +52,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
+    tableName : 'store_admins',
     modelName: 'StoreAdmin',
   });
   return StoreAdmin;
