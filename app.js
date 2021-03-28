@@ -13,6 +13,8 @@ app.get('/', (req, res) => {
    res.send('SM APIs Running!')
 });
 
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 // Define Routes
 app.use('/v1/categories', require('./routes/v1/categories'));
