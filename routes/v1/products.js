@@ -1,13 +1,14 @@
 const express = require('express');
-const multer = require('multer');
 const router = express.Router();
 const { Product, Store, Brand,SubCategorie} = require('../../models');
 const {Op} = require('sequelize')
 // File Upload Multer
-// const multer = require('multer');
+const multer = require('multer');
 // // Sharp to image converter
-// const sharp = require('sharp');
-// const fs = require('fs');
+const sharp = require('sharp');
+const fs = require('fs');
+const config = require('config');
+
 
 
 // TODO PRODUCT STOCK 
@@ -587,21 +588,46 @@ const upload = multer({
     try {
         // Check Product if exists
         const product = await Product.findOne({where : {product_id : req.params.product_id}});
+
         if (!product) {
             return res.status(404).send('Product not found')
         }
 
+        // Delete product images already exists 
+        if(product.product_images){
+            product.product_images.forEach((image) => {
+                fs.unlinkSync(config.get('rootPath') + image);  
+            })
+        }
+        // Delete product preview image already exists 
+        if(product.preview_image){
+            fs.unlinkSync(config.get('rootPath') + product.preview_image);  
+        }
+
         let pr_images = [];
+        let prev_image = '';
         let buffers = req.files;
     
         // Convert image to png with sharp 
         buffers.forEach(async (file, index) => {
-            pr_images.push(`./public/product-images/${buffers[index].originalname + '-' + product.id}.webp`)
+            // Create images path for db
+            pr_images.push(`/product-images/${buffers[index].originalname + '-' + product.id}.webp`)
+
             if (index === 0) {
+
+                // Create imagepath for db
+                prev_image = `/product-images/preview-image-${buffers[index].originalname + '-' + product.id}.webp`;
+
+                // product preview image
                 await sharp(file.buffer).resize({
-                    width: 700,
-                    height: 700
-                }).webp().toFile(`./public/product-images/${buffers[index].originalname + '-' + product.id}.webp`)
+                    width: 500,
+                    height: 500
+                }).webp().toFile(`./public/product-images/preview-image-${buffers[index].originalname + '-' + product.id}.webp`);
+
+                // 
+                await sharp(file.buffer)
+                    .webp()
+                    .toFile(`./public/product-images/${buffers[index].originalname + '-' + product.id}.webp`);
             }
             else {
                 await sharp(file.buffer)
@@ -609,12 +635,18 @@ const upload = multer({
                     .toFile(`./public/product-images/${buffers[index].originalname + '-' + product.id}.webp`)
             }
         });
+
     
         product.product_images = pr_images;
+        if(!prev_image !== ''){
+            product.preview_image = prev_image;
+        }
 
         product.save();
 
-        return res.send(pr_images);
+
+
+        return res.json({prev_image, pr_images});
     }
     catch (error) {
         console.log(error);
@@ -659,6 +691,8 @@ router.patch('/status/:product_id', async (req, res) => {
        res.status(500).send('Server error')
     }
  });
+
+
  
  
 

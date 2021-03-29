@@ -35,6 +35,9 @@ module.exports = {
       product_images: {
         type : DataTypes.ARRAY(DataTypes.STRING),
       },
+      preview_image: {
+        type : DataTypes.STRING,
+      },
       brandId: {
         type : DataTypes.INTEGER
       },
