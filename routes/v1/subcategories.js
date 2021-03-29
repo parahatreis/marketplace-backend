@@ -5,7 +5,9 @@ const { SubCategorie ,Categorie,Brand } = require('../../models');
 const multer = require('multer');
 // Sharp to image converter
 const sharp = require('sharp');
-const fs = require('fs')
+const fs = require('fs');
+const config = require('config');
+
 
 
 
@@ -229,14 +231,19 @@ router.post('/image/:subcategorie_id', upload.single('image'), async (req, res) 
       return res.status(404).send('Subcategorie not found')
    }
 
+   // Delete if subcategorie image already exists
+   if(subcategorie.subcategorie_image){
+      fs.unlinkSync(config.get('rootPath') + subcategorie.subcategorie_image);  
+   }
+
    // Convert image to png with sharp 
    await sharp(req.file.buffer).resize({
       width: 1000,
       height: 1000
-   }).webp().toFile(`./public/subcategorie-images/${req.file.originalname + '-' + req.params.subcategorie_id}.webp`)
+   }).webp().toFile(`./public/subcategorie-images/${req.file.originalname + '-' + subcategorie.id}.webp`)
 
    // Pathname of new subcategorie image
-   let image = `./public/subcategorie-images/${req.file.originalname + '-' + req.params.subcategorie_id}.webp`;
+   let image = `/subcategorie-images/${req.file.originalname + '-' + subcategorie.id}.webp`;
 
    subcategorie.subcategorie_image = image;
 

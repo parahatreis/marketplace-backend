@@ -7,6 +7,8 @@ const multer = require('multer');
 // Sharp to image converter
 const sharp = require('sharp');
 const fs = require('fs')
+const config = require('config');
+
 
 
 // @route POST v1/brands
@@ -250,14 +252,19 @@ router.post('/image/:brand_id', upload.single('image'), async (req, res) => {
       return res.status(404).send('Brand not found')
    }
 
+   // Delete if brand image already exists
+   if(brand.brand_image){
+      fs.unlinkSync(config.get('rootPath') + brand.brand_image);  
+   }
+
    // Convert image to png with sharp 
    await sharp(req.file.buffer).resize({
       width: 300,
       height: 300
-   }).webp().toFile(`./public/brand-images/${req.file.originalname + '-' + req.params.brand_id}.webp`)
+   }).webp().toFile(`./public/brand-images/${req.file.originalname + '-' + brand.id}.webp`)
 
    // Pathname of new brand image
-   let image = `./public/brand-images/${req.file.originalname + '-' + req.params.brand_id}.webp`;
+   let image = `/brand-images/${req.file.originalname + '-' + brand.id}.webp`;
 
    brand.brand_image = image;
 

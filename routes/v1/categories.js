@@ -5,7 +5,8 @@ const { Categorie } = require('../../models');
 const multer = require('multer');
 // Sharp to image converter
 const sharp = require('sharp');
-const fs = require('fs')
+const fs = require('fs');
+const config = require('config');
 
 
 // @route POST v1/categories
@@ -171,15 +172,20 @@ router.post('/image/:categorie_id', upload.single('image'), async (req, res) => 
       if (!categorie) {
          return res.status(404).send('Categorie not found')
       }
+
+      // Delete if categorie image already exists
+      if(categorie.categorie_image){
+         fs.unlinkSync(config.get('rootPath') + categorie.categorie_image);  
+      }
    
       // Convert image to png with sharp 
       await sharp(req.file.buffer).resize({
          width: 1000,
          height: 1000
-      }).webp().toFile(`./public/categorie-images/${req.file.originalname + '-' + req.params.categorie_id}.webp`)
+      }).webp().toFile(`./public/categorie-images/${req.file.originalname+ '-' + categorie.id}.webp`)
    
       // Pathname of new categorie image
-      let image = `./public/categorie-images/${req.file.originalname + '-' + req.params.categorie_id}.webp`;
+      let image = `/categorie-images/${req.file.originalname + '-' + categorie.id}.webp`;
    
       categorie.categorie_image = image;
    

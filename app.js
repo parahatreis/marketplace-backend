@@ -1,5 +1,6 @@
 const express = require('express');
 const { sequelize } = require('./models');
+const path = require('path');
 
 
 const app = express();
