@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 // 
-const {Store} = require('../../models');
+const {Store,StoreAdmin} = require('../../models');
 
 
 // @route POST v1/stores
@@ -44,7 +44,13 @@ router.post('/', async (req, res) => {
 // @access Public
 router.get('/', async (req, res) => {
     try {
-       const stores = await Store.findAll();
+       const stores = await Store.findAll({
+         include : {
+            model : StoreAdmin,
+            as : 'store_admins',
+            attributes : ['store_admin_id','store_admin_name']
+         }
+       });
        res.json(stores);
     }
     catch (error) {

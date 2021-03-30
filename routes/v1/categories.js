@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Categorie } = require('../../models');
+const { Categorie ,SubCategorie} = require('../../models');
 // File Upload Multer
 const multer = require('multer');
 // Sharp to image converter
@@ -48,7 +48,12 @@ router.get('/', async (req, res) => {
    try {
       const categories = await Categorie.findAll({
          limit,
-         include : 'subcategories'
+         include : {
+            model : SubCategorie,
+            as : 'subcategories',
+            attributes : ['subcategorie_id','subcategorie_name']
+         },
+         
       });
       res.json(categories);
    }
@@ -134,7 +139,7 @@ router.delete('/:categorie_id', async (req, res) => {
 
       // Delete categorie image
       if(categorie.categorie_image){
-         fs.unlinkSync(categorie.categorie_image)
+         fs.unlinkSync(config.get('rootPath')  + categorie.categorie_image)
       }
       res.json(categorie);
 

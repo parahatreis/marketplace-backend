@@ -18,7 +18,7 @@ router.post('/', async (req, res) => {
         store_admin_phone,
         store_admin_password,
         store_admin_username,
-        storeId,
+        storeId
     } = req.body;
 
     if(!storeId) return res.status(400).send('Select store !');
@@ -154,12 +154,16 @@ router.get('/', async (req, res) => {
 
     try {
         const store_admins = await StoreAdmin.findAll({
-            include : {
-                model : Store,
-                as : 'store',
-                attributes : ['store_id','store_name']
-            }
+            include : [
+                {
+                    model : Store,
+                    as : 'store',   
+                    attributes : ['store_id','store_name'],
+                }
+            ]
         });
+
+        console.log(store_admins[0].store_admin_password)
  
        res.json(store_admins)
  
@@ -240,23 +244,13 @@ router.patch('/:store_admin_id', async (req, res) => {
        store_admin_username,
        storeId,
     } = req.body;
- 
+
+
     if(store_admin_name) newObj.store_admin_name = store_admin_name;
     if(store_admin_phone) newObj.store_admin_phone = Number(store_admin_phone);
     if(store_admin_username) newObj.store_admin_username = store_admin_username;
  
     try {
-        
-        // Check user is exists
-        const admin = await StoreAdmin.findOne({where : {store_admin_username}});
-
-        if (admin) {
-            return res.status(400).json({
-                errors: [{
-                msg: 'Admin already exists'
-                }]
-            });
-        }
 
         // findStore if exists
         if(storeId) {
@@ -267,10 +261,12 @@ router.patch('/:store_admin_id', async (req, res) => {
         }
 
         if(store_admin_password) {
-            // Encrypt password
-            const salt = await bcrypt.genSalt(10);
-            const generated_password = await bcrypt.hash(store_admin_password, salt);
-            newObj.store_admin_password = generated_password
+            if(store_admin_password !== ''){
+                // Encrypt password
+                const salt = await bcrypt.genSalt(10);
+                const generated_password = await bcrypt.hash(store_admin_password, salt);
+                newObj.store_admin_password = generated_password
+            }
         };
 
         const storeAdmin = await StoreAdmin.update(newObj,{

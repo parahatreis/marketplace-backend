@@ -14,6 +14,12 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(StoreAdmin, {foreignKey : 'storeId', as : 'store_admins'});
       this.hasMany(Product, {foreignKey : 'storeId', as : 'products'})
     }
+    toJSON(){
+      return {
+        ...this.get(),
+        id : undefined
+      }
+    }
   };
   Store.init({
     store_id: {

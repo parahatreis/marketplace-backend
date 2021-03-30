@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { SubCategorie ,Categorie,Brand } = require('../../models');
+const { SubCategorie ,Categorie,Brand, Product } = require('../../models');
 // File Upload Multer
 const multer = require('multer');
 // Sharp to image converter
@@ -11,6 +11,7 @@ const config = require('config');
 
 
 
+// TODO Size Type
 // @route POST v1/subcategories
 // @desc Create Subcategorie
 // @access Private(Admin)
@@ -75,11 +76,35 @@ router.get('/', async (req, res) => {
                model : Brand,
                as : 'brands',
                attributes : ['brand_id','brand_name']
-            }]
+            },
+            {
+               model : Categorie,
+               as : 'categorie',
+               attributes : ['categorie_id','categorie_name']
+            },
+            {
+               model : Product,
+               as : 'products',
+               attributes : ['product_id'] 
+            }
+         ]
          });
       }
       else{
-         subcategories = await SubCategorie.findAll();
+         subcategories = await SubCategorie.findAll({
+            include : [
+               {
+                  model : Categorie,
+                  as : 'categorie',
+                  attributes : ['categorie_id','categorie_name']
+               },
+               {
+                  model : Product,
+                  as : 'products',
+                  attributes : ['product_id'] 
+               }
+            ]
+         });
       }
 
       res.json(subcategories);
@@ -102,7 +127,7 @@ router.get('/:subcategorie_id', async (req, res) => {
 
    try {
       if(include_brands){
-         subcategorie = await SubCategorie.findAll({
+         subcategorie = await SubCategorie.findOne({
             where: { subcategorie_id: req.params.subcategorie_id },
             include : [{
                model : Brand,
@@ -112,7 +137,7 @@ router.get('/:subcategorie_id', async (req, res) => {
          });
       }
       else{
-         subcategorie = await SubCategorie.findAll({
+         subcategorie = await SubCategorie.findOne({
             where: { subcategorie_id: req.params.subcategorie_id },
             include :'categorie'
          });
@@ -195,7 +220,7 @@ router.delete('/:subcategorie_id', async (req, res) => {
 
       // delete file of subcategorie
       if(subcategorie.subcategorie_image){
-         fs.unlinkSync(subcategorie.subcategorie_image)
+         fs.unlinkSync(config.get('rootPath') + subcategorie.subcategorie_image)
       }
       res.status(200).json(subcategorie);
 

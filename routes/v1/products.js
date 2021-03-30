@@ -490,7 +490,7 @@ router.delete('/:product_id', async (req, res) => {
 
         if(product.product_images){
             product.product_images.forEach((image) => {
-                fs.unlinkSync(image)
+                fs.unlinkSync(config.get('rootPath') + image)
             })
         }
 
@@ -583,7 +583,7 @@ const upload = multer({
     }
  });
  
- router.post('/image/:product_id', upload.array('images'), async (req, res) => {
+router.post('/image/:product_id', upload.array('images'), async (req, res) => {
  
     try {
         // Check Product if exists

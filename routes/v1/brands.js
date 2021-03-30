@@ -143,7 +143,7 @@ router.delete('/:brand_id', async (req, res) => {
 
 
       if(brand.brand_image){
-         fs.unlinkSync(brand.brand_image)
+         fs.unlinkSync(config.get('rootPath')  + brand.brand_image)
       }
 
       res.json(brand);

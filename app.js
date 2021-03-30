@@ -14,6 +14,7 @@ app.get('/', (req, res) => {
    res.send('SM APIs Running!')
 });
 
+// root path
 app.use(express.static(path.join(__dirname, 'public')));
 
 
@@ -25,6 +26,8 @@ app.use('/v1/admins', require('./routes/v1/admins'));
 app.use('/v1/stores', require('./routes/v1/stores'));
 app.use('/v1/store_admins', require('./routes/v1/store_admins'));
 app.use('/v1/products', require('./routes/v1/products'));
+app.use('/v1/banners', require('./routes/v1/banners'));
+app.use('/v1/home_subcategories', require('./routes/v1/home'));
 
 
 // Start Server
