@@ -456,6 +456,11 @@ router.get('/:product_id', async (req, res) => {
                 model : SubCategorie,
                 as : 'subcategorie',
                 attributes : ['subcategorie_id','subcategorie_name']
+            },
+            {
+                model : Store,
+                as : 'store',
+                attributes : ['store_id','store_name']
             }
           ]
        });
