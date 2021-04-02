@@ -9,36 +9,24 @@ const { Home, SubCategorie, Product } = require('../../models');
 router.post('/', async (req, res) => {
 
     const {
-        subcategories,
+        subcategorie_id,
     } = req.body;
 
-    if(!subcategories || subcategories.length === 0) return res.status(404).send('Input subcategories!');
+    if(!subcategorie_id) return res.status(404).send('Input subcategorie!');
 
     try {
 
-        // Delete all home categories
-        await Home.destroy({
-            where: {},
-            truncate: true
-          })
-
-        subcategories.forEach(async (sub) => {
-            const subcategorie = await SubCategorie.findOne({
-                where : {subcategorie_id : sub}
-            });
-    
-            if(!subcategorie) return res.status(404).send('Subcategorie not found!');
-    
-            const home_subcategorie = await Home.create({
-                subcategorieId : subcategorie.id
-            });
-            homes = [
-                ...homes,
-                home_subcategorie
-            ]
+        const subcategorie = await SubCategorie.findOne({
+            where : {subcategorie_id}
         });
 
-        res.send("Successfully created");
+        if(!subcategorie) return res.status(404).send('Subcategorie not found!');
+
+        const home_subcategorie = await Home.create({
+            subcategorieId : subcategorie.id
+        });
+
+        res.send(home_subcategorie);
 
     } catch (error) {
         console.log(error);
@@ -71,5 +59,67 @@ router.get('/', async (req, res) => {
         res.status(500).send('Server error')
     }
 });
+
+
+// @route PATCH v1/home_subcategories
+// @desc Update Home Subcategories
+// @access Private (Admin)
+router.patch('/:home_subcategorie_id', async (req, res) => {
+
+    const {
+        subcategorie_id,
+    } = req.body;
+
+    if(!subcategorie_id) return res.status(404).send('Input subcategorie!');
+
+    try {
+
+        const home_subcategorie = await Home.findOne({where : 
+            {
+                home_subcategorie_id : req.params.home_subcategorie_id
+            }
+        });
+
+        if(!home_subcategorie) return res.status(404).send('Home subcategorie not found!');
+
+        const subcategorie = await SubCategorie.findOne({
+            where : {subcategorie_id}
+        });
+
+        if(!subcategorie) return res.status(404).send('Subcategorie not found!');
+
+        home_subcategorie.subcategorieId = subcategorie.id
+
+        res.send(home_subcategorie);
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Server error')
+    }
+});
+
+
+
+// @route DELETE v1/home_subcategories/:id
+// @desc Delete Home Subcategories
+// @access Private (Admin)
+router.delete('/:home_subcategorie_id', async (req, res) => {
+    try {
+
+        await Home.destroy({where : 
+            {
+            home_subcategorie_id : req.params.home_subcategorie_id
+            }
+        });
+
+        if(!home_subcategorie) return res.status(404).send('Home subcategorie not found!');
+
+        res.send("Deleted");
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Server error')
+    }
+})
 
 module.exports = router;

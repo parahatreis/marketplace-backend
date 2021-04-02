@@ -8,6 +8,10 @@ module.exports = {
         primaryKey: true,
         type: DataTypes.INTEGER
       },
+      home_subcategorie_id:{
+        type : DataTypes.UUID,
+        defaultValue : DataTypes.UUIDV4
+      },
       subcategorieId: {
         type: DataTypes.INTEGER
       },

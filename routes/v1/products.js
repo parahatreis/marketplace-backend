@@ -18,6 +18,7 @@ const config = require('config');
 router.post('/', async (req, res) => {
 
     let newObj = {};
+    let brand = null;
 
     const {
         product_name,
@@ -39,7 +40,7 @@ router.post('/', async (req, res) => {
 
     try {
 
-        if(!subcategorie_id || !brand_id || !store_id){
+        if(!subcategorie_id || !store_id){
             return res.status(400).send('Please input subcategorie or brand or store');
         }
 
@@ -49,11 +50,17 @@ router.post('/', async (req, res) => {
         }
         newObj.subcategorieId = subcategorie.id;
 
-        const brand = await Brand.findOne({where : {brand_id} });
-        if(!brand){
-            return res.status(404).send('Brand not found!');
+        if(brand_id){
+            brand = await Brand.findOne({where : {brand_id} });
+            if(!brand){
+                return res.status(404).send('Brand not found!');
+            }
+            newObj.brandId = brand.id;
         }
-        newObj.brandId = brand.id;
+        else{
+            newObj.brandId = null
+        }
+        
 
 
         const store = await Store.findOne({where : {store_id} });
@@ -77,8 +84,30 @@ router.post('/', async (req, res) => {
 // @desc Get all products
 // @access Public(for admin)
 router.get('/', async (req,res) => {
+
+    let order = [];
+    let page = 0;
+    let limit = 10;
+
+    // Sorting
+   if (req.query.sortBy) {
+        const parts = req.query.sortBy.split(':');
+        order.push(parts);
+    }
+    // limit
+    if (req.query.limit) {
+        limit = Number(req.query.limit)
+    }
+    // page
+    if (req.query.page) {
+        page = Number(req.query.page)
+    }
+
     try {
         const products = await Product.findAndCountAll({
+            order,
+            limit,
+            offset: page,
             include : [
                 {
                     model : SubCategorie,
@@ -516,6 +545,7 @@ router.patch('/:product_id', async (req, res) => {
 
     let newObj = {};
 
+
     const {
         product_name,
         description,
@@ -550,6 +580,9 @@ router.patch('/:product_id', async (req, res) => {
                 return res.status(404).send('Brand not found!');
             }
             newObj.brandId = brand.id;
+        }
+        else{
+            newObj.brandId = null;
         }
 
         if(store_id){
@@ -672,12 +705,7 @@ router.post('/image/:product_id', upload.array('images'), async (req, res) => {
 router.patch('/status/:product_id', async (req, res) => {
 
  
-    let status = req.body.product_status;
- 
-    console.log(req.body.product_status)
-    // if(req.body.product_status === 'true') status = true;
-    // if(req.body.product_status === 'false') status = false;
-
+    let status = req.body.product_status ? 'true' : 'false';
  
     try {
 

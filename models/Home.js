@@ -13,8 +13,18 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.belongsTo(SubCategorie, {foreignKey : 'subcategorieId', as : 'subcategorie'})
     }
+    toJSON(){
+      return {
+        ...this.get(),
+        id : undefined
+      }
+    }
   };
   Home.init({
+    home_subcategorie_id:{
+      type : DataTypes.UUID,
+      defaultValue : DataTypes.UUIDV4
+    },
     subcategorieId: {
       type : DataTypes.INTEGER,
       allowNull : false

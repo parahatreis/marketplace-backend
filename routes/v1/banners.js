@@ -166,8 +166,8 @@ const upload = multer({
         // Convert image to png with sharp
         //    TODO Image Ratio
         await sharp(req.file.buffer).resize({
-            width: 600,
-            height: 1200
+            width: 1200,
+            height: 600
         }).webp().toFile(`./public/banner-images/${req.file.originalname+ '-' + banner.id}.webp`)
 
         // Pathname of new banner image
