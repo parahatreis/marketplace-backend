@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Product, Store, Brand,SubCategorie} = require('../../models');
+const { Product, Store, Brand,SubCategorie, Stock} = require('../../models');
 const {Op} = require('sequelize')
 // File Upload Multer
 const multer = require('multer');
@@ -29,7 +29,7 @@ router.post('/', async (req, res) => {
         subcategorie_id,
         brand_id,
         store_id,
-        //   stocks
+          stocks
     } = req.body;
 
     if(product_name) newObj.product_name = product_name;
@@ -61,15 +61,28 @@ router.post('/', async (req, res) => {
             newObj.brandId = null
         }
         
-
-
         const store = await Store.findOne({where : {store_id} });
         if(!store){
             return res.status(404).send('Store not found!');
         }
         newObj.storeId = store.id;
 
+
         const product = await Product.create(newObj);
+
+        if(stocks){
+            if(stocks.length > 0){
+                stocks.forEach(async (stock) => {
+                    const newStock = await Stock.create({
+                        stock_quantity : stock.stock_quantity,
+                        stock_type : stock.stock_type,
+                        stock_size : stock.stock_size,
+                        productId : product.id
+                    });
+                })
+            }
+        }
+
 
         res.json(product);
     }

@@ -38,19 +38,34 @@ router.post('/', async (req, res) => {
 // @desc GET Home Subcategorie
 // @access Private (Admin)
 router.get('/', async (req, res) => {
+
+    const remove_products = Number(req.query.except_products) === 1 ? true : false;
+    let home_subcategories = null;
+
+    
     try {
-        const home_subcategories = await Home.findAll({
-            include : [{
-                model : SubCategorie,
-                as : 'subcategorie',
-                include : {
-                    model : Product,
-                    as : 'products',
-                    limit : 10,
-                    attributes : ['product_id', 'product_name', 'preview_image','price_tmt']
-                }
-            }]
-        });
+        if(remove_products){
+            home_subcategories = await Home.findAll({
+                include : [{
+                    model : SubCategorie,
+                    as : 'subcategorie',
+                }]
+            });
+        }
+        else{
+            home_subcategories = await Home.findAll({
+                include : [{
+                    model : SubCategorie,
+                    as : 'subcategorie',
+                    include : {
+                        model : Product,
+                        as : 'products',
+                        limit : 10,
+                        attributes : ['product_id', 'product_name', 'preview_image','price_tmt']
+                    }
+                }]
+            });
+        }
 
         return res.json(home_subcategories)
     }
@@ -90,6 +105,8 @@ router.patch('/:home_subcategorie_id', async (req, res) => {
 
         home_subcategorie.subcategorieId = subcategorie.id
 
+        home_subcategorie.save()
+
         res.send(home_subcategorie);
 
     } catch (error) {
@@ -106,7 +123,7 @@ router.patch('/:home_subcategorie_id', async (req, res) => {
 router.delete('/:home_subcategorie_id', async (req, res) => {
     try {
 
-        await Home.destroy({where : 
+        const home_subcategorie = await Home.destroy({where : 
             {
             home_subcategorie_id : req.params.home_subcategorie_id
             }

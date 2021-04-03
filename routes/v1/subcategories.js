@@ -97,11 +97,6 @@ router.get('/', async (req, res) => {
                   model : Categorie,
                   as : 'categorie',
                   attributes : ['categorie_id','categorie_name']
-               },
-               {
-                  model : Product,
-                  as : 'products',
-                  attributes : ['product_id'] 
                }
             ]
          });
