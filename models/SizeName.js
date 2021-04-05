@@ -3,52 +3,40 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Stock extends Model {
+  class SizeName extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({Product, SizeType, SizeName}) {
+    static associate({SizeType}) {
       // define association here
-      this.belongsTo(Product, {foreignKey : 'productId', as : 'product'});
-      // Stock can has Size Type
       this.belongsTo(SizeType, {foreignKey : 'sizeTypeId', as : 'sizeType'})
-      // Stock can has Size Type
-      this.belongsTo(SizeName, {foreignKey : 'sizeNameId', as : 'sizeName'})
     }
-    toJSON() {
+    toJSON(){
       return {
         ...this.get(),
         id : undefined
       }
     }
   };
-  Stock.init({
-    stock_id: {
+  SizeName.init({
+    size_name_id: {
       type : DataTypes.UUID,
       defaultValue : DataTypes.UUIDV4
     },
-    stock_quantity: {
-      type : DataTypes.INTEGER,
-      defaultValue : 0
-    },
-    productId: {
-      type : DataTypes.INTEGER,
+    size_name: {
+      type : DataTypes.STRING,
       allowNull : false
     },
     sizeTypeId: {
       type : DataTypes.INTEGER,
-      allowNull : true
-    },
-    sizeNameId: {
-      type : DataTypes.INTEGER,
-      allowNull : true
+      allowNull : false
     }
   }, {
     sequelize,
-    tableName : 'stocks',
-    modelName: 'Stock',
+    tableName : 'size_names',
+    modelName: 'SizeName',
   });
-  return Stock;
+  return SizeName;
 };

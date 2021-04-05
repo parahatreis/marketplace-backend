@@ -1,32 +1,24 @@
 'use strict';
 module.exports = {
   up: async (queryInterface, DataTypes) => {
-    await queryInterface.createTable('stocks', {
+    await queryInterface.createTable('size_types', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: DataTypes.INTEGER
       },
-      stock_id: {
+      size_type_id: {
         type : DataTypes.UUID,
         defaultValue : DataTypes.UUIDV4
       },
-      productId: {
-        type : DataTypes.INTEGER,
+      size_type: {
+        type : DataTypes.STRING,
         allowNull : false
       },
-      stock_quantity: {
+      subcategorieId: {
         type : DataTypes.INTEGER,
-        defaultValue : 0
-      },
-      sizeTypeId: {
-        type : DataTypes.INTEGER,
-        allowNull : true
-      },
-      sizeNameId: {
-        type : DataTypes.INTEGER,
-        allowNull : true
+        allowNull : false
       },
       createdAt: {
         allowNull: false,
@@ -39,6 +31,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, DataTypes) => {
-    await queryInterface.dropTable('stocks');
+    await queryInterface.dropTable('size_types');
   }
 };
