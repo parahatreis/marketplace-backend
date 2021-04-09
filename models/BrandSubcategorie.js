@@ -2,11 +2,8 @@
 const {
   Model
 } = require('sequelize');
-
-// const { Brand, Subcategories } = require('./index');
-
 module.exports = (sequelize, DataTypes) => {
-  class BrandSubcategories extends Model {
+  class BrandSubcategorie extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -16,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   };
-  BrandSubcategories.init({
+  BrandSubcategorie.init({
     brandId: {
       type : DataTypes.INTEGER,
       allowNull : false
@@ -27,8 +24,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
-    tableName: 'brand_subcategories',
-    modelName: 'BrandSubcategories',
+    tableName : 'brand_subcategorie',
+    modelName: 'BrandSubcategorie',
   });
-  return BrandSubcategories;
+  return BrandSubcategorie;
 };

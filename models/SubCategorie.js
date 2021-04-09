@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       // categorie_id
       this.belongsTo(Categorie, {foreignKey : 'categorieId', as : 'categorie'})
       this.belongsToMany(Brand, {
-        through : 'brand_subcategories',
+        through : 'brand_subcategorie',
         as : 'brands',
         foreignKey : 'subcategorieId'
       });

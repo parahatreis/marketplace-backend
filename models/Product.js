@@ -9,12 +9,14 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({Brand,SubCategorie,Store,Stock}) {
+    static associate({ Brand, SubCategorie, Store, Stock , OrderProduct }) {
       // define association here
       this.belongsTo(SubCategorie, {foreignKey : 'subcategorieId', as : 'subcategorie'});
       this.belongsTo(Brand, {foreignKey : 'brandId', as : 'brand'});
       this.belongsTo(Store, {foreignKey : 'storeId', as : 'store'});
       this.hasMany(Stock, {foreignKey : 'productId', as : 'stocks'})
+      // this has many orders
+      this.hasMany(OrderProduct, {foreignKey : 'productId'})
     }
     toJSON(){
       return {
@@ -56,7 +58,8 @@ module.exports = (sequelize, DataTypes) => {
       type : DataTypes.STRING,
     },
     brandId: {
-      type : DataTypes.INTEGER
+      type : DataTypes.INTEGER,
+      allowNull : true
     },
     subcategorieId: {
       type : DataTypes.INTEGER,
@@ -64,9 +67,17 @@ module.exports = (sequelize, DataTypes) => {
     },
     storeId: {
       type : DataTypes.INTEGER,
-      allowNull : false
+      allowNull : true
     }
-  }, {
+  },
+  {
+    // hooks : {
+    //   beforeCreate : (product, options) => {
+    //    product.product_status = true;
+    //    console.log(product.product_status)
+    //    console.log(options)
+    //   } 
+    //  },
     sequelize,
     tableName : 'products',
     modelName: 'Product',

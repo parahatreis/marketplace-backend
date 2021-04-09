@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Brand, SubCategorie ,BrandSubcategories} = require('../../models');
+const { Brand, SubCategorie ,BrandSubcategorie} = require('../../models');
 const { Op } = require('sequelize');
 // File Upload Multer
 const multer = require('multer');
@@ -22,7 +22,6 @@ router.post('/', async (req, res) => {
    } = req.body;
 
    try {
-      console.log(subcategories)
 
       // find subcategories to get ids
       const subcategorieArray = await SubCategorie.findAll({
@@ -37,10 +36,11 @@ router.post('/', async (req, res) => {
          brand_name,
       });
 
+      console.log(subcategorieArray)
       // create brand_subcategories
       async function createBrandSubcategories(){
          subcategorieArray.forEach( async (val) => {
-            await BrandSubcategories.create({
+            await BrandSubcategorie.create({
                brandId : brand.id,
                subcategorieId : val.id
             })
@@ -139,7 +139,7 @@ router.delete('/:brand_id', async (req, res) => {
       }
       
       await Brand.destroy({ where: { brand_id: req.params.brand_id } });
-      await BrandSubcategories.destroy({where : {brandId : brand.id}});
+      await BrandSubcategorie.destroy({where : {brandId : brand.id}});
 
 
       if(brand.brand_image){
@@ -198,10 +198,10 @@ router.patch('/:brand_id', async (req, res) => {
       async function createBrandSubcategories(){
          if(subcategorieArray.length > 0){
             // Delete previous subcats
-            await BrandSubcategories.destroy({where : {brandId : brand.id}});
+            await BrandSubcategorie.destroy({where : {brandId : brand.id}});
 
             subcategorieArray.forEach( async (val) => {
-               await BrandSubcategories.create({
+               await BrandSubcategorie.create({
                   brandId : brand.id,
                   subcategorieId : val.id
                })
@@ -212,7 +212,7 @@ router.patch('/:brand_id', async (req, res) => {
       // Delete all brand_subcategories if subcategories is empty
       if(newObj.subcategories){
          if(newObj.subcategories.length === 0){
-            await BrandSubcategories.destroy({where : {brandId : brand.id}});
+            await BrandSubcategorie.destroy({where : {brandId : brand.id}});
          }
       }
 

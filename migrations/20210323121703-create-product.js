@@ -39,7 +39,8 @@ module.exports = {
         type : DataTypes.STRING,
       },
       brandId: {
-        type : DataTypes.INTEGER
+        type : DataTypes.INTEGER,
+        allowNull : true
       },
       subcategorieId: {
         type : DataTypes.INTEGER,
@@ -47,7 +48,7 @@ module.exports = {
       },
       storeId: {
         type : DataTypes.INTEGER,
-        allowNull : false
+        allowNull : true
       },
       createdAt: {
         allowNull: false,

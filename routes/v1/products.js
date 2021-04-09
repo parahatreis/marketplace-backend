@@ -38,18 +38,21 @@ router.post('/', async (req, res) => {
     if(price_usd) newObj.price_usd = price_usd;
     if(isProductUsd) newObj.isProductUsd = isProductUsd;
 
+    if(!subcategorie_id){
+        return res.status(400).send('Please input subcategorie or brand or store');
+    }
+
+
     try {
 
-        if(!subcategorie_id || !store_id){
-            return res.status(400).send('Please input subcategorie or brand or store');
-        }
-
+        // Subcategorie
         const subcategorie = await SubCategorie.findOne({where : {subcategorie_id} });
         if(!subcategorie){
             return res.status(404).send('Subcategorie not found!');
         }
         newObj.subcategorieId = subcategorie.id;
 
+        // Brand
         if(brand_id){
             brand = await Brand.findOne({where : {brand_id} });
             if(!brand){
@@ -61,13 +64,15 @@ router.post('/', async (req, res) => {
             newObj.brandId = null
         }
         
-        const store = await Store.findOne({where : {store_id} });
-        if(!store){
-            return res.status(404).send('Store not found!');
+        // Store 
+        if(store_id){
+            const store = await Store.findOne({where : {store_id} });
+            if(!store){
+                return res.status(404).send('Store not found!');
+            }
+            newObj.storeId = store.id;
         }
-        newObj.storeId = store.id;
-
-
+        // Create Product
         const product = await Product.create(newObj);
 
         if(stocks){
@@ -80,16 +85,14 @@ router.post('/', async (req, res) => {
                     if(stock.size_type_id){
                         // Find Size Type
                         sizeType = await SizeType.findOne({where:{size_type_id : stock.size_type_id}});
+                        // if(!sizeType)  return res.status(404).send('Size Type not found!');
                     }
-                    
+
                     if(stock.size_name_id){
                         // Find Size Name
                         sizeName = await SizeName.findOne({where:{size_name_id : stock.size_name_id}});
-                    }   
-
-                    console.log(sizeName.id)
-                    console.log(sizeType.id)
-                    console.log(product.id)
+                        // if(!sizeName) return res.status(404).send("Size Name Not found")
+                    }
 
                     await Stock.create({
                         stock_quantity : stock.stock_quantity,

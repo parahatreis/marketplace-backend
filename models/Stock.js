@@ -13,9 +13,9 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.belongsTo(Product, {foreignKey : 'productId', as : 'product'});
       // Stock can has Size Type
-      this.belongsTo(SizeType, {foreignKey : 'sizeTypeId', as : 'sizeType'})
-      // Stock can has Size Type
-      this.belongsTo(SizeName, {foreignKey : 'sizeNameId', as : 'sizeName'})
+      this.belongsTo(SizeType, {foreignKey : 'sizeTypeId', as : 'sizeType'});
+      // Stock can has Size Name
+      this.belongsTo(SizeName, {foreignKey : 'sizeNameId', as : 'sizeName'});
     }
     toJSON() {
       return {

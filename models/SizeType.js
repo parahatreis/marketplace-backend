@@ -14,8 +14,6 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(SubCategorie, {foreignKey : 'subcategorieId', as : 'subcategorie'});
       this.hasMany(SizeName, {foreignKey : 'sizeTypeId', as : 'size_names'});
       // Has many stock
-      this.hasMany(Stock, {foreignKey : 'sizeNameId'});
-      // Has many stock
       this.hasMany(Stock, {foreignKey : 'sizeTypeId'});
     }
     toJSON(){
