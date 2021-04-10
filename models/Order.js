@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
   Order.init({
     order_id: {
       type : DataTypes.UUID,
-      allowNull : false
+      defaultValue : DataTypes.UUIDV4
     },
     order_status: {
       type : DataTypes.STRING,
@@ -29,9 +29,9 @@ module.exports = (sequelize, DataTypes) => {
       type : DataTypes.INTEGER,
       allowNull : false
     },
-    subtotal: {
+    subtotal : {
       type : DataTypes.DOUBLE,
-      allowNull : false
+      allowNull : true
     }
   }, {
     sequelize,

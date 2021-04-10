@@ -13,6 +13,13 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.hasMany(Order, {foreignKey : 'userId', as : 'orders'})
     }
+    toJSON(){
+      return {
+        ...this.get(),
+        id : undefined,
+        user_password : undefined
+      }
+    }
   };
   User.init({
     user_id: {

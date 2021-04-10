@@ -28,6 +28,8 @@ app.use('/v1/store_admins', require('./routes/v1/store_admins'));
 app.use('/v1/products', require('./routes/v1/products'));
 app.use('/v1/banners', require('./routes/v1/banners'));
 app.use('/v1/home_subcategories', require('./routes/v1/home'));
+app.use('/v1/users', require('./routes/v1/users'));
+app.use('/v1/orders', require('./routes/v1/orders'));
 // Sizes Stocks
 app.use('/v1/size_types', require('./routes/v1/size_types'));
 
@@ -36,7 +38,8 @@ app.use('/v1/size_types', require('./routes/v1/size_types'));
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {
    console.log(`Server started on ${PORT}`);
-   // Sync database 
+   // Sync database
+   // to update model in db .sync({force : false})
    await sequelize.authenticate();
    console.log('Database Connected')
 });
