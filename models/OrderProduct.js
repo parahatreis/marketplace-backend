@@ -12,9 +12,9 @@ module.exports = (sequelize, DataTypes) => {
     static associate({Product, Order}) {
       // define association here
       // this belongs to product with id
-      this.belongsTo(Product, {foreignKey : 'productId'})
+      this.belongsTo(Product, {foreignKey : 'productId', as : 'product'})
       // this belongs to order with id
-      this.belongsTo(Order, {foreignKey : 'orderId'})
+      this.belongsTo(Order, {foreignKey : 'orderId', as : 'order'})
 
     }
   };
@@ -33,6 +33,10 @@ module.exports = (sequelize, DataTypes) => {
     },
     sold_price: {
       type : DataTypes.DOUBLE,
+      allowNull : false
+    },
+    quantity : {
+      type : DataTypes.INTEGER,
       allowNull : false
     }
   },

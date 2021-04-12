@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 // Models
-const { Order , OrderProduct, Product, User } = require('../../models');
+const { Order , OrderProduct, Product, User, Stock } = require('../../models');
 // auth
 const userAuth = require('../../middleware/userAuth');
 const order = require('../../models/order');
@@ -35,11 +35,18 @@ router.post('/', userAuth , async (req, res) => {
 
         await products.forEach(async (val,index) => {
             const product = await Product.findOne({where : {product_id : val.product_id}}); 
+            const stock = await Stock.findOne({where : {stock_id : val.stock_id}});
+
             await OrderProduct.create({
                 productId : product.id,
                 orderId : order.id,
-                sold_price : product.price_tmt
+                sold_price : product.price_tmt,
+                quantity : val.quantity
             });
+
+            // Mukdar sany azalya
+            stock.stock_quantity = Number(stock.stock_quantity) - val.quantity 
+            stock.save()
             
             total_price = total_price + product.price_tmt
             
@@ -55,6 +62,37 @@ router.post('/', userAuth , async (req, res) => {
        res.status(400).send('Server error')
     }
 });
+
+
+// @route GET v1/orders
+// @desc Get all orders
+// @access Private
+router.get('/' , async (req, res) => {
+
+    try {
+        
+        const orders = await Order.findAll({
+            include : [
+                {
+                    model : OrderProduct,
+                    as : 'order_products',
+                    include : {
+                        model : Product,
+                        as : 'product',
+                        attributes : ['product_id','product_name']
+                    }
+                }
+            ]
+        });
+        
+        return res.json(orders)
+ 
+    } catch (error) {
+       console.log(error);
+       res.status(400).send('Server error')
+    }
+});
+
 
 
 // @route POST v1/orders/status/:order_id
