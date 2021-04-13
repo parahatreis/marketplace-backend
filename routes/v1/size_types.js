@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 // 
-const {SizeType, SizeName, SubCategorie} = require('../../models');
+const {SizeType, SizeName} = require('../../models');
 
 
 // @route POST v1/size_types
@@ -11,14 +11,9 @@ router.post('/', async (req, res) => {
 
     const {
         size_type,
-        subcategorie_id,
         size_names
     } = req.body;
 
-    // Check subcategorie exists
-    if(!subcategorie_id){
-        return res.status(400).send('Please input Subcategorie')
-    }
     // Check subcategorie exists
     if(!size_type){
         return res.status(400).send('Please input Size Type')
@@ -29,16 +24,10 @@ router.post('/', async (req, res) => {
     }
 
     try {
-        const subcategorie = await SubCategorie.findOne({where : {subcategorie_id}});
-        // Check subcategorie exists
-        if(!subcategorie){
-            return res.status(404).send('Subcategorie not found!')
-        }
 
         // Create Size Type
         const sizeType = await SizeType.create({
-            size_type,
-            subcategorieId : subcategorie.id
+            size_type
         });
 
         // Create All Size Names
@@ -70,11 +59,6 @@ router.get('/', async (req, res) => {
     try {
        const sizeTypes = await SizeType.findAll({
          include : [
-            {
-                model : SubCategorie,
-                as : 'subcategorie',
-                attributes : ['subcategorie_id','subcategorie_name']
-             },
              {
                 model : SizeName,
                 as : 'size_names',

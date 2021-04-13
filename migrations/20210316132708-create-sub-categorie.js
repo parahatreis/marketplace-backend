@@ -27,12 +27,9 @@ module.exports = {
         type : DataTypes.BOOLEAN,
         defaultValue : false
       },
-      hasSize: {
-        type : DataTypes.BOOLEAN,
-        defaultValue : false
-      },
-      sizeType: {
-        type : DataTypes.STRING
+      sizeTypeId: {
+        type : DataTypes.INTEGER,
+        allowNull : true
       },
       createdAt: {
         allowNull: false,

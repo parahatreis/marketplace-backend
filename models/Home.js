@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
-    tableName : 'home-subcategories',
+    tableName : 'home_subcategories',
     modelName: 'Home',
   });
   return Home;

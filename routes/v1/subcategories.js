@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { SubCategorie ,Categorie,Brand, Product } = require('../../models');
+const { SubCategorie ,Categorie,Brand, Product, SizeType } = require('../../models');
 // File Upload Multer
 const multer = require('multer');
 // Sharp to image converter
@@ -23,15 +23,11 @@ router.post('/', async (req, res) => {
    const {
       subcategorie_name,
       categorieId,
-      hasSize,
-      hasColor,
-      sizeType,
+      size_type_id,
    } = req.body;
 
    if (subcategorie_name) newObj.subcategorie_name = subcategorie_name;
-   if (hasColor !== null) newObj.hasColor = hasColor;
-   if (hasSize !== null) newObj.hasSize = hasSize;
-   // if (sizeType) newObj.sizeType = sizeType;
+   // if (hasColor !== null) newObj.hasColor = hasColor;
 
    if(!categorieId) return res.status(400).send('Choose categorie !')
 
@@ -45,6 +41,16 @@ router.post('/', async (req, res) => {
 
       // get categorie id
       newObj.categorieId = categorie.id;
+
+
+      if(size_type_id !== ''){
+         const sizeType = await SizeType.findOne({where : {size_type_id}});
+         if(!sizeType) return res.status(404).send('Size Type not found!')
+         newObj.sizeTypeId = sizeType.id
+      }
+      if(size_type_id === ''){
+         newObj.sizeTypeId = null;
+      }
 
       const subcategorie = await SubCategorie.create(newObj);
 
@@ -83,6 +89,10 @@ router.get('/', async (req, res) => {
                attributes : ['categorie_id','categorie_name']
             },
             {
+               model : SizeType,
+               as : 'sizeType',
+            },
+            {
                model : Product,
                as : 'products',
                attributes : ['product_id'] 
@@ -97,7 +107,11 @@ router.get('/', async (req, res) => {
                   model : Categorie,
                   as : 'categorie',
                   attributes : ['categorie_id','categorie_name']
-               }
+               },
+               {
+                  model : SizeType,
+                  as : 'sizeType',
+               },
             ]
          });
       }
@@ -124,17 +138,38 @@ router.get('/:subcategorie_id', async (req, res) => {
       if(include_brands){
          subcategorie = await SubCategorie.findOne({
             where: { subcategorie_id: req.params.subcategorie_id },
-            include : [{
-               model : Brand,
-               as : 'brands',
-               attributes : ['brand_id','brand_name']
-            },'categorie']
+            include : [
+               {
+                  model : Brand,
+                  as : 'brands',
+                  attributes : ['brand_id','brand_name']
+               },
+               {
+                  model : SizeType,
+                  as : 'sizeType',
+               },
+               {
+                  model : Categorie,
+                  as : 'categorie',
+                  attributes : ['categorie_id','categorie_name']
+               },
+            ]
          });
       }
       else{
          subcategorie = await SubCategorie.findOne({
             where: { subcategorie_id: req.params.subcategorie_id },
-            include :'categorie'
+            include : [
+               {
+                  model : SizeType,
+                  as : 'sizeType',
+               },
+               {
+                  model : Categorie,
+                  as : 'categorie',
+                  attributes : ['categorie_id','categorie_name']
+               },
+            ]
          });
       }
 
@@ -159,16 +194,11 @@ router.patch('/:subcategorie_id',  async (req, res) => {
 
    const {
       subcategorie_name,
-      hasSize,
-      hasColor,
-      sizeType,
+      size_type_id,
       categorieId,
    } = req.body;
 
    if (subcategorie_name) newObj.subcategorie_name = subcategorie_name;
-   if (hasColor !== null) newObj.hasColor = hasColor;
-   if (hasSize !== null) newObj.hasSize = hasSize;
-   // if (sizeType) newObj.sizeType = sizeType;
 
    try {
 
@@ -177,6 +207,15 @@ router.patch('/:subcategorie_id',  async (req, res) => {
          const categorie = await Categorie.findOne({where : {categorie_id : categorieId}});
          // get categorie id
          newObj.categorieId = categorie.id;
+      }
+
+      if(size_type_id !== ''){
+         const sizeType = await SizeType.findOne({where : {size_type_id}});
+         if(!sizeType) return res.status(404).send('Size Type not found!')
+         newObj.sizeTypeId = sizeType.id
+      }
+      if(size_type_id === ''){
+         newObj.sizeTypeId = null;
       }
 
       const subcategorie = await SubCategorie.update(newObj, {

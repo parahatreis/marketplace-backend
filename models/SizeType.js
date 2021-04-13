@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate({SubCategorie, SizeName, Stock}) {
       // define association here
-      this.belongsTo(SubCategorie, {foreignKey : 'subcategorieId', as : 'subcategorie'});
+      this.hasMany(SubCategorie, {foreignKey : 'subcategorieId', as : 'subcategories'});
       this.hasMany(SizeName, {foreignKey : 'sizeTypeId', as : 'size_names'});
       // Has many stock
       this.hasMany(Stock, {foreignKey : 'sizeTypeId'});
@@ -30,10 +30,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     size_type: {
       type : DataTypes.STRING,
-      allowNull : false
-    },
-    subcategorieId: {
-      type : DataTypes.INTEGER,
       allowNull : false
     }
   }, {

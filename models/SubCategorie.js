@@ -18,9 +18,10 @@ module.exports = (sequelize, DataTypes) => {
         as : 'brands',
         foreignKey : 'subcategorieId'
       });
+      this.belongsTo(SizeType, {foreignKey : 'sizeTypeId', as : 'sizeType'});
+      // 
       this.hasMany(Product, {foreignKey : 'subcategorieId', as : 'products'});
       this.hasOne(Home, {foreignKey : 'subcategorieId', as: 'home' });
-      this.hasOne(SizeType, {foreignKey : 'subcategorieId', as : 'size_type'});
     }
     toJSON () {
       return {
@@ -50,12 +51,9 @@ module.exports = (sequelize, DataTypes) => {
       type : DataTypes.INTEGER,
       allowNull : false
     },
-    hasSize: {
-      type : DataTypes.BOOLEAN,
-      defaultValue : false
-    },
-    sizeType: {
-      type : DataTypes.STRING
+    sizeTypeId: {
+      type : DataTypes.INTEGER,
+      allowNull : true
     }
   }, {
     sequelize,
