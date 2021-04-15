@@ -22,7 +22,15 @@ module.exports = (sequelize, DataTypes) => {
       type : DataTypes.UUID,
       defaultValue : DataTypes.UUIDV4,
     },
-    categorie_name: {
+    categorie_name_tm: {
+      type : DataTypes.STRING,
+      allowNull: false
+    },
+    categorie_name_ru: {
+      type : DataTypes.STRING,
+      allowNull: false
+    },
+    categorie_name_en: {
       type : DataTypes.STRING,
       allowNull: false
     },

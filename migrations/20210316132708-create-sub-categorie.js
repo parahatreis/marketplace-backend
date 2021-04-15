@@ -12,7 +12,15 @@ module.exports = {
         type :  DataTypes.UUID,
         defaultValue : DataTypes.UUIDV4
       },
-      subcategorie_name: {
+      subcategorie_name_tm: {
+        type : DataTypes.STRING,
+        allowNull : false
+      },
+      subcategorie_name_ru: {
+        type : DataTypes.STRING,
+        allowNull : false
+      },
+      subcategorie_name_en: {
         type : DataTypes.STRING,
         allowNull : false
       },

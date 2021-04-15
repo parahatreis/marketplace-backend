@@ -10,39 +10,43 @@ const config = require('config');
 
 
 
-
-// TODO Size Type
 // @route POST v1/subcategories
 // @desc Create Subcategorie
 // @access Private(Admin)
+// TODO AUTH
 router.post('/', async (req, res) => {
 
    let newObj = {}
 
-   // @TODO sizeType
    const {
-      subcategorie_name,
-      categorieId,
+      subcategorie_name_tm,
+      subcategorie_name_ru,
+      subcategorie_name_en,
+      categorie_id,
       size_type_id,
    } = req.body;
 
-   if (subcategorie_name) newObj.subcategorie_name = subcategorie_name;
-   // if (hasColor !== null) newObj.hasColor = hasColor;
+   if(!subcategorie_name_tm) return res.status(400).send('Input Subcategorie Name');
+   if(!subcategorie_name_ru) return res.status(400).send('Input Subcategorie Name');
+   if(!subcategorie_name_en) return res.status(400).send('Input Subcategorie Name');
+   if(!categorie_id) return res.status(400).send('Choose categorie !')
 
-   if(!categorieId) return res.status(400).send('Choose categorie !')
+
+   if (subcategorie_name_tm) newObj.subcategorie_name_tm = subcategorie_name_tm;
+   if (subcategorie_name_ru) newObj.subcategorie_name_ru = subcategorie_name_ru;
+   if (subcategorie_name_en) newObj.subcategorie_name_en = subcategorie_name_en;
 
 
    try {
 
       // find categorie by id
-      const categorie = await Categorie.findOne({where : {categorie_id : categorieId}});
-
+      const categorie = await Categorie.findOne({where : {categorie_id : categorie_id}});
       if(!categorie) res.status(404).send("Categorie not found!");
 
       // get categorie id
       newObj.categorieId = categorie.id;
 
-
+      // Set Size Type
       if(size_type_id !== ''){
          const sizeType = await SizeType.findOne({where : {size_type_id}});
          if(!sizeType) return res.status(404).send('Size Type not found!')
@@ -86,7 +90,7 @@ router.get('/', async (req, res) => {
             {
                model : Categorie,
                as : 'categorie',
-               attributes : ['categorie_id','categorie_name']
+               attributes : ['categorie_id','categorie_name_tm','categorie_name_ru','categorie_name_en']
             },
             {
                model : SizeType,
@@ -106,7 +110,7 @@ router.get('/', async (req, res) => {
                {
                   model : Categorie,
                   as : 'categorie',
-                  attributes : ['categorie_id','categorie_name']
+                  attributes : ['categorie_id','categorie_name_tm','categorie_name_ru','categorie_name_en']
                },
                {
                   model : SizeType,
@@ -188,27 +192,41 @@ router.get('/:subcategorie_id', async (req, res) => {
 // @route PATCH api/subcategories/:subcategorie_id
 // @desc Update Subcategorie
 // @access Private(Admin)
+// TODO AUTH
 router.patch('/:subcategorie_id',  async (req, res) => {
 
    let newObj = {};
 
    const {
-      subcategorie_name,
+      subcategorie_name_tm,
+      subcategorie_name_ru,
+      subcategorie_name_en,
+      categorie_id,
       size_type_id,
-      categorieId,
    } = req.body;
 
-   if (subcategorie_name) newObj.subcategorie_name = subcategorie_name;
+   if(!subcategorie_name_tm) return res.status(400).send('Input Subcategorie Name');
+   if(!subcategorie_name_ru) return res.status(400).send('Input Subcategorie Name');
+   if(!subcategorie_name_en) return res.status(400).send('Input Subcategorie Name');
+   if(!categorie_id) return res.status(400).send('Choose categorie !')
+
+
+   if (subcategorie_name_tm) newObj.subcategorie_name_tm = subcategorie_name_tm;
+   if (subcategorie_name_ru) newObj.subcategorie_name_ru = subcategorie_name_ru;
+   if (subcategorie_name_en) newObj.subcategorie_name_en = subcategorie_name_en;
 
    try {
 
-      // find categorie by id
-      if(categorieId){
-         const categorie = await Categorie.findOne({where : {categorie_id : categorieId}});
-         // get categorie id
-         newObj.categorieId = categorie.id;
-      }
+      const findSubcategorie = await SubCategorie.findOne({where : {subcategorie_id : req.params.subcategorie_id}})
+      if(!findSubcategorie) return res.status(404).send('Subcategorie Not found')
 
+      // find categorie by id
+      const categorie = await Categorie.findOne({where : {categorie_id : categorie_id}});
+      if(!categorie) return res.status(404).send('Categorie Not found!')
+      // get categorie id
+      newObj.categorieId = categorie.id;
+
+      // Set size type
       if(size_type_id !== ''){
          const sizeType = await SizeType.findOne({where : {size_type_id}});
          if(!sizeType) return res.status(404).send('Size Type not found!')
@@ -218,17 +236,13 @@ router.patch('/:subcategorie_id',  async (req, res) => {
          newObj.sizeTypeId = null;
       }
 
-      const subcategorie = await SubCategorie.update(newObj, {
+      await SubCategorie.update(newObj, {
          where: {
             subcategorie_id: req.params.subcategorie_id
          }
       });
+      res.json("Updated");
 
-      if (!subcategorie) {
-         return res.status(404).send('Subcategorie not found');
-      }
-
-      res.json(subcategorie);
    } catch (error) {
       console.log(error);
       res.status(500).send('Server error')
@@ -240,6 +254,7 @@ router.patch('/:subcategorie_id',  async (req, res) => {
 // @route DELETE v1/subcategories/:subcategorie_id
 // @desc Delete SubCategorie
 // @access Private(Admin)
+// TODO AUTH
 router.delete('/:subcategorie_id', async (req, res) => {
    try {
 
@@ -269,7 +284,7 @@ router.delete('/:subcategorie_id', async (req, res) => {
 // @route Post v1/subcategories/:subcategorie_id
 // desc  Create Subcategorie Image
 // access Private(Admin)
-
+// TODO AUTH
 // Check file with multer
 const upload = multer({
    limits: {

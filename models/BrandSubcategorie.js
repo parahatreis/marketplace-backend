@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   BrandSubcategorie.init({
+    brand_subcategories_id : {
+      type : DataTypes.UUID,
+      defaultValue : DataTypes.UUIDV4,
+    },
     brandId: {
       type : DataTypes.INTEGER,
       allowNull : false
@@ -24,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
-    tableName : 'brand_subcategorie',
+    tableName : 'brand_subcategories',
     modelName: 'BrandSubcategorie',
   });
   return BrandSubcategorie;

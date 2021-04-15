@@ -18,46 +18,51 @@ const config = require('config');
 router.post('/', async (req, res) => {
 
     let newObj = {};
-    let brand = null;
 
     const {
-        product_name,
-        description,
+        product_name_tm,
+        product_name_en,
+        product_name_ru,
+        description_tmt,
+        description_ru,
+        description_en,
         price_tmt,
         price_usd,
-        isProductUsd,
         subcategorie_id,
         brand_id,
         store_id,
         stocks
     } = req.body;
 
-    if(product_name) newObj.product_name = product_name;
-    if(description) newObj.description = description;
+    // Validate
+    if(!product_name_tm) return res.status(400).send('Input Product Name');
+    if(!product_name_en) return res.status(400).send('Input Product Name');
+    if(!product_name_ru) return res.status(400).send('Input Product Name');
+    if(!price_tmt && !price_usd) return res.status(400).send('Input Product Price');
+    if(!subcategorie_id) return res.status(400).send('Input Subcategorie');
+
+
+    if(product_name_tm) newObj.product_name_tm = product_name_tm;
+    if(product_name_en) newObj.product_name_en = product_name_en;
+    if(product_name_ru) newObj.product_name_ru = product_name_ru;
+    if(description_tmt) newObj.description_tmt = description_tmt;
+    if(description_ru) newObj.description_ru = description_ru;
+    if(description_en) newObj.description_en = description_en;
     if(price_tmt) newObj.price_tmt = price_tmt;
     if(price_usd) newObj.price_usd = price_usd;
-    if(isProductUsd) newObj.isProductUsd = isProductUsd;
-
-    if(!subcategorie_id){
-        return res.status(400).send('Please input subcategorie or brand or store');
-    }
-
+    if(price_usd) newObj.isProductUsd = true;
 
     try {
 
         // Subcategorie
         const subcategorie = await SubCategorie.findOne({where : {subcategorie_id} });
-        if(!subcategorie){
-            return res.status(404).send('Subcategorie not found!');
-        }
+        if(!subcategorie) return res.status(404).send('Subcategorie not found!');
         newObj.subcategorieId = subcategorie.id;
 
         // Brand
         if(brand_id){
-            brand = await Brand.findOne({where : {brand_id} });
-            if(!brand){
-                return res.status(404).send('Brand not found!');
-            }
+            const brand = await Brand.findOne({where : {brand_id} });
+            if(!brand) return res.status(404).send('Brand not found!'); 
             newObj.brandId = brand.id;
         }
         else{
@@ -67,14 +72,13 @@ router.post('/', async (req, res) => {
         // Store 
         if(store_id){
             const store = await Store.findOne({where : {store_id} });
-            if(!store){
-                return res.status(404).send('Store not found!');
-            }
+            if(!store) return res.status(404).send('Store not found!');
             newObj.storeId = store.id;
         }
         // Create Product
         const product = await Product.create(newObj);
 
+        // Create Product Stocks
         if(stocks){
             if(stocks.length > 0){
                 stocks.forEach(async (stock) => {
@@ -85,25 +89,24 @@ router.post('/', async (req, res) => {
                     if(stock.size_type_id){
                         // Find Size Type
                         sizeType = await SizeType.findOne({where:{size_type_id : stock.size_type_id}});
-                        // if(!sizeType)  return res.status(404).send('Size Type not found!');
+                        if(!sizeType)  return res.status(404).send('Size Type not found!');
                     }
 
                     if(stock.size_name_id){
                         // Find Size Name
                         sizeName = await SizeName.findOne({where:{size_name_id : stock.size_name_id}});
-                        // if(!sizeName) return res.status(404).send("Size Name Not found")
+                        if(!sizeName) return res.status(404).send("Size Name Not found")
                     }
 
                     await Stock.create({
                         stock_quantity : stock.stock_quantity,
-                        sizeTypeId : sizeType.id,
-                        sizeNameId : sizeName.id,
+                        sizeTypeId : sizeType ? sizeType.id : null,
+                        sizeNameId : sizeName ? sizeName.id : null,
                         productId : product.id
                     });
                 })
             }
         }
-
 
         res.json(product);
     }
@@ -571,63 +574,108 @@ router.delete('/:product_id', async (req, res) => {
 });
 
 
-// TODO PRODUCT STOCK 
 // @route PATCH v1/products/:product_id
 // @desc Update Product
 // @access Private(admin)
+// TODO PRODUCT STOCK 
 router.patch('/:product_id', async (req, res) => {
 
     let newObj = {};
 
-
     const {
-        product_name,
-        description,
+        product_name_tm,
+        product_name_en,
+        product_name_ru,
+        description_tmt,
+        description_ru,
+        description_en,
         price_tmt,
         price_usd,
-        isProductUsd,
         subcategorie_id,
         brand_id,
         store_id,
-        //   stocks
+        stocks
     } = req.body;
 
-    if(product_name) newObj.product_name = product_name;
-    if(description) newObj.description = description;
+    // Validate
+    if(!product_name_tm) return res.status(400).send('Input Product Name');
+    if(!product_name_en) return res.status(400).send('Input Product Name');
+    if(!product_name_ru) return res.status(400).send('Input Product Name');
+    if(!price_tmt && !price_usd) return res.status(400).send('Input Product Price');
+    if(!subcategorie_id) return res.status(400).send('Input Subcategorie');
+
+
+    if(product_name_tm) newObj.product_name_tm = product_name_tm;
+    if(product_name_en) newObj.product_name_en = product_name_en;
+    if(product_name_ru) newObj.product_name_ru = product_name_ru;
+    if(description_tmt) newObj.description_tmt = description_tmt;
+    if(description_ru) newObj.description_ru = description_ru;
+    if(description_en) newObj.description_en = description_en;
     if(price_tmt) newObj.price_tmt = price_tmt;
     if(price_usd) newObj.price_usd = price_usd;
-    if(isProductUsd) newObj.isProductUsd = isProductUsd;
+    if(price_usd) newObj.isProductUsd = true;
 
     try {
 
-        if(subcategorie_id){
-            const subcategorie = await SubCategorie.findOne({where : {subcategorie_id} });
-            if(!subcategorie){
-                return res.status(404).send('Subcategorie not found!');
-            }
-            newObj.subcategorieId = subcategorie.id;
-        }
+        // Subcategorie
+        const subcategorie = await SubCategorie.findOne({where : {subcategorie_id} });
+        if(!subcategorie) return res.status(404).send('Subcategorie not found!');
+        newObj.subcategorieId = subcategorie.id;
 
+        // Brand
         if(brand_id){
             const brand = await Brand.findOne({where : {brand_id} });
-            if(!brand){
-                return res.status(404).send('Brand not found!');
-            }
+            if(!brand) return res.status(404).send('Brand not found!'); 
             newObj.brandId = brand.id;
         }
         else{
-            newObj.brandId = null;
+            newObj.brandId = null
         }
 
+        // Store 
         if(store_id){
             const store = await Store.findOne({where : {store_id} });
-            if(!store){
-                return res.status(404).send('Store not found!');
-            }
+            if(!store) return res.status(404).send('Store not found!');
             newObj.storeId = store.id;
         }
 
         const product = await Product.update(newObj, {where : {product_id : req.params.product_id}});
+
+
+        // Create Product Stocks
+        if(stocks){
+            if(stocks.length > 0){
+                stocks.forEach(async (stock) => {
+
+                    let sizeType = null;
+                    let sizeName = null;
+
+                    if(stock.size_type_id){
+                        // Find Size Type
+                        sizeType = await SizeType.findOne({where:{size_type_id : stock.size_type_id}});
+                        if(!sizeType)  return res.status(404).send('Size Type not found!');
+                    }
+
+                    if(stock.size_name_id){
+                        // Find Size Name
+                        sizeName = await SizeName.findOne({where:{size_name_id : stock.size_name_id}});
+                        if(!sizeName) return res.status(404).send("Size Name Not found")
+                    }
+
+                    await Stock.update({
+                        stock_quantity : stock.stock_quantity,
+                        sizeTypeId : sizeType ? sizeType.id : null,
+                        sizeNameId : sizeName ? sizeName.id : null,
+                        productId : product.id
+                    },{
+                        where : {
+                            stock_id : stock.stock_id
+                        }
+                    });
+                })
+            }
+        }
+
 
         res.json(product);
     }
@@ -642,6 +690,7 @@ router.patch('/:product_id', async (req, res) => {
 // @route Post v1/products/:products_id
 // desc  Create Product Image
 // access Private (Admin)
+// TODO PRODUCT STOCK 
 const upload = multer({
 
     limits: {
@@ -736,6 +785,7 @@ router.post('/image/:product_id', upload.array('images'), async (req, res) => {
 // @route PATCH api/products/status/:product_id
 // desc  Change product status : true / false
 // access Private (Admin) 
+// TODO PRODUCT STOCK 
 router.patch('/status/:product_id', async (req, res) => {
 
  

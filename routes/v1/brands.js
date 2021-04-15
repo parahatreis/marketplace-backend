@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Brand, SubCategorie ,BrandSubcategorie} = require('../../models');
-const { Op } = require('sequelize');
+const { Brand, SubCategorie, BrandSubcategorie} = require('../../models');
 // File Upload Multer
 const multer = require('multer');
 // Sharp to image converter
@@ -14,6 +13,7 @@ const config = require('config');
 // @route POST v1/brands
 // @desc Create Brand
 // @access Private(Admin)
+// TODO PRODUCT STOCK 
 router.post('/', async (req, res) => {
 
    const {
@@ -21,33 +21,33 @@ router.post('/', async (req, res) => {
       subcategories
    } = req.body;
 
-   try {
 
-      // find subcategories to get ids
-      const subcategorieArray = await SubCategorie.findAll({
-         where : {
-            subcategorie_id : subcategories
-         },
-         attributes : ['subcategorie_id','id']
-      });
+   if(!brand_name) return res.status(400).send("Input Brand Name");
+   if(!subcategories) return res.status(400).send("Input Subcategories");
+   if(subcategories.length === 0) return res.status(400).send("Input Subcategories");
 
+   try {      
       // create brand 
       const brand = await Brand.create({
          brand_name,
       });
 
-      console.log(subcategorieArray)
       // create brand_subcategories
-      async function createBrandSubcategories(){
-         subcategorieArray.forEach( async (val) => {
-            await BrandSubcategorie.create({
-               brandId : brand.id,
-               subcategorieId : val.id
-            })
-         })
-      }
+      subcategories.forEach(async (subcat) => {
+         // find subcategories to get ids
+         const subcategorie = await SubCategorie.findOne({
+            where : {
+               subcategorie_id : subcat.subcategorie_id
+            },
+            attributes : ['subcategorie_id','id']
+         });
 
-      createBrandSubcategories()
+         // Craete BrandSubcategorie
+         await BrandSubcategorie.create({
+            brandId : brand.id,
+            subcategorieId : subcategorie.id
+         })
+      })
 
       res.json(brand);
    }
@@ -70,7 +70,6 @@ router.get('/', async (req, res) => {
    let brands = []
 
    try {
-
       if(include_subcategories){
          brands = await Brand.findAll({
             include : [
@@ -129,6 +128,7 @@ router.get('/:brand_id', async (req, res) => {
 // @route DELETE v1/brands/:brand_id
 // @desc Delete Brand
 // @access Private(Admin)
+// TODO PRODUCT STOCK 
 router.delete('/:brand_id', async (req, res) => {
    try {
       
@@ -157,6 +157,7 @@ router.delete('/:brand_id', async (req, res) => {
 // @route PATCH v1/brands/:brand_id
 // @desc Update Brand
 // @access Private(Admin)
+// TODO PRODUCT STOCK 
 router.patch('/:brand_id', async (req, res) => {
 
    let newObj = {};
@@ -167,15 +168,17 @@ router.patch('/:brand_id', async (req, res) => {
       subcategories
    } = req.body;
 
+   if(!brand_name) return res.status(400).send("Input Brand Name");
+   if(!subcategories) return res.status(400).send("Input Subcategories");
+   if(subcategories.length === 0) return res.status(400).send("Input Subcategories");
+
    if (brand_name) newObj.brand_name = brand_name;
    if (subcategories) newObj.subcategories = subcategories;
 
    try {
 
-
       const brand = await Brand.findOne({where : {brand_id : req.params.brand_id}});
       if(!brand) return res.status(404).send('Brand not found')
-      
 
       if(newObj.subcategories){
          if(newObj.subcategories.length > 0){
@@ -195,6 +198,7 @@ router.patch('/:brand_id', async (req, res) => {
          brand.save();
       }
 
+      // Create Brand Subcateogires
       async function createBrandSubcategories(){
          if(subcategorieArray.length > 0){
             // Delete previous subcats
@@ -218,7 +222,7 @@ router.patch('/:brand_id', async (req, res) => {
 
       createBrandSubcategories()
 
-      return res.status(200).send('Updated');
+      return res.send('Updated');
    }
    catch (error) {
       console.log(error);
@@ -231,7 +235,7 @@ router.patch('/:brand_id', async (req, res) => {
 // @route Post v1/brands/:subcategorie_id
 // desc  Create Subcategorie Image
 // access Private (Admin)
-
+// TODO PRODUCT STOCK 
 // Check file with multer
 const upload = multer({
    limits: {

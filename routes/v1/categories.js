@@ -12,24 +12,32 @@ const config = require('config');
 // @route POST v1/categories
 // @desc Create Categorie
 // @access Private(Admin)
+// TODO AUTH
 router.post('/', async (req, res) => {
 
-    const {
-       categorie_name,
-    } = req.body;
- 
-    try {
- 
-       const categorie = await Categorie.create({
-          categorie_name,
-       });
-       
-       res.json(categorie);
-    }
-    catch (error) {
-       console.log(error);
-       res.status(500).send('Server error')
-    }
+   const {
+      categorie_name_tm,
+      categorie_name_ru,
+      categorie_name_en
+   } = req.body;
+
+   if(!categorie_name_tm) return res.status(400).send('Input Categorie Name');
+   if(!categorie_name_ru) return res.status(400).send('Input Categorie Name');
+   if(!categorie_name_en) return res.status(400).send('Input Categorie Name');
+
+   try {
+      const categorie = await Categorie.create({
+         categorie_name_tm,
+         categorie_name_ru,
+         categorie_name_en
+      });
+      
+      res.json(categorie);
+   }
+   catch (error) {
+      console.log(error);
+      res.status(500).send('Server error')
+   }
 });
 
 
@@ -51,7 +59,7 @@ router.get('/', async (req, res) => {
          include : {
             model : SubCategorie,
             as : 'subcategories',
-            attributes : ['subcategorie_id','subcategorie_name']
+            attributes : ['subcategorie_id','subcategorie_name_tm','subcategorie_name_ru','subcategorie_name_en']
          },
          
       });
@@ -72,7 +80,11 @@ router.get('/:categorie_id', async (req, res) => {
    try {
       const categorie = await Categorie.findOne({
          where: { categorie_id: req.params.categorie_id },
-         include : 'subcategories'
+         include : {
+            model : SubCategorie,
+            as : 'subcategories',
+            attributes : ['subcategorie_id','subcategorie_name_tm','subcategorie_name_ru','subcategorie_name_en']
+         }
       });
 
       if(!categorie) return res.status(404).send('Categorie not found !')
@@ -89,31 +101,37 @@ router.get('/:categorie_id', async (req, res) => {
 // @route PATCH v1/categories/:categorie_id
 // @desc Update Categorie
 // @access Private(Admin)
+// TODO AUTH
 router.patch('/:categorie_id', async (req, res) => {
 
    const newObj = {};
-   
+
    const {
-      categorie_name,
+      categorie_name_tm,
+      categorie_name_ru,
+      categorie_name_en
    } = req.body;
 
-   if (categorie_name) {
-      newObj.categorie_name = categorie_name;
-   }
-   else {
-      return res.status(400).send('Please input value!');
-   }
+   if(!categorie_name_tm) return res.status(400).send('Input Categorie Name');
+   if(!categorie_name_ru) return res.status(400).send('Input Categorie Name');
+   if(!categorie_name_en) return res.status(400).send('Input Categorie Name');
+
+   if (categorie_name_tm) newObj.categorie_name_tm = categorie_name_tm;
+   if (categorie_name_ru) newObj.categorie_name_ru = categorie_name_ru;
+   if (categorie_name_en) newObj.categorie_name_en = categorie_name_en;
+
    try {
 
-      const categorie = await Categorie.update(newObj, {
+      const findCategorie = await Categorie.findOne({where : {categorie_id : req.params.categorie_id}})
+      if(!findCategorie) return res.status(404).send('Categorie Not found')
+
+      await Categorie.update(newObj, {
          where: {
             categorie_id : req.params.categorie_id
          }
       });
 
-      if(!categorie) res.status(404).send('Categorie not found !')
-
-      res.json(categorie);
+      res.json("Updated");
    }
    catch (error) {
       console.log(error);
@@ -126,6 +144,7 @@ router.patch('/:categorie_id', async (req, res) => {
 // @route DELETE v1/categories/:categorie_id
 // @desc Delete Categorie
 // @access Private(Admin)
+// TODO AUTH
 router.delete('/:categorie_id', async (req, res) => {
    try {
       // Find Categorie
@@ -154,7 +173,7 @@ router.delete('/:categorie_id', async (req, res) => {
 // @route Post v1/categories/image/:categorie_id
 // desc  Create Categorie Image
 // access Private(Admin)
-
+// TODO AUTH
 // Check file with multer
 const upload = multer({
    limits: {

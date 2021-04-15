@@ -12,7 +12,15 @@ module.exports = {
         type : DataTypes.UUID,
         defaultValue : DataTypes.UUIDV4
       },
-      product_name: {
+      product_name_tm: {
+        type : DataTypes.STRING,
+        allowNull : false
+      },
+      product_name_ru: {
+        type : DataTypes.STRING,
+        allowNull : false
+      },
+      product_name_en: {
         type : DataTypes.STRING,
         allowNull : false
       },
@@ -29,7 +37,13 @@ module.exports = {
         type : DataTypes.BOOLEAN,
         defaultValue : false
       },
-      description: {
+      description_tmt: {
+        type : DataTypes.TEXT
+      },
+      description_ru: {
+        type : DataTypes.TEXT
+      },
+      description_en: {
         type : DataTypes.TEXT
       },
       product_images: {
