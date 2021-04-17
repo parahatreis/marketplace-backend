@@ -6,6 +6,7 @@ const { Home, SubCategorie, Product } = require('../../models');
 // @route POST v1/home_subcategories
 // @desc Create Home Subcategories
 // @access Private (Admin)
+// TODO AUTH
 router.post('/', async (req, res) => {
 
     const {
@@ -36,7 +37,7 @@ router.post('/', async (req, res) => {
 
 // @route GET v1/home_subcategories
 // @desc GET Home Subcategorie
-// @access Private (Admin)
+// @access Public
 router.get('/', async (req, res) => {
 
     const remove_products = Number(req.query.except_products) === 1 ? true : false;
@@ -57,12 +58,14 @@ router.get('/', async (req, res) => {
                 include : [{
                     model : SubCategorie,
                     as : 'subcategorie',
-                    include : {
-                        model : Product,
-                        as : 'products',
-                        limit : 10,
-                        attributes : ['product_id', 'product_name', 'preview_image','price_tmt']
-                    }
+                    include : [
+                        {
+                            model : Product,
+                            as : 'products',
+                            limit : 10,
+                            attributes : ['product_id', 'product_name_tm', 'product_name_ru', 'product_name_en', 'preview_image','price_tmt']
+                        },
+                    ]
                 }]
             });
         }
@@ -79,6 +82,7 @@ router.get('/', async (req, res) => {
 // @route PATCH v1/home_subcategories
 // @desc Update Home Subcategories
 // @access Private (Admin)
+// TODO AUTH
 router.patch('/:home_subcategorie_id', async (req, res) => {
 
     const {
@@ -107,7 +111,7 @@ router.patch('/:home_subcategorie_id', async (req, res) => {
 
         home_subcategorie.save()
 
-        res.send(home_subcategorie);
+        res.send("Updated");
 
     } catch (error) {
         console.log(error);
@@ -120,6 +124,7 @@ router.patch('/:home_subcategorie_id', async (req, res) => {
 // @route DELETE v1/home_subcategories/:id
 // @desc Delete Home Subcategories
 // @access Private (Admin)
+// TODO AUTH
 router.delete('/:home_subcategorie_id', async (req, res) => {
     try {
 

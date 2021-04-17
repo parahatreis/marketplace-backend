@@ -12,21 +12,23 @@ const config = require('config');
 // @route POST v1/banners
 // @desc Create Banner
 // @access Private (Admin)
+// TODO AUTH
 router.post('/', async (req, res) => {
-
-    const newObj = {};
 
     const {
         banner_name,
         banner_url,
     } = req.body;
 
-    if (banner_name) newObj.banner_name = banner_name;
-    if (banner_url) newObj.banner_url = banner_url;
+    if (!banner_name) return res.status(400).send('Input Banner name');
+    if (!banner_url) return res.status(400).send('Input Banner URL');
 
     try {
 
-        const banner = await Banner.create(newObj);
+        const banner = await Banner.create({
+            banner_name,
+            banner_url
+        });
 
         res.json(banner);
 
@@ -62,7 +64,7 @@ router.get('/:banner_id', async (req, res) => {
             }
         });
 
-        if(!banner) return res.status(404).send('Banner Not found !')
+        if(!banner) return res.status(404).send('Banner Not found!')
 
         res.json(banner);
     }
@@ -76,6 +78,7 @@ router.get('/:banner_id', async (req, res) => {
 // @route PATCH api/banners/:banner_id
 // @desc Update Banner
 // @access Private (only Admin)
+// TODO AUTH
 router.patch('/:banner_id', async (req, res) => {
 
     const newObj = {};
@@ -85,32 +88,40 @@ router.patch('/:banner_id', async (req, res) => {
         banner_url,
     } = req.body;
 
+    if (!banner_name) return res.status(400).send('Input Banner name');
+    if (!banner_url) return res.status(400).send('Input Banner URL');
+
     if (banner_name) newObj.banner_name = banner_name;
     if (banner_url) newObj.banner_url = banner_url;
 
- 
     try {
-       const banner = await Banner.update(newObj, {
-          where: {
-            banner_id: req.params.banner_id
-          }
-       });
- 
-       if (!banner) {
-          return res.status(404).send('banner not found');
-       }
- 
-       res.json(banner);
+
+        const banner = await Banner.findOne({
+            where : {
+                banner_id : req.params.banner_id
+            }
+        });
+
+        if(!banner) return res.status(404).send('Banner Not found!')
+
+        await Banner.update(newObj, {
+            where: {
+                banner_id: req.params.banner_id
+            }
+        });
+
+        res.json("Updated!");
 
     } catch (error) {
-       console.log(error);
-       res.status(500).send('Server error')
+        console.log(error);
+        res.status(500).send('Server error')
     }
 });
 
 // @route DELETE api/banners/:banner_id
 // @desc Delete Store
 // @access Private (only Admin)
+// TODO AUTH
 router.delete('/:banner_id', async (req, res) => {
     try {
        const banner = await Banner.destroy({
@@ -134,7 +145,7 @@ router.delete('/:banner_id', async (req, res) => {
 // @route Post v1/banner/image/:banner_id
 // desc  Create Banner Image
 // access Private(Admin)
-
+// TODO AUTH
 // Check file with multer
 const upload = multer({
     limits: {
@@ -151,12 +162,12 @@ const upload = multer({
  
     try {
         const banner = await Banner.findOne({
-            where: { banner_id: req.params.banner_id },
+            where : {
+                banner_id : req.params.banner_id
+            }
         });
 
-        if (!banner) {
-            return res.status(404).send('Banner not found')
-        }
+        if(!banner) return res.status(404).send('Banner Not found!')
 
         // Delete if categorie image already exists
         if(banner.banner_image){

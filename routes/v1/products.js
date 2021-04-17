@@ -11,7 +11,7 @@ const config = require('config');
 
 
 
-// TODO PRODUCT STOCK 
+// TODO AUTH
 // @route POST v1/products
 // @desc Create Product
 // @access Private(admin)
@@ -544,6 +544,7 @@ router.get('/:product_id', async (req, res) => {
 // @route DELETE api/products/:product_id
 // @desc Delete Product
 // @access Private (Admin)
+// TODO AUTH
 router.delete('/:product_id', async (req, res) => {
     try {
 
@@ -577,7 +578,7 @@ router.delete('/:product_id', async (req, res) => {
 // @route PATCH v1/products/:product_id
 // @desc Update Product
 // @access Private(admin)
-// TODO PRODUCT STOCK 
+// TODO AUTH
 router.patch('/:product_id', async (req, res) => {
 
     let newObj = {};
@@ -690,7 +691,7 @@ router.patch('/:product_id', async (req, res) => {
 // @route Post v1/products/:products_id
 // desc  Create Product Image
 // access Private (Admin)
-// TODO PRODUCT STOCK 
+// TODO AUTH
 const upload = multer({
 
     limits: {
@@ -785,7 +786,7 @@ router.post('/image/:product_id', upload.array('images'), async (req, res) => {
 // @route PATCH api/products/status/:product_id
 // desc  Change product status : true / false
 // access Private (Admin) 
-// TODO PRODUCT STOCK 
+// TODO AUTH
 router.patch('/status/:product_id', async (req, res) => {
 
  

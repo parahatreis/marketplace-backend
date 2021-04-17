@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
         if (admin) {
             return res.status(400).json({
                 errors: [{
-                msg: 'Admin already exists'
+                    msg: 'Admin already exists'
                 }]
             });
         }

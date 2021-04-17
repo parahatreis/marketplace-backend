@@ -76,7 +76,7 @@ router.get('/', async (req, res) => {
                {
                   model : SubCategorie,
                   as : 'subcategories',
-                  attributes : ['subcategorie_id','subcategorie_name']
+                  attributes : ['subcategorie_id','subcategorie_name_tm','subcategorie_name_ru','subcategorie_name_en']
                }
             ]
          });
@@ -108,7 +108,7 @@ router.get('/:brand_id', async (req, res) => {
             {
                model : SubCategorie,
                as : 'subcategories',
-               attributes : ['subcategorie_id','subcategorie_name']
+               attributes : ['subcategorie_id','subcategorie_name_tm','subcategorie_name_ru','subcategorie_name_en']
             }
          ]
       });
@@ -128,15 +128,12 @@ router.get('/:brand_id', async (req, res) => {
 // @route DELETE v1/brands/:brand_id
 // @desc Delete Brand
 // @access Private(Admin)
-// TODO PRODUCT STOCK 
+// TODO AUTH
 router.delete('/:brand_id', async (req, res) => {
    try {
       
       const brand = await Brand.findOne({ where: { brand_id: req.params.brand_id }, attributes : ['brand_id','id'] });
-
-      if (!brand) {
-         return res.status(404).send('Brand not found');
-      }
+      if (!brand) res.status(404).send('Brand not found !');
       
       await Brand.destroy({ where: { brand_id: req.params.brand_id } });
       await BrandSubcategorie.destroy({where : {brandId : brand.id}});
@@ -146,7 +143,7 @@ router.delete('/:brand_id', async (req, res) => {
          fs.unlinkSync(config.get('rootPath')  + brand.brand_image)
       }
 
-      res.json(brand);
+      res.json('Brand Deleted');
    } catch (error) {
       console.log(error);
       res.status(500).send('Server error')
@@ -157,11 +154,10 @@ router.delete('/:brand_id', async (req, res) => {
 // @route PATCH v1/brands/:brand_id
 // @desc Update Brand
 // @access Private(Admin)
-// TODO PRODUCT STOCK 
+// TODO AUTH
 router.patch('/:brand_id', async (req, res) => {
 
    let newObj = {};
-   let subcategorieArray = [];
 
    const {
       brand_name,
@@ -170,57 +166,42 @@ router.patch('/:brand_id', async (req, res) => {
 
    if(!brand_name) return res.status(400).send("Input Brand Name");
    if(!subcategories) return res.status(400).send("Input Subcategories");
-   if(subcategories.length === 0) return res.status(400).send("Input Subcategories");
 
    if (brand_name) newObj.brand_name = brand_name;
-   if (subcategories) newObj.subcategories = subcategories;
 
    try {
 
       const brand = await Brand.findOne({where : {brand_id : req.params.brand_id}});
       if(!brand) return res.status(404).send('Brand not found')
 
-      if(newObj.subcategories){
-         if(newObj.subcategories.length > 0){
+
+      // Delete all brand_subcategories if subcategories is empty
+      if(subcategories.length === 0){
+         await BrandSubcategorie.destroy({where : {brandId : brand.id}});
+      }
+      else{
+         await BrandSubcategorie.destroy({where : {brandId : brand.id}});
+         // create brand_subcategories
+         subcategories.forEach(async (subcat) => {
             // find subcategories to get ids
-            subcategorieArray = await SubCategorie.findAll({
+            const subcategorie = await SubCategorie.findOne({
                where : {
-                  subcategorie_id : subcategories
+                  subcategorie_id : subcat.subcategorie_id
                },
                attributes : ['subcategorie_id','id']
             });
-         }
+
+            // Craete BrandSubcategorie
+            await BrandSubcategorie.create({
+               brandId : brand.id,
+               subcategorieId : subcategorie.id
+            })
+         })
       }
 
-      if(newObj.brand_name){
-         // update brand 
-         brand.brand_name = newObj.brand_name;
-         brand.save();
-      }
-
-      // Create Brand Subcateogires
-      async function createBrandSubcategories(){
-         if(subcategorieArray.length > 0){
-            // Delete previous subcats
-            await BrandSubcategorie.destroy({where : {brandId : brand.id}});
-
-            subcategorieArray.forEach( async (val) => {
-               await BrandSubcategorie.create({
-                  brandId : brand.id,
-                  subcategorieId : val.id
-               })
-            });
-         }
-      }
-
-      // Delete all brand_subcategories if subcategories is empty
-      if(newObj.subcategories){
-         if(newObj.subcategories.length === 0){
-            await BrandSubcategorie.destroy({where : {brandId : brand.id}});
-         }
-      }
-
-      createBrandSubcategories()
+      // update brand 
+      brand.brand_name = newObj.brand_name;
+      brand.save();
 
       return res.send('Updated');
    }
@@ -235,7 +216,7 @@ router.patch('/:brand_id', async (req, res) => {
 // @route Post v1/brands/:subcategorie_id
 // desc  Create Subcategorie Image
 // access Private (Admin)
-// TODO PRODUCT STOCK 
+// TODO AUTH
 // Check file with multer
 const upload = multer({
    limits: {
