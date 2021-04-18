@@ -132,12 +132,11 @@ router.get('/:brand_id', async (req, res) => {
 router.delete('/:brand_id', async (req, res) => {
    try {
       
-      const brand = await Brand.findOne({ where: { brand_id: req.params.brand_id }, attributes : ['brand_id','id'] });
+      const brand = await Brand.findOne({ where: { brand_id: req.params.brand_id } });
       if (!brand) res.status(404).send('Brand not found !');
       
       await Brand.destroy({ where: { brand_id: req.params.brand_id } });
       await BrandSubcategorie.destroy({where : {brandId : brand.id}});
-
 
       if(brand.brand_image){
          fs.unlinkSync(config.get('rootPath')  + brand.brand_image)

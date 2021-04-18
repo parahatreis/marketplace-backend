@@ -155,7 +155,7 @@ router.get('/:subcategorie_id', async (req, res) => {
                {
                   model : Categorie,
                   as : 'categorie',
-                  attributes : ['categorie_id','categorie_name']
+                  attributes : ['categorie_id','categorie_name_tm','categorie_name_ru','categorie_name_en']
                },
             ]
          });
@@ -171,7 +171,7 @@ router.get('/:subcategorie_id', async (req, res) => {
                {
                   model : Categorie,
                   as : 'categorie',
-                  attributes : ['categorie_id','categorie_name']
+                  attributes : ['categorie_id','categorie_name_tm','categorie_name_ru','categorie_name_en']
                },
             ]
          });

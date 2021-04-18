@@ -11,6 +11,7 @@ const storeAdminAuth = require('../../middleware/storeAdminAuth')
 // @route POST v1/store_admins
 // @desc Register StoreAdmin
 // @access Private(Admin)
+// TODO AUTH
 router.post('/', async (req, res) => {
 
     const {
@@ -21,6 +22,10 @@ router.post('/', async (req, res) => {
         storeId
     } = req.body;
 
+    if(!store_admin_name) return res.status(400).send('Input store admin name!');
+    if(!store_admin_phone) return res.status(400).send('Input store_admin_phone!');
+    if(!store_admin_password) return res.status(400).send('Input store_admin_password!');
+    if(!store_admin_username) return res.status(400).send('Input store_admin_username!');
     if(!storeId) return res.status(400).send('Select store !');
 
     try {
@@ -62,7 +67,7 @@ router.post('/', async (req, res) => {
             }
         };
 
-        jwt.sign(payload, config.get('jwtSecret'), { expiresIn: '300s' }, (err, token) => {
+        jwt.sign(payload, config.get('jwtSecret'), { expiresIn: '21600s' }, (err, token) => {
             if (err) throw err;
             return res.json({ token, storeAdmin }); 
         })
@@ -106,7 +111,7 @@ router.post('/login', async (req, res) => {
           }
        };
  
-       jwt.sign(payload, config.get('jwtSecret'), { expiresIn: '300s' }, (err, token) => {
+       jwt.sign(payload, config.get('jwtSecret'), { expiresIn: '21600s' }, (err, token) => {
           if (err) throw err;
           return res.json({ token }); 
        })
@@ -122,27 +127,26 @@ router.post('/login', async (req, res) => {
 // @desc Get auth store_admin
 // @access Private(store_admin)
 router.get('/auth', storeAdminAuth , async (req, res) => {
+    try {
+        const admin = await StoreAdmin.findOne({
+            where: {
+                store_admin_id: req.store_admin.id
+            },
+            include : {
+                model : Store,
+                as : 'store',
+                attributes : ['store_id','store_name']
+            }
+        });
 
-try {
-    const admin = await StoreAdmin.findOne({
-        where: {
-            store_admin_id: req.store_admin.id
-        },
-        include : {
-            model : Store,
-            as : 'store',
-            attributes : ['store_id','store_name']
-        }
-    });
+        if(!admin) return res.status(404).send('Admin not found')
 
-    if(!admin) return res.status(404).send('Admin not found')
+        res.json(admin)
 
-    res.json(admin)
-
-} catch (error) {
-    console.log(error);
-    res.status(400).send('Server error')
-}
+    } catch (error) {
+        console.log(error);
+        res.status(400).send('Server error')
+    }
 });
 
 
@@ -162,10 +166,8 @@ router.get('/', async (req, res) => {
                 }
             ]
         });
-
-        console.log(store_admins[0].store_admin_password)
  
-       res.json(store_admins)
+        res.json(store_admins)
  
     } catch (error) {
        console.log(error);
@@ -175,40 +177,39 @@ router.get('/', async (req, res) => {
  
 
 
-// TODO Auth
 // @route GET api/store_admins/:store_admin_id
 // @desc Get store_admin by id
 // @access Public
+// TODO Auth
 router.get('/:store_admin_id', async (req, res) => {
+    try {
+        const store_admin = await StoreAdmin.findOne({
+            where : {
+                store_admin_id : req.params.store_admin_id
+            },
+            include : {
+                model : Store,
+                as : 'store',
+                attributes : ['store_id','store_name']
+            }
+        });
 
-try {
-    const store_admin = await StoreAdmin.findOne({
-        where : {
-            store_admin_id : req.params.store_admin_id
-        },
-        include : {
-            model : Store,
-            as : 'store',
-            attributes : ['store_id','store_name']
-        }
-    });
 
+        if(!store_admin) return res.status(404).send('Store Admin Not found')
 
-    if(!store_admin) return res.status(404).send('Store Admin Not found')
+        res.json(store_admin)
 
-    res.json(store_admin)
-
-} catch (error) {
-    console.log(error);
-    res.status(400).send('Server error')
-}
+    } catch (error) {
+        console.log(error);
+        res.status(400).send('Server error')
+    }
 });
 
 
-// TODO Auth
 // @route DELETE api/store_admins/:store_admin_id
 // @desc DELETE store_admin by id
 // @access Private
+// TODO Auth
 router.delete('/:store_admin_id', async (req, res) => {
     try {
         const store_admin = await StoreAdmin.destroy({
@@ -229,10 +230,10 @@ router.delete('/:store_admin_id', async (req, res) => {
 });
  
 
-// TODO Auth
 // @route UPDATE api/store_admins/:store_admin_id
 // @desc UPDATE store_admin by id
 // @access Public
+// TODO Auth
 router.patch('/:store_admin_id', async (req, res) => {
 
     const newObj = {};
@@ -245,29 +246,27 @@ router.patch('/:store_admin_id', async (req, res) => {
        storeId,
     } = req.body;
 
+    if(!store_admin_name) return res.status(400).send('Input store admin name!');
+    if(!store_admin_phone) return res.status(400).send('Input store_admin_phone!');
+    if(!store_admin_password) return res.status(400).send('Input store_admin_password!');
+    if(!store_admin_username) return res.status(400).send('Input store_admin_username!');
+    if(!storeId) return res.status(400).send('Select store !');
+
 
     if(store_admin_name) newObj.store_admin_name = store_admin_name;
     if(store_admin_phone) newObj.store_admin_phone = Number(store_admin_phone);
     if(store_admin_username) newObj.store_admin_username = store_admin_username;
  
     try {
+        // find store
+        const store = await Store.findOne({where:{ store_id : storeId }});
+        if(!store) return res.status(404).send('Store not found');
+        newObj.storeId = store.id;
 
-        // findStore if exists
-        if(storeId) {
-            // find store
-            const store = await Store.findOne({where:{ store_id : storeId }});
-            if(!store) return res.status(404).send('Store not found');
-            newObj.storeId = store.id;
-        }
-
-        if(store_admin_password) {
-            if(store_admin_password !== ''){
-                // Encrypt password
-                const salt = await bcrypt.genSalt(10);
-                const generated_password = await bcrypt.hash(store_admin_password, salt);
-                newObj.store_admin_password = generated_password
-            }
-        };
+        // Encrypt password
+        const salt = await bcrypt.genSalt(10);
+        const generated_password = await bcrypt.hash(store_admin_password, salt);
+        newObj.store_admin_password = generated_password
 
         const storeAdmin = await StoreAdmin.update(newObj,{
             where : {

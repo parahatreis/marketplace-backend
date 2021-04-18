@@ -7,6 +7,7 @@ const {SizeType, SizeName} = require('../../models');
 // @route POST v1/size_types
 // @desc Create SizeType
 // @access Private (Admin)
+// TODO AUTH
 router.post('/', async (req, res) => {
 
     const {
@@ -77,6 +78,7 @@ router.get('/', async (req, res) => {
 // @route GET v1/size_types/:size_type_id
 // @desc Get Size Type By id
 // @access Private
+// TODO AUTH
 router.get('/:size_type_id', async (req, res) => {
     try {
         const sizeType = await SizeType.findOne({
@@ -111,6 +113,7 @@ router.get('/:size_type_id', async (req, res) => {
 // @route DELETE api/stores/:store_id
 // @desc Delete Store
 // @access Private (only Admin)
+// TODO AUTH
 router.delete('/:size_type_id', async (req, res) => {
     try {
 
@@ -138,6 +141,7 @@ router.delete('/:size_type_id', async (req, res) => {
 // @route PATCH v1/size_types/:size_type_id
 // @desc Create SizeType
 // @access Private (Admin)
+// TODO AUTH
 router.patch('/:size_type_id', async (req, res) => {
     
     const newObj = {};

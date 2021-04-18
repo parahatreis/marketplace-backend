@@ -149,7 +149,7 @@ router.get('/', async (req,res) => {
                 {
                     model : SubCategorie,
                     as : 'subcategorie',
-                    attributes : ['subcategorie_id', 'subcategorie_name']
+                    attributes : ['subcategorie_id', 'subcategorie_name_tm', 'subcategorie_name_ru', 'subcategorie_name_en']
                 },
                 {
                     model : Brand,
@@ -521,7 +521,7 @@ router.get('/:product_id', async (req, res) => {
             {
                 model : SubCategorie,
                 as : 'subcategorie',
-                attributes : ['subcategorie_id','subcategorie_name']
+                attributes : ['subcategorie_id', 'subcategorie_name_tm', 'subcategorie_name_ru', 'subcategorie_name_en']
             },
             {
                 model : Store,

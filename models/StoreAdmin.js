@@ -38,10 +38,6 @@ module.exports = (sequelize, DataTypes) => {
       type : DataTypes.STRING,
       defaultValue : false
     },
-    store_admin_password: {
-      type : DataTypes.STRING,
-      defaultValue : false
-    },
     store_admin_username: {
       type : DataTypes.STRING,
       defaultValue : false

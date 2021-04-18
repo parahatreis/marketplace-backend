@@ -9,7 +9,7 @@ const order = require('../../models/order');
 
 // @route POST v1/orders
 // @desc Order Products
-// @access Private
+// @access Public(Auth User)
 router.post('/', userAuth , async (req, res) => {
 
     let total_price = 0;
@@ -79,7 +79,7 @@ router.get('/' , async (req, res) => {
                     include : {
                         model : Product,
                         as : 'product',
-                        attributes : ['product_id','product_name']
+                        attributes : ['product_id','product_name_tm','product_name_ru','product_name_en']
                     }
                 }
             ]
@@ -112,7 +112,6 @@ router.post('/status/:order_id' , async (req, res) => {
         const order = await Order.findOne({
             order_id : req.params.order_id
         })
-
         
         if(!order) return res.status(404).send('Order not found!');
 
