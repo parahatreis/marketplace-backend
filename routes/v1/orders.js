@@ -4,8 +4,6 @@ const router = express.Router();
 const { Order , OrderProduct, Product, User, Stock } = require('../../models');
 // auth
 const userAuth = require('../../middleware/userAuth');
-const order = require('../../models/order');
-
 
 // @route POST v1/orders
 // @desc Order Products
