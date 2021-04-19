@@ -8,7 +8,6 @@ const { User, Order, OrderProduct
  } = require('../../models');
 // auth
 const userAuth = require('../../middleware/userAuth');
-const order = require('../../models/order');
 
 
 // @route POST v1/users
