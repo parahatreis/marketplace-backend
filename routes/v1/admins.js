@@ -72,7 +72,9 @@ router.post('/login',async (req, res) => {
        admin_username,
        admin_password
     } = req.body;
- 
+
+    if(!admin_username) return res.status(400).send("Input Admin username")
+    if(!admin_password) return res.status(400).send("Input Admin password")
  
     try {
        // Check user exists
@@ -81,7 +83,7 @@ router.post('/login',async (req, res) => {
        });
        if (!admin) {
           return res.status(400).json({
-             errors : "admin not found"
+             errors : "Admin not found"
           });
        }
  
