@@ -20,8 +20,8 @@ router.post('/', async (req, res) => {
         banner_url,
     } = req.body;
 
-    if (!banner_name) return res.status(400).send('Input Banner name');
-    if (!banner_url) return res.status(400).send('Input Banner URL');
+    if (!banner_name) return res.status(400).json({errors : 'Input Banner name'});
+    if (!banner_url) return res.status(400).json({errors : 'Input Banner URL'});
 
     try {
 
@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        res.status(500).send('Server error')
+        res.status(500).json({errors : 'Server error'})
     }
 });
 
@@ -70,7 +70,7 @@ router.get('/:banner_id', async (req, res) => {
     }
     catch (error) {
         console.log(error);
-        res.status(500).send('Server error')
+        res.status(500).json({errors : 'Server error'})
     }
 });
 

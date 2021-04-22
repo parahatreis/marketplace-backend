@@ -25,9 +25,7 @@ router.post('/', async (req, res) => {
 
         if (admin) {
             return res.status(400).json({
-                errors: [{
-                    msg: 'Admin already exists'
-                }]
+                errors: 'Admin already exists'
             });
         }
 
@@ -53,7 +51,7 @@ router.post('/', async (req, res) => {
             expiresIn: "300s" // it will be expired after 5min
             }, (err, token) => {
             if (err) throw err;
-                return res.json({newAdmin,token});
+                return res.json({token});
         })
 
 
@@ -106,7 +104,7 @@ router.post('/login',async (req, res) => {
             expiresIn: "300s" // it will be expired after 5min
             }, (err, token) => {
             if (err) throw err;
-                return res.json(token);
+                return res.json({token});
             })
  
  

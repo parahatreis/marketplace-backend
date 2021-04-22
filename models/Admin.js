@@ -13,7 +13,11 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
     toJSON(){
-      return {...this.get(), id : undefined, admin_password : undefined};
+      return {
+        ...this.get(), 
+        id : undefined,
+        admin_password : undefined
+      };
     }
   };
   Admin.init({
