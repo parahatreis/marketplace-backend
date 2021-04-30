@@ -12,6 +12,9 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
     }
+    toJSON() {
+      return {...this.get(), id : undefined};
+    }
   };
   BrandSubcategorie.init({
     brand_subcategories_id : {
