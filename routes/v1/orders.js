@@ -10,55 +10,55 @@ const userAuth = require('../../middleware/userAuth');
 // @access Public(Auth User)
 router.post('/', userAuth , async (req, res) => {
 
-    let total_price = 0;
+   let total_price = 0;
 
-    const {
-        products
-    } = req.body;
+   const {
+      products
+   } = req.body;
 
-    if(!products) return res.status(400).send('Please Choose Products')
-    if(products.length === 0) return res.status(400).send('Please Choose Products')
+   if(!products) return res.status(400).send('Please Choose Products')
+   if(products.length === 0) return res.status(400).send('Please Choose Products')
 
-    try {
-        // Get auth user
-        const user = await User.findOne({
-            where: {
-                user_id : req.user.id
-            }
-        });
+   try {
+      // Get auth user
+      const user = await User.findOne({
+         where: {
+               user_id : req.user.id
+         }
+      });
 
-        const order = await Order.create({
-            userId : user.id
-        })
+      const order = await Order.create({
+         userId : user.id
+      })
 
-        await products.forEach(async (val,index) => {
-            const product = await Product.findOne({where : {product_id : val.product_id}}); 
-            const stock = await Stock.findOne({where : {stock_id : val.stock_id}});
+      await products.forEach(async (val,index) => {
+         const product = await Product.findOne({where : {product_id : val.product_id}}); 
+         const stock = await Stock.findOne({where : {stock_id : val.stock_id}});
 
-            await OrderProduct.create({
-                productId : product.id,
-                orderId : order.id,
-                sold_price : product.price_tmt,
-                quantity : val.quantity
-            });
+         await OrderProduct.create({
+               productId : product.id,
+               orderId : order.id,
+               sold_price : product.price_tmt,
+               quantity : val.quantity
+         });
 
-            // Mukdar sany azalya
-            stock.stock_quantity = Number(stock.stock_quantity) - val.quantity 
-            stock.save()
-            
-            total_price = total_price + product.price_tmt
-            
-            if(index === products.length - 1){
-                order.subtotal = total_price;
-                await order.save();
-                return res.json(order)
-            }
-        });
- 
-    } catch (error) {
-       console.log(error);
-       res.status(400).send('Server error')
-    }
+         // Mukdar sany azalya
+         stock.stock_quantity = Number(stock.stock_quantity) - val.quantity 
+         stock.save()
+         
+         total_price = total_price + product.price_tmt
+         
+         if(index === products.length - 1){
+               order.subtotal = total_price;
+               await order.save();
+               return res.json(order)
+         }
+      });
+
+   } catch (error) {
+      console.log(error);
+      res.status(400).send('Server error')
+   }
 });
 
 

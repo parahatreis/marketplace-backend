@@ -1,5 +1,6 @@
 'use strict';
 const bcrypt = require('bcryptjs');
+const { v4: uuidv4 } = require('uuid');
 
 module.exports = {
   up: async (queryInterface, DataTypes) => {
@@ -11,6 +12,7 @@ module.exports = {
 
     // Create Super Admin
     await queryInterface.bulkInsert('admins', [{
+      admin_id: uuidv4(),
       admin_name : 'SM Adim',
       admin_phone : 99365577136,
       admin_username : 'smadmin',
