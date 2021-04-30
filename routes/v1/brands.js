@@ -13,7 +13,7 @@ const config = require('config');
 // @route POST v1/brands
 // @desc Create Brand
 // @access Private(Admin)
-// TODO PRODUCT STOCK 
+// TODO Auth
 router.post('/', async (req, res) => {
 
    const {
@@ -25,6 +25,8 @@ router.post('/', async (req, res) => {
    if(!brand_name) return res.status(400).send("Input Brand Name");
    if(!subcategories) return res.status(400).send("Input Subcategories");
    if(subcategories.length === 0) return res.status(400).send("Input Subcategories");
+
+   console.log(req.body)
 
    try {      
       // create brand 

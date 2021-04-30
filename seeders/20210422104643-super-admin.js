@@ -11,6 +11,7 @@ module.exports = {
 
     // Create Super Admin
     await queryInterface.bulkInsert('admins', [{
+      admin_id : DataTypes.UUIDV4,
       admin_name : 'SM Adim',
       admin_phone : 99365577136,
       admin_username : 'smadmin',
