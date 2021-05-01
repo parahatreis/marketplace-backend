@@ -117,7 +117,7 @@ router.post('/', async (req, res) => {
 });
 
 
-// @route POST v1/products
+// @route GET v1/products
 // @desc Get all products
 // @access Public(for admin)
 router.get('/', async (req,res) => {
@@ -338,8 +338,6 @@ router.get('/brand/:brand_id', async (req,res) => {
             const findSubcategorie = await SubCategorie.findOne({where : {subcategorie_id : req.query.subcategorie}});
             subcategorie = findSubcategorie.id
         }
-
-        console.log('sub',subcategorie)
 
         if(subcategorie){
             products = await Brand.findAndCountAll({

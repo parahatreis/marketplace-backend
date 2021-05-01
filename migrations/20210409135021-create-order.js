@@ -24,6 +24,14 @@ module.exports = {
         type : DataTypes.DOUBLE,
         allowNull : true
       },
+      address : {
+        type : DataTypes.STRING,
+        allowNull : false    
+      },
+      payment_type : {
+        type : DataTypes.STRING,
+        defaultValue : 'cash'    
+      },
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE

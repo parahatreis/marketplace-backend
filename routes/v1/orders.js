@@ -10,55 +10,78 @@ const userAuth = require('../../middleware/userAuth');
 // @access Public(Auth User)
 router.post('/', userAuth , async (req, res) => {
 
-   let total_price = 0;
+    let total_price = 0;
 
-   const {
-      products
-   } = req.body;
+    const {
+        products,
+        address,
+        payment_type,
+    } = req.body;
 
-   if(!products) return res.status(400).send('Please Choose Products')
-   if(products.length === 0) return res.status(400).send('Please Choose Products')
+    if(!products) return res.status(400).send('Please Choose Products')
+    if(products.length === 0) return res.status(400).send('Please Choose Products');
+    if(!address) return res.status(400).send('Input address');
 
-   try {
-      // Get auth user
-      const user = await User.findOne({
-         where: {
-               user_id : req.user.id
-         }
-      });
+    try {
 
-      const order = await Order.create({
-         userId : user.id
-      })
+        // Check stock quantity
+        products.forEach(async (val,index) => {
+            const findStock = await Stock.findOne({where : {stock_id : val.stock_id}});
 
-      await products.forEach(async (val,index) => {
-         const product = await Product.findOne({where : {product_id : val.product_id}}); 
-         const stock = await Stock.findOne({where : {stock_id : val.stock_id}});
+            if(findStock.stock_quantity <= val.quantity){
+                return res.status(400).json({msg : 'Ýeterlikli haryt mukdary ýok!'});
+            }
+            if(index === products.length - 1){
+                createOrder()
+            }
+        })
 
-         await OrderProduct.create({
-               productId : product.id,
-               orderId : order.id,
-               sold_price : product.price_tmt,
-               quantity : val.quantity
-         });
+        async function createOrder(){
+            // Get auth user
+            const user = await User.findOne({
+                where: {
+                    user_id : req.user.id
+                }
+            });
 
-         // Mukdar sany azalya
-         stock.stock_quantity = Number(stock.stock_quantity) - val.quantity 
-         stock.save()
-         
-         total_price = total_price + product.price_tmt
-         
-         if(index === products.length - 1){
-               order.subtotal = total_price;
-               await order.save();
-               return res.json(order)
-         }
-      });
+            const order = await Order.create({
+                userId : user.id,
+                address : req.body.address,
+                payment_type : req.body.payment_type
+            })
 
-   } catch (error) {
-      console.log(error);
-      res.status(400).send('Server error')
-   }
+            await products.forEach(async (val,index) => {
+                const product = await Product.findOne({where : {product_id : val.product_id}}); 
+                const stock = await Stock.findOne({where : {stock_id : val.stock_id}});
+
+                await OrderProduct.create({
+                    productId : product.id,
+                    orderId : order.id,
+                    sold_price : product.price_tmt,
+                    quantity : val.quantity
+                });
+
+                // Mukdar sany azalya
+                stock.stock_quantity = Number(stock.stock_quantity) - val.quantity
+                stock.save()
+                
+                total_price = total_price + (product.price_tmt * val.quantity);
+                
+                if(index === products.length - 1){
+                    order.subtotal = total_price;
+                    await order.save();
+                    return res.json(order)
+                }
+            });
+        }
+        
+
+        
+
+    } catch (error) {
+        console.log(error);
+        res.status(400).send('Server error')
+    }
 });
 
 
