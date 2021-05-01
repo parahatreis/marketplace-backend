@@ -1,5 +1,5 @@
 /node_modules
-/public/banner-images/
-/public/product-images/
-/public/categorie-images/
-/public/subcategorie-images/
+/public/banner-images/*
+/public/product-images/*
+/public/categorie-images/*
+/public/subcategorie-images/*
