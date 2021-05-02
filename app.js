@@ -1,6 +1,7 @@
 const express = require('express');
 const { sequelize } = require('./models');
 const path = require('path');
+const cors = require('cors')
 
 
 const app = express();
@@ -8,6 +9,8 @@ const app = express();
 app.use(express.json({
    extended: false
 }));
+
+app.use(cors()) // Use this after the variable declaration
 
 
 app.get('/', (req, res) => {
