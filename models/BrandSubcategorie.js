@@ -26,7 +26,15 @@ module.exports = (sequelize, DataTypes) => {
     brand_subcategories_id: {
        type: DataTypes.UUID,
        defaultValue: DataTypes.UUIDV4,
-    }
+     },
+     brandId: {
+        type: DataTypes.INTEGER,
+        allowNull : false
+     },
+     subcategorieId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+     }
   }, {
     sequelize,
     tableName: 'brand_subcategories',
