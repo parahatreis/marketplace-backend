@@ -97,12 +97,19 @@ router.get('/' , async (req, res) => {
                 {
                     model : OrderProduct,
                     as : 'order_products',
-                    include : {
-                        model : Product,
-                        as : 'product',
-                        attributes : ['product_id','product_name_tm','product_name_ru','product_name_en']
-                    }
-                }
+                  include: [
+                       {
+                          model: Product,
+                          as: 'product',
+                          attributes: ['product_id', 'product_name_tm', 'product_name_ru', 'product_name_en']
+                        }
+                    ]
+              },
+               {
+                  model: User,
+                  as: 'user',
+                  attributes: ['user_id', 'user_name', 'user_phone']
+               }
             ]
         });
         
