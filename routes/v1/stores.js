@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 // 
-const {Store,StoreAdmin} = require('../../models');
+const {Store,StoreAdmin ,Product} = require('../../models');
 
 
 // @route POST v1/stores
@@ -52,11 +52,18 @@ router.post('/', async (req, res) => {
 router.get('/', async (req, res) => {
     try {
        const stores = await Store.findAll({
-         include : {
-            model : StoreAdmin,
-            as : 'store_admins',
-            attributes : ['store_admin_id','store_admin_name']
-         }
+          include: [
+            {
+               model: StoreAdmin,
+               as: 'store_admins',
+               attributes: ['store_admin_id', 'store_admin_name']
+            },
+            {
+               model : Product,
+               as : 'products',
+               attributes : ['product_id']
+            }
+         ]
        });
        res.json(stores);
     }

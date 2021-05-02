@@ -3,7 +3,6 @@ const { sequelize } = require('./models');
 const path = require('path');
 const cors = require('cors')
 
-
 const app = express();
 // Init Middleware
 app.use(express.json({
@@ -11,7 +10,6 @@ app.use(express.json({
 }));
 
 app.use(cors()) // Use this after the variable declaration
-
 
 app.get('/', (req, res) => {
    res.send('SM APIs Running!')

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { SubCategorie ,Categorie,Brand, Product, SizeType } = require('../../models');
+const { SubCategorie ,Categorie,Brand, Product, SizeType, SizeName } = require('../../models');
 // File Upload Multer
 const multer = require('multer');
 // Sharp to image converter
@@ -151,6 +151,10 @@ router.get('/:subcategorie_id', async (req, res) => {
                {
                   model : SizeType,
                   as : 'sizeType',
+                  include : {
+                     model : SizeName,
+                     as : 'size_names'
+                  }
                },
                {
                   model : Categorie,
@@ -167,6 +171,10 @@ router.get('/:subcategorie_id', async (req, res) => {
                {
                   model : SizeType,
                   as : 'sizeType',
+                  include : {
+                     model : SizeName,
+                     as : 'size_names'
+                  }
                },
                {
                   model : Categorie,

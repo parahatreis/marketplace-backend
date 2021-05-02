@@ -32,6 +32,14 @@ module.exports = (sequelize, DataTypes) => {
     subtotal : {
       type : DataTypes.DOUBLE,
       allowNull : true
+    },
+    address : {
+      type : DataTypes.STRING,
+      allowNull : false    
+    },
+    payment_type : {
+      type : DataTypes.STRING,
+      defaultValue : 'cash'    
     }
   }, {
     sequelize,

@@ -12,14 +12,6 @@ module.exports = {
         type : DataTypes.UUID,
         defaultValue : DataTypes.UUIDV4,
       },
-      brandId: {
-        type : DataTypes.INTEGER,
-        allowNull : false
-      },
-      subcategorieId: {
-        type : DataTypes.INTEGER,
-        allowNull : false
-      },
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE

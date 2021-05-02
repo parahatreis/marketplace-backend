@@ -101,7 +101,7 @@ router.post('/login',async (req, res) => {
         };
 
         jwt.sign(payload, config.get('jwtSecret'), {
-            expiresIn: "300s" // it will be expired after 5min
+            expiresIn: "86400s" // it will be expired after 5min
             }, (err, token) => {
             if (err) throw err;
                 return res.json({token});

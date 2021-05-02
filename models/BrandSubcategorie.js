@@ -12,23 +12,24 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
     }
+    toJSON() {
+      return {...this.get(), id : undefined};
+    }
   };
   BrandSubcategorie.init({
-    brand_subcategories_id : {
-      type : DataTypes.UUID,
-      defaultValue : DataTypes.UUIDV4,
-    },
-    brandId: {
-      type : DataTypes.INTEGER,
-      allowNull : false
-    },
-    subcategorieId: {
-      type : DataTypes.INTEGER,
-      allowNull : false
+     id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false
+     },
+    brand_subcategories_id: {
+       type: DataTypes.UUID,
+       defaultValue: DataTypes.UUIDV4,
     }
   }, {
     sequelize,
-    tableName : 'brand_subcategories',
+    tableName: 'brand_subcategories',
     modelName: 'BrandSubcategorie',
   });
   return BrandSubcategorie;

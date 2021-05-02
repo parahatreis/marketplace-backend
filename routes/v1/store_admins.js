@@ -244,11 +244,12 @@ router.patch('/:store_admin_id', async (req, res) => {
        store_admin_password,
        store_admin_username,
        storeId,
-    } = req.body;
+   } = req.body;
+   
+   console.log(req.body)
 
     if(!store_admin_name) return res.status(400).send('Input store admin name!');
     if(!store_admin_phone) return res.status(400).send('Input store_admin_phone!');
-    if(!store_admin_password) return res.status(400).send('Input store_admin_password!');
     if(!store_admin_username) return res.status(400).send('Input store_admin_username!');
     if(!storeId) return res.status(400).send('Select store !');
 
@@ -263,10 +264,12 @@ router.patch('/:store_admin_id', async (req, res) => {
         if(!store) return res.status(404).send('Store not found');
         newObj.storeId = store.id;
 
-        // Encrypt password
-        const salt = await bcrypt.genSalt(10);
-        const generated_password = await bcrypt.hash(store_admin_password, salt);
-        newObj.store_admin_password = generated_password
+       if (store_admin_password) {
+           // Encrypt password
+           const salt = await bcrypt.genSalt(10);
+           const generated_password = await bcrypt.hash(store_admin_password, salt);
+           newObj.store_admin_password = generated_password
+        }
 
         const storeAdmin = await StoreAdmin.update(newObj,{
             where : {
