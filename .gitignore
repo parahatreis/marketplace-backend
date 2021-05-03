@@ -1,6 +1,2 @@
 /node_modules
-/public/banner-images/*
-/public/product-images/*
-/public/categorie-images/*
-/public/subcategorie-images/*
-/public/brand-images/*
+/public/*
