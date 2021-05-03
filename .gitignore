@@ -1,4 +1,8 @@
 /node_modules
-/public/*
+/public/banner-images/*
+/public/brand-images/*
+/public/categorie-images/*
+/public/subcategorie-images/*
+/public/product-images/*
 
-!.gitignore
+!public/banner-images/.gitkeep 
