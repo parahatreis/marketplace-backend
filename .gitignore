@@ -6,3 +6,7 @@
 /public/product-images/*
 
 !public/banner-images/.gitkeep 
+!public/brand-images/.gitkeep 
+!public/categorie-images/.gitkeep 
+!public/subcategorie-images/.gitkeep 
+!public/product-images/.gitkeep 
