@@ -830,25 +830,28 @@ router.post('/image/:product_id', upload.array('images'), async (req, res) => {
 // TODO AUTH
 router.patch('/status/:product_id', async (req, res) => {
 
- 
-    let status = req.body.product_status ? 'true' : 'false';
- 
-    try {
+   let status = req.body.product_status ? 1 : 0;
 
-        const product = await Product.findOne({where : {product_id: req.params.product_id}});
+   try {
 
-        if (!product) return res.status(404).send('Product not found');
+      const product = await Product.findOne({ where: { product_id: req.params.product_id } });
 
-        product.product_status = status;
+      if (!product) return res.status(404).send('Product not found');
 
-        product.save();
+      const upt = await Product.update({
+         product_status : Boolean(status)
+      },{
+         where: {
+            product_id: req.params.product_id
+         }
+      });
 
-        res.json(product);
- 
-    } catch (error) {
-       console.log(error);
-       res.status(500).send('Server error')
-    }
+      res.json(upt);
+
+   } catch (error) {
+      console.log(error);
+      res.status(500).send('Server error')
+   }
  });
 
 

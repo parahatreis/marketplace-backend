@@ -135,8 +135,9 @@ router.get('/', async (req, res) => {
 router.get('/:subcategorie_id', async (req, res) => {
 
     // to get brands of subcats
-    const include_brands = req.query.brands === 'true';
-    let subcategorie = []
+   const include_brands = Boolean(req.query.brands);
+   
+   console.log(include_brands)
 
    try {
       if(include_brands){

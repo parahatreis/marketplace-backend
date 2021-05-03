@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Home, SubCategorie, Product } = require('../../models');
+const { Home, SubCategorie, Product, Brand } = require('../../models');
 
 
 // @route POST v1/home_subcategories
@@ -40,42 +40,48 @@ router.post('/', async (req, res) => {
 // @access Public
 router.get('/', async (req, res) => {
 
-    const remove_products = Number(req.query.except_products) === 1 ? true : false;
-    let home_subcategories = null;
+   const remove_products = Number(req.query.except_products) === 1 ? true : false;
+   let home_subcategories = null;
 
-    
-    try {
-        if(remove_products){
-            home_subcategories = await Home.findAll({
-                include : [{
-                    model : SubCategorie,
-                    as : 'subcategorie',
-                }]
-            });
-        }
-        else{
-            home_subcategories = await Home.findAll({
-                include : [{
-                    model : SubCategorie,
-                    as : 'subcategorie',
-                    include : [
-                        {
-                            model : Product,
-                            as : 'products',
-                            limit : 10,
-                            attributes : ['product_id', 'product_name_tm', 'product_name_ru', 'product_name_en', 'preview_image','price_tmt']
+   
+   try {
+      if(remove_products){
+         home_subcategories = await Home.findAll({
+               include : [{
+                  model : SubCategorie,
+                  as : 'subcategorie',
+               }]
+         });
+      }
+      else{
+         home_subcategories = await Home.findAll({
+               include : [{
+                  model : SubCategorie,
+                  as : 'subcategorie',
+                  include : [
+                     {
+                        model : Product,
+                        as : 'products',
+                        limit: 10,
+                        where: {
+                           product_status: true 
                         },
-                    ]
-                }]
-            });
-        }
+                        include: {
+                           model: Brand,
+                           as : 'brand'
+                        }
+                     },
+                  ]
+               }]
+         });
+      }
 
-        return res.json(home_subcategories)
-    }
-    catch (error) {
-        console.log(error);
-        res.status(500).send('Server error')
-    }
+      return res.json(home_subcategories)
+   }
+   catch (error) {
+      console.log(error);
+      res.status(500).send('Server error')
+   }
 });
 
 

@@ -83,7 +83,7 @@ router.get('/:categorie_id', async (req, res) => {
          include : {
             model : SubCategorie,
             as : 'subcategories',
-            attributes : ['subcategorie_id','subcategorie_name_tm','subcategorie_name_ru','subcategorie_name_en']
+            attributes : ['subcategorie_id','subcategorie_name_tm','subcategorie_name_ru','subcategorie_name_en','subcategorie_image']
          }
       });
 
