@@ -253,7 +253,20 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
                                  }
                               }
                            ]
-                     }
+                     },
+                     include: [
+                        {
+                           model: Stock,
+                           as: 'stocks',
+                           where: {
+                              sizeNameId: sizeNameId.id
+                           }
+                        },
+                        {
+                           model: Brand,
+                           as: 'brand',
+                        }
+                     ]
                   }
                ]
          });
@@ -274,13 +287,19 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
                      [Op.between]: range
                   }
                },
-               include: {
-                  model: Stock,
-                  as: 'stocks',
-                  where: {
-                     sizeNameId : sizeNameId.id
+               include: [
+                  {
+                     model: Stock,
+                     as: 'stocks',
+                     where: {
+                        sizeNameId: sizeNameId.id
+                     }
+                  },
+                  {
+                     model: Brand,
+                     as: 'brand',
                   }
-               }
+               ]
             }]
          });
       }
@@ -300,7 +319,13 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
                         price_tmt : {
                            [Op.between] : range
                         }
-                     }
+                     },
+                     include: [
+                        {
+                           model: Brand,
+                           as: 'brand',
+                        }
+                     ]
                   }
                ]
          });
