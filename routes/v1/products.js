@@ -190,155 +190,187 @@ router.get('/', async (req,res) => {
 router.get('/subcategorie/:subcategorie_id', async (req,res) => {
 
 
-   let order = [];
-   let range = [0, Number.POSITIVE_INFINITY];
-   let page = 0;
-   let limit = 10;
-   let brand = null;
-   let sizeNameId = null
-   // 
-   let products = [];
+    let order = [];
+    let range = [0, Number.POSITIVE_INFINITY];
+    let page = 0;
+    let limit = 10;
+    let brand = null;
+    let sizeNameId = null
+    // 
+    let products = [];
 
-   // Sorting
-   if (req.query.sortBy) {
-      const parts = req.query.sortBy.split(':');
-      order.push(parts);
-   }
-   // Filter By Price Range
-   if (req.query.priceRange) {
-      let rangeBetween = req.query.priceRange.split(':');
-      rangeBetween.forEach((val,index) => rangeBetween[index] = Number(val));
-      range = rangeBetween;
-   }
-   // limit
-   if (req.query.limit) {
-      limit = Number(req.query.limit)
-   }
-   // page
-   if (req.query.page) {
-      page = Number(req.query.page)
-   }
-   // page
-   if (req.query.size) {
-      let size = req.query.size;
-      sizeNameId = await SizeName.findOne({where : {size_name : size }}) 
-   }
+    // Sorting
+    if (req.query.sortBy) {
+        const parts = req.query.sortBy.split(':');
+        order.push(parts);
+    }
+    // Filter By Price Range
+    if (req.query.priceRange) {
+        let rangeBetween = req.query.priceRange.split(':');
+        rangeBetween.forEach((val,index) => rangeBetween[index] = Number(val));
+        range = rangeBetween;
+    }
+    // limit
+    if (req.query.limit) {
+        limit = Number(req.query.limit)
+    }
+    // page
+    if (req.query.page) {
+        page = Number(req.query.page)
+    }
 
-   try {
+    try {
 
-      // if brand
-      if(req.query.brand){
-         const findBrand = await Brand.findOne({where : {brand_id : req.query.brand}});
-         brand = findBrand.id
-      }
+        // page
+        if (req.query.size) {
+            let size = req.query.size;
+            sizeNameId = await SizeName.findOne({where : {size_name_id : size }})
+        }
 
-      if(brand){
-         products = await SubCategorie.findOne({
-               where : {
-                  subcategorie_id : req.params.subcategorie_id
-               },
-               include : [
-                  {
-                     model : Product,
-                     as : 'products',
-                     order,
-                     limit,
-                     offset: page,
-                     where : {
-                           [Op.and] : [
-                              {brandId : brand},
-                              {
-                                 price_tmt : {
-                                       [Op.between] : range
-                                 }
-                              }
-                           ]
-                     },
-                     include: [
+        // if brand
+        if(req.query.brand){
+            const findBrand = await Brand.findOne({where : {brand_id : req.query.brand}});
+            brand = findBrand.id
+        }
+        if(brand && sizeNameId){
+            products = await SubCategorie.findOne({
+                where : {
+                    subcategorie_id : req.params.subcategorie_id
+                },
+                include : [
+                    {
+                    model : Product,
+                    as : 'products',
+                    order,
+                    limit,
+                    offset: page,
+                    where : {
+                            [Op.and] : [
+                                {brandId : brand},
+                                {
+                                price_tmt : {
+                                        [Op.between] : range
+                                }
+                                }
+                            ]
+                    },
+                    include: [
                         {
-                           model: Stock,
-                           as: 'stocks',
-                           where: {
-                              sizeNameId: sizeNameId.id
-                           }
+                            model: Stock,
+                            as: 'stocks',
+                            where: {
+                                sizeNameId: sizeNameId.id
+                            }
                         },
                         {
-                           model: Brand,
-                           as: 'brand',
+                            model: Brand,
+                            as: 'brand',
                         }
-                     ]
-                  }
-               ]
-         });
-      }
-      if (sizeNameId) {
-         products = await SubCategorie.findOne({
+                        ]
+                    }
+                ]
+        });
+        }
+        else if(brand){
+            products = await SubCategorie.findOne({
+                where : {
+                    subcategorie_id : req.params.subcategorie_id
+                },
+                include : [
+                    {
+                        model : Product,
+                        as : 'products',
+                        order,
+                        limit,
+                        offset: page,
+                        where : {
+                            [Op.and] : [
+                                {brandId : brand},
+                                {
+                                    price_tmt : {
+                                        [Op.between] : range
+                                    }
+                                }
+                            ]
+                        },
+                        include: [
+                        {
+                            model: Brand,
+                            as: 'brand',
+                        }
+                        ]
+                    }
+                ]
+            });
+        }
+        else if (sizeNameId) {
+            products = await SubCategorie.findOne({
             where: {
-               subcategorie_id: req.params.subcategorie_id
+                subcategorie_id: req.params.subcategorie_id
             },
             include: [{
-               model: Product,
-               as: 'products',
-               order,
-               limit,
-               offset: page,
-               where: {
-                  price_tmt: {
-                     [Op.between]: range
-                  }
-               },
-               include: [
-                  {
-                     model: Stock,
-                     as: 'stocks',
-                     where: {
+                model: Product,
+                as: 'products',
+                order,
+                limit,
+                offset: page,
+                where: {
+                    price_tmt: {
+                        [Op.between]: range
+                    }
+                },
+                include: [
+                    {
+                        model: Stock,
+                        as: 'stocks',
+                        where: {
                         sizeNameId: sizeNameId.id
-                     }
-                  },
-                  {
-                     model: Brand,
-                     as: 'brand',
-                  }
-               ]
+                        }
+                    },
+                    {
+                        model: Brand,
+                        as: 'brand',
+                    }
+                ]
             }]
-         });
-      }
-      else{
-         products = await SubCategorie.findOne({
-               where : {
-                  subcategorie_id : req.params.subcategorie_id
-               },
-               include : [
-                  {
-                     model : Product,
-                     as : 'products',
-                     order,
-                     limit,
-                     offset: page,
-                     where : {
+            });
+        }
+        else{
+            products = await SubCategorie.findOne({
+                where : {
+                    subcategorie_id : req.params.subcategorie_id
+                },
+                include : [
+                    {
+                        model : Product,
+                        as : 'products',
+                        order,
+                        limit,
+                        offset: page,
+                        where : {
                         price_tmt : {
-                           [Op.between] : range
+                            [Op.between] : range
                         }
-                     },
-                     include: [
+                        },
+                        include: [
                         {
-                           model: Brand,
-                           as: 'brand',
+                            model: Brand,
+                            as: 'brand',
                         }
-                     ]
-                  }
-               ]
-         });
-      }
-      return res.json({
-         products: products.products,
-         count : products.products.length
-      })
-   }
-   catch (error) {
-      console.log(error);
-      res.status(500).send('Server error')
-   }
+                        ]
+                    }
+                ]
+            });
+        }
+        return res.json({
+            products: products.products,
+            count : products.products.length
+        })
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send('Server error')
+    }
 });
 
 
@@ -360,7 +392,6 @@ router.get('/brand/:brand_id', async (req,res) => {
 
 
    let order = [];
-   let range = [0, Number.POSITIVE_INFINITY];
    let page = 0;
    let limit = 10;
    let subcategorie = null;
@@ -371,12 +402,6 @@ router.get('/brand/:brand_id', async (req,res) => {
 if (req.query.sortBy) {
       const parts = req.query.sortBy.split(':');
       order.push(parts);
-   }
-   // Filter By Price Range
-   if (req.query.priceRange) {
-      let rangeBetween = req.query.priceRange.split(':');
-      rangeBetween.forEach((val,index) => rangeBetween[index] = Number(val));
-      range = rangeBetween;
    }
    // limit
    if (req.query.limit) {
@@ -398,7 +423,7 @@ if (req.query.sortBy) {
       }
 
       if(subcategorie){
-         products = await Brand.findAndCountAll({
+         products = await Brand.findOne({
                where : {
                   brand_id : req.params.brand_id
                },
@@ -410,21 +435,18 @@ if (req.query.sortBy) {
                      limit,
                      offset: page,
                      where : {
-                           [Op.and] : [
-                              {subcategorieId : subcategorie},
-                              {
-                                 price_tmt : {
-                                       [Op.between] : range
-                                 }
-                              }
-                           ]
-                     }
+                        subcategorieId : subcategorie
+                     },
+                     include :{
+                        model : Brand,
+                        as : 'brand'
+                    }
                   }
                ]
          });
       }
       else{
-         products = await Brand.findAndCountAll({
+         products = await Brand.findOne({
                where : {
                   brand_id : req.params.brand_id
                },
@@ -435,16 +457,18 @@ if (req.query.sortBy) {
                      order,
                      limit,
                      offset: page,
-                     where : {
-                           price_tmt : {
-                              [Op.between] : range
-                           }
+                     include :{
+                         model : Brand,
+                         as : 'brand'
                      }
                   }
                ]
          });
       }
-      return res.json(products)
+      return res.json({
+        products: products.products,
+        count : products.products.length
+    })
    }
    catch (error) {
       console.log(error);
@@ -462,9 +486,7 @@ if (req.query.sortBy) {
 */
 /* @filter : 
       price_range: /products?priceRange=20:100
-      brand:   /products?brand=brand_id
-      TODO color: /products?color=blue                    
-      TODO size: /products?size=M                         
+      brand:   /products?brand=brand_id                 
 */
 /* @limit&pagination : /products?limit=10&page=2 */
 
@@ -473,10 +495,8 @@ router.get('/search', async (req,res) => {
 
 
     let order = [];
-    let range = [0, Number.POSITIVE_INFINITY];
     let page = 0;
     let limit = 10;
-    let subcategorie = null;
     let searchArray = ['', '', '',''];
     // 
     let products = [];
@@ -485,12 +505,6 @@ router.get('/search', async (req,res) => {
    if (req.query.sortBy) {
         const parts = req.query.sortBy.split(':');
         order.push(parts);
-    }
-    // Filter By Price Range
-    if (req.query.priceRange) {
-        let rangeBetween = req.query.priceRange.split(':');
-        rangeBetween.forEach((val,index) => rangeBetween[index] = Number(val));
-        range = rangeBetween;
     }
     // limit
     if (req.query.limit) {
@@ -518,23 +532,49 @@ router.get('/search', async (req,res) => {
             limit,
             offset: page,
             where : {
-                price_tmt: {
-                    [Op.between]: range
-                },
-                [Op.or]: [{
-                    product_name: {
-                        [Op.like]: {
-                            [Op.any]: searchArray
+                [Op.or]: [
+                    {
+                        product_name_tm: {
+                            [Op.like]: {
+                                [Op.any]: searchArray
+                            }
                         }
-                    }
-                },
-                {
-                    description: {
-                        [Op.like]: {
-                            [Op.any]: searchArray
+                    },
+                    {
+                        product_name_ru: {
+                            [Op.like]: {
+                                [Op.any]: searchArray
+                            }
                         }
-                    }
-                },
+                    },
+                    {
+                        product_name_en: {
+                            [Op.like]: {
+                                [Op.any]: searchArray
+                            }
+                        }
+                    },
+                    {
+                        description_tmt: {
+                            [Op.like]: {
+                                [Op.any]: searchArray
+                            }
+                        }
+                    },
+                    {
+                        description_ru: {
+                            [Op.like]: {
+                                [Op.any]: searchArray
+                            }
+                        }
+                    },
+                    {
+                        description_en: {
+                            [Op.like]: {
+                                [Op.any]: searchArray
+                            }
+                        }
+                    },
                 ]
             },
             include : [
