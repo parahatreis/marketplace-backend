@@ -160,6 +160,14 @@ router.get('/', async (req,res) => {
                     model : Store,
                     as : 'store',
                     attributes : ['store_id', 'store_name']
+                },
+                {
+                   model: Stock,
+                   as: 'stocks',
+                   include: {
+                      model: SizeName,
+                      as : 'sizeName'
+                   }
                 }
             ]
         });
@@ -631,7 +639,11 @@ router.get('/:product_id', async (req, res) => {
                     {
                         model : SizeName,
                         as : 'sizeName',
-                    }
+                   },
+                   {
+                      model: SizeType,
+                      as: 'sizeType',
+                   }
                 ]
             }
           ]
