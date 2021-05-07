@@ -41,6 +41,6 @@ app.listen(PORT, async () => {
    console.log(`Server started on ${PORT}`);
    // Sync database
    // to update model in db .sync({force : false})
-   await sequelize.authenticate();
+   await sequelize.sync({force : false});
    console.log('Database Connected')
 });

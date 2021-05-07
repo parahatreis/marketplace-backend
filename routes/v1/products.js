@@ -29,6 +29,8 @@ router.post('/', async (req, res) => {
         description_en,
         price_tmt,
         price_usd,
+       old_price_tmt,
+        old_price_usd,
         subcategorie_id,
         brand_id,
         store_id,
@@ -53,6 +55,8 @@ router.post('/', async (req, res) => {
     if(description_en) newObj.description_en = description_en;
     if(price_tmt) newObj.price_tmt = price_tmt;
     if(price_usd) newObj.price_usd = price_usd;
+    if (old_price_tmt) newObj.old_price_tmt = old_price_tmt;
+    if (old_price_usd) newObj.old_price_usd = old_price_usd;
     if(price_usd) newObj.isProductUsd = true;
 
     try {
@@ -710,40 +714,45 @@ router.patch('/:product_id', async (req, res) => {
     let newObj = {};
 
     const {
-        product_code,
-        product_name_tm,
-        product_name_en,
-        product_name_ru,
-        description_tm,
-        description_ru,
-        description_en,
-        price_tmt,
-        price_usd,
-        subcategorie_id,
-        brand_id,
-        store_id,
-        stocks
+       product_code,
+       product_name_tm,
+       product_name_en,
+       product_name_ru,
+       description_tm,
+       description_ru,
+       description_en,
+       price_tmt,
+       price_usd,
+       old_price_tmt,
+       old_price_usd,
+       subcategorie_id,
+       brand_id,
+       store_id,
+       stocks
     } = req.body;
 
     // Validate
-    if(!product_code) return res.status(400).send('Input Product Code');
-    if(!product_name_tm) return res.status(400).send('Input Product Name');
-    if(!product_name_en) return res.status(400).send('Input Product Name');
-    if(!product_name_ru) return res.status(400).send('Input Product Name');
-    if(!price_tmt && !price_usd) return res.status(400).send('Input Product Price');
-    if(!subcategorie_id) return res.status(400).send('Input Subcategorie');
+    if (!product_code) return res.status(400).send('Input Product Code');
+    if (!product_name_tm) return res.status(400).send('Input Product Name');
+    if (!product_name_en) return res.status(400).send('Input Product Name');
+    if (!product_name_ru) return res.status(400).send('Input Product Name');
+    if (!price_tmt && !price_usd) return res.status(400).send('Input Product Price');
+    if (!subcategorie_id) return res.status(400).send('Input Subcategorie');
 
 
-    if(product_code) newObj.product_code = product_code;
-    if(product_name_tm) newObj.product_name_tm = product_name_tm;
-    if(product_name_en) newObj.product_name_en = product_name_en;
-    if(product_name_ru) newObj.product_name_ru = product_name_ru;
-    if(description_tm) newObj.description_tm = description_tm;
-    if(description_ru) newObj.description_ru = description_ru;
-    if(description_en) newObj.description_en = description_en;
-    if(price_tmt) newObj.price_tmt = price_tmt;
-    if(price_usd) newObj.price_usd = price_usd;
-    if(price_usd) newObj.isProductUsd = true;
+    if (product_code) newObj.product_code = product_code;
+    if (product_name_tm) newObj.product_name_tm = product_name_tm;
+    if (product_name_en) newObj.product_name_en = product_name_en;
+    if (product_name_ru) newObj.product_name_ru = product_name_ru;
+    if (description_tm) newObj.description_tm = description_tm;
+    if (description_ru) newObj.description_ru = description_ru;
+    if (description_en) newObj.description_en = description_en;
+    if (price_tmt) newObj.price_tmt = price_tmt;
+    if (price_usd) newObj.price_usd = price_usd;
+    if (old_price_tmt) newObj.old_price_tmt = old_price_tmt;
+    if (old_price_usd) newObj.old_price_usd = old_price_usd;
+      if (price_usd) newObj.isProductUsd = true;
+   
 
     try {
 

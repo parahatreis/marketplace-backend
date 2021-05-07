@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 // Models
-const { Order , OrderProduct, Product, User, Stock } = require('../../models');
+const { Order , OrderProduct, Product, User, Stock, Store,SizeName } = require('../../models');
 // auth
 const userAuth = require('../../middleware/userAuth');
 
@@ -15,7 +15,7 @@ router.post('/', userAuth , async (req, res) => {
     const {
         products,
         address,
-        payment_type,
+       payment_type,
     } = req.body;
 
     if(!products) return res.status(400).send('Please Choose Products')
@@ -50,15 +50,16 @@ router.post('/', userAuth , async (req, res) => {
                 payment_type : req.body.payment_type
             })
 
-            await products.forEach(async (val,index) => {
+           await products.forEach(async (val, index) => {
                 const product = await Product.findOne({where : {product_id : val.product_id}}); 
-                const stock = await Stock.findOne({where : {stock_id : val.stock_id}});
-
+                  const stock = await Stock.findOne({ where: { stock_id: val.stock_id } });
+                  
                 await OrderProduct.create({
                     productId : product.id,
                     orderId : order.id,
                     sold_price : product.price_tmt,
-                    quantity : val.quantity
+                   quantity: val.quantity,
+                    sizeNameId: stock.sizeNameId
                 });
 
                 // Mukdar sany azalya
@@ -70,7 +71,7 @@ router.post('/', userAuth , async (req, res) => {
                 if(index === products.length - 1){
                     order.subtotal = total_price;
                     await order.save();
-                    return res.json('')
+                    return res.json({msg : 'Sargyt ugradyldy!'})
                 }
             });
         }
@@ -121,6 +122,52 @@ router.get('/' , async (req, res) => {
     }
 });
 
+
+// @route GET v1/orders/:order_id
+// @desc Get order by id
+// @access Public
+router.get('/:order_id' , async (req, res) => {
+
+   try {
+      
+      const orders = await Order.findOne({
+         where : {order_id : req.params.order_id},
+         include : [
+               {
+                  model : OrderProduct,
+                  as : 'order_products',
+                  include: [
+                     {
+                        model: Product,
+                        as: 'product',
+                        include: [
+                           {
+                              model: Store,
+                              as : 'store'
+                           }
+                        ]
+                     },
+                     {
+                        model: SizeName,
+                        as: 'size_name',
+                     },
+                  ]
+            },
+            {
+               model: User,
+               as: 'user',
+               attributes: ['user_id', 'user_name', 'user_phone']
+            }
+         ]
+      });
+      
+      return res.json(orders)
+
+   } catch (error) {
+      console.log(error);
+      res.status(400).send('Server error')
+   }
+});
 
 
 // @route POST v1/orders/status/:order_id

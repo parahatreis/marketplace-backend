@@ -20,6 +20,10 @@ module.exports = {
         type : DataTypes.INTEGER,
         allowNull : false
       },
+      sizeNameId: {
+         type: DataTypes.INTEGER,
+         allowNull: true
+      },
       sold_price: {
         type : DataTypes.DOUBLE,
         allowNull : false
