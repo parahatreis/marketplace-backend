@@ -70,7 +70,7 @@ router.post('/', userAuth , async (req, res) => {
                 if(index === products.length - 1){
                     order.subtotal = total_price;
                     await order.save();
-                    return res.json(order)
+                    return res.json('')
                 }
             });
         }

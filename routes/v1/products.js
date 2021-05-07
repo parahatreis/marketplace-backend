@@ -20,10 +20,11 @@ router.post('/', async (req, res) => {
     let newObj = {};
 
     const {
+        product_code,
         product_name_tm,
         product_name_en,
         product_name_ru,
-        description_tmt,
+        description_tm,
         description_ru,
         description_en,
         price_tmt,
@@ -35,6 +36,7 @@ router.post('/', async (req, res) => {
     } = req.body;
 
     // Validate
+    if(!product_code) return res.status(400).send('Input Product Code');
     if(!product_name_tm) return res.status(400).send('Input Product Name');
     if(!product_name_en) return res.status(400).send('Input Product Name');
     if(!product_name_ru) return res.status(400).send('Input Product Name');
@@ -42,10 +44,11 @@ router.post('/', async (req, res) => {
     if(!subcategorie_id) return res.status(400).send('Input Subcategorie');
 
 
+    if(product_code) newObj.product_code = product_code;
     if(product_name_tm) newObj.product_name_tm = product_name_tm;
     if(product_name_en) newObj.product_name_en = product_name_en;
     if(product_name_ru) newObj.product_name_ru = product_name_ru;
-    if(description_tmt) newObj.description_tmt = description_tmt;
+    if(description_tm) newObj.description_tm = description_tm;
     if(description_ru) newObj.description_ru = description_ru;
     if(description_en) newObj.description_en = description_en;
     if(price_tmt) newObj.price_tmt = price_tmt;
@@ -241,6 +244,7 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
             brand = findBrand.id
         }
         if(brand && sizeNameId){
+            console.log(1)
             products = await SubCategorie.findOne({
                 where : {
                     subcategorie_id : req.params.subcategorie_id
@@ -280,6 +284,7 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
         });
         }
         else if(brand){
+            console.log(2)
             products = await SubCategorie.findOne({
                 where : {
                     subcategorie_id : req.params.subcategorie_id
@@ -312,6 +317,7 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
             });
         }
         else if (sizeNameId) {
+            console.log(3)
             products = await SubCategorie.findOne({
             where: {
                 subcategorie_id: req.params.subcategorie_id
@@ -344,6 +350,7 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
             });
         }
         else{
+            console.log(4)
             products = await SubCategorie.findOne({
                 where : {
                     subcategorie_id : req.params.subcategorie_id
@@ -356,20 +363,21 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
                         limit,
                         offset: page,
                         where : {
-                        price_tmt : {
-                            [Op.between] : range
-                        }
+                            price_tmt : {
+                                [Op.between] : range
+                            }
                         },
                         include: [
-                        {
-                            model: Brand,
-                            as: 'brand',
-                        }
+                            {
+                                model: Brand,
+                                as: 'brand',
+                            }
                         ]
                     }
                 ]
             });
         }
+        console.log(products)
         return res.json({
             products: products.products,
             count : products.products.length
@@ -702,10 +710,11 @@ router.patch('/:product_id', async (req, res) => {
     let newObj = {};
 
     const {
+        product_code,
         product_name_tm,
         product_name_en,
         product_name_ru,
-        description_tmt,
+        description_tm,
         description_ru,
         description_en,
         price_tmt,
@@ -717,6 +726,7 @@ router.patch('/:product_id', async (req, res) => {
     } = req.body;
 
     // Validate
+    if(!product_code) return res.status(400).send('Input Product Code');
     if(!product_name_tm) return res.status(400).send('Input Product Name');
     if(!product_name_en) return res.status(400).send('Input Product Name');
     if(!product_name_ru) return res.status(400).send('Input Product Name');
@@ -724,10 +734,11 @@ router.patch('/:product_id', async (req, res) => {
     if(!subcategorie_id) return res.status(400).send('Input Subcategorie');
 
 
+    if(product_code) newObj.product_code = product_code;
     if(product_name_tm) newObj.product_name_tm = product_name_tm;
     if(product_name_en) newObj.product_name_en = product_name_en;
     if(product_name_ru) newObj.product_name_ru = product_name_ru;
-    if(description_tmt) newObj.description_tmt = description_tmt;
+    if(description_tm) newObj.description_tm = description_tm;
     if(description_ru) newObj.description_ru = description_ru;
     if(description_en) newObj.description_en = description_en;
     if(price_tmt) newObj.price_tmt = price_tmt;
@@ -758,53 +769,78 @@ router.patch('/:product_id', async (req, res) => {
             newObj.storeId = store.id;
         }
 
-        const product = await Product.update(newObj, {where : {product_id : req.params.product_id}});
+        const product = await Product.findOne({where : {product_id : req.params.product_id}});
+        await Product.update(newObj, {where : {product_id : req.params.product_id}});
 
 
         // Create Product Stocks
        if (stocks) {
-           console.log(stocks)
             if(stocks.length > 0){
-                stocks.forEach(async (stock) => {
+                // If stock id exists then update
+                if(stocks[0].stock_id){
+                    stocks.forEach(async (stock) => {
 
-                    let sizeType = null;
-                    let sizeName = null;
-
-                   if (stock.sizeType) {
-                       if (stock.sizeType.size_type_id) {
-                          // Find Size Type
-                          sizeType = await SizeType.findOne({
-                             where: {
-                                size_type_id: stock.sizeType.size_type_id
-                             }
-                          });
-                          if (!sizeType) return res.status(404).send('Size Type not found!');
-                       }
-                    }
-                   if (stock.sizeName) {
-                       if (stock.sizeName.size_name_id) {
-                          // Find Size Name
-                          sizeName = await SizeName.findOne({
-                             where: {
-                                size_name_id: stock.sizeName.size_name_id
-                             }
-                          });
-                          if (!sizeName) return res.status(404).send("Size Name Not found")
-                       }
-                    }
-                    
-
-                    await Stock.update({
-                        stock_quantity : stock.stock_quantity,
-                        sizeTypeId : sizeType ? sizeType.id : null,
-                        sizeNameId : sizeName ? sizeName.id : null,
-                        productId : product.id
-                    },{
-                        where : {
-                            stock_id : stock.stock_id
+                        let sizeType = null;
+                        let sizeName = null;
+    
+                        if (stock.size_type_id) {
+                            // Find Size Type
+                            sizeType = await SizeType.findOne({
+                               where: {
+                                  size_type_id: stock.size_type_id
+                               }
+                            });
+                            if (!sizeType) return res.status(404).send('Size Type not found!');
                         }
-                    });
-                })
+                        if (stock.size_name_id) {
+                            // Find Size Name
+                            sizeName = await SizeName.findOne({
+                               where: {
+                                  size_name_id: stock.size_name_id
+                               }
+                            });
+                            if (!sizeName) return res.status(404).send("Size Name Not found")
+                        }
+                        await Stock.update({
+                            stock_quantity : stock.stock_quantity,
+                            sizeTypeId : sizeType ? sizeType.id : null,
+                            sizeNameId : sizeName ? sizeName.id : null,
+                            productId : product.id
+                        },{
+                            where : {
+                                stock_id : stock.stock_id
+                            }
+                        });
+                    })
+                }
+                // If stock id not exists then create
+                else{
+                    await Stock.destroy({where : {productId : product.id}})
+                    stocks.forEach(async (stock) => {
+
+                        let sizeType = null;
+                        let sizeName = null;
+    
+                        if(stock.size_type_id){
+                            // Find Size Type
+                            sizeType = await SizeType.findOne({where:{size_type_id : stock.size_type_id}});
+                            if(!sizeType)  return res.status(404).send('Size Type not found!');
+                        }
+    
+                        if(stock.size_name_id){
+                            // Find Size Name
+                            sizeName = await SizeName.findOne({where:{size_name_id : stock.size_name_id}});
+                            if(!sizeName) return res.status(404).send("Size Name Not found")
+                        }
+    
+                        await Stock.create({
+                            stock_quantity : stock.stock_quantity,
+                            sizeTypeId : sizeType ? sizeType.id : null,
+                            sizeNameId : sizeName ? sizeName.id : null,
+                            productId : product.id
+                        });
+                    })
+                }
             }
         }
 

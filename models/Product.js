@@ -33,6 +33,10 @@ module.exports = (sequelize, DataTypes) => {
       type : DataTypes.UUID,
       defaultValue : DataTypes.UUIDV4
     },
+    product_code: {
+      type : DataTypes.STRING,
+      allowNull : false
+    },
     product_name_tm: {
       type : DataTypes.STRING,
       allowNull : false
@@ -51,6 +55,12 @@ module.exports = (sequelize, DataTypes) => {
     price_usd : {
       type : DataTypes.DOUBLE
     },
+    old_price_tmt: {
+      type : DataTypes.DOUBLE
+    },
+    old_price_usd : {
+      type : DataTypes.DOUBLE
+    },
     isPriceUsd : {
       type : DataTypes.BOOLEAN,
       defaultValue : false
@@ -59,7 +69,7 @@ module.exports = (sequelize, DataTypes) => {
       type : DataTypes.BOOLEAN,
       defaultValue : false
     },
-    description_tmt: {
+    description_tm: {
       type : DataTypes.TEXT
     },
     description_ru: {
