@@ -762,24 +762,37 @@ router.patch('/:product_id', async (req, res) => {
 
 
         // Create Product Stocks
-        if(stocks){
+       if (stocks) {
+           console.log(stocks)
             if(stocks.length > 0){
                 stocks.forEach(async (stock) => {
 
                     let sizeType = null;
                     let sizeName = null;
 
-                    if(stock.size_type_id){
-                        // Find Size Type
-                        sizeType = await SizeType.findOne({where:{size_type_id : stock.size_type_id}});
-                        if(!sizeType)  return res.status(404).send('Size Type not found!');
+                   if (stock.sizeType) {
+                       if (stock.sizeType.size_type_id) {
+                          // Find Size Type
+                          sizeType = await SizeType.findOne({
+                             where: {
+                                size_type_id: stock.sizeType.size_type_id
+                             }
+                          });
+                          if (!sizeType) return res.status(404).send('Size Type not found!');
+                       }
                     }
-
-                    if(stock.size_name_id){
-                        // Find Size Name
-                        sizeName = await SizeName.findOne({where:{size_name_id : stock.size_name_id}});
-                        if(!sizeName) return res.status(404).send("Size Name Not found")
+                   if (stock.sizeName) {
+                       if (stock.sizeName.size_name_id) {
+                          // Find Size Name
+                          sizeName = await SizeName.findOne({
+                             where: {
+                                size_name_id: stock.sizeName.size_name_id
+                             }
+                          });
+                          if (!sizeName) return res.status(404).send("Size Name Not found")
+                       }
                     }
+                    
 
                     await Stock.update({
                         stock_quantity : stock.stock_quantity,
