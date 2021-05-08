@@ -967,13 +967,16 @@ router.patch('/status/:product_id', async (req, res) => {
 
    let status = req.body.product_status ? 1 : 0;
 
+   console.log(status)
+
+
    try {
 
       const product = await Product.findOne({ where: { product_id: req.params.product_id } });
 
       if (!product) return res.status(404).send('Product not found');
 
-      const upt = await Product.update({
+      await Product.update({
          product_status : Boolean(status)
       },{
          where: {
@@ -981,7 +984,9 @@ router.patch('/status/:product_id', async (req, res) => {
          }
       });
 
-      res.json(upt);
+
+
+      res.json(status);
 
    } catch (error) {
       console.log(error);

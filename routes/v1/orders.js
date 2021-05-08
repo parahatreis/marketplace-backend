@@ -93,7 +93,8 @@ router.get('/' , async (req, res) => {
 
     try {
         
-        const orders = await Order.findAll({
+       const orders = await Order.findAll({
+            order : [['createdAt', 'DESC']], 
             include : [
                 {
                     model : OrderProduct,
@@ -188,10 +189,9 @@ router.post('/status/:order_id' , async (req, res) => {
             order_id : req.params.order_id
         })
         
-        if(!order) return res.status(404).send('Order not found!');
+       if (!order) return res.status(404).send('Order not found!');
 
-        order.order_status = order_status
-        await order.save();
+       await Order.update({order_status}, {where : {order_id : req.params.order_id}});
         
         return res.send(`Order Status Changed to ' ${order_status} '`)
  
