@@ -148,7 +148,7 @@ router.get('/', async (req,res) => {
     }
 
     try {
-        const products = await Product.findAndCountAll({
+        const products = await Product.findAll({
             order,
             limit,
             offset: page,
@@ -178,7 +178,10 @@ router.get('/', async (req,res) => {
                 }
             ]
         });
-        return res.json(products)
+        return res.json({
+            rows : products,
+            count :  products.length,
+        })
     }
     catch (error) {
         console.log(error);
