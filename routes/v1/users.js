@@ -22,6 +22,8 @@ router.post('/', async (req, res) => {
         user_email
     } = req.body;
 
+    console.log(req.body)
+
     try {
         // Check user exists
         let user = await User.findOne({
@@ -123,6 +125,34 @@ router.post('/login',async (req, res) => {
     }
 });
 
+// @route POST v1/users/login
+// @desc Login User
+// @access Public
+router.post('/check-user',async (req, res) => {
+
+    const {
+        user_phone,
+    } = req.body;
+
+    try {
+        // Check user exists
+        let user = await User.findOne({
+            where: {
+                user_phone : Number(user_phone)
+            }
+        });
+        // user checking
+        if (user) {
+            return res.status(400).send("User already exists!")
+        }
+
+        res.status(200).send()
+
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send('Server error')
+    }
+});
 
 // @route GET v1/auth
 // @desc Get auht user
