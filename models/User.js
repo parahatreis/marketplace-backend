@@ -41,6 +41,10 @@ module.exports = (sequelize, DataTypes) => {
     user_password: {
       type : DataTypes.STRING,
       allowNull : false
+    },
+    user_address : {
+      type : DataTypes.STRING,
+      allowNull : true
     }
   }, {
     sequelize,

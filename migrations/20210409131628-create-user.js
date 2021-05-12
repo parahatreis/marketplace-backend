@@ -28,6 +28,10 @@ module.exports = {
         type : DataTypes.STRING,
         allowNull : false
       },
+      user_address : {
+        type : DataTypes.STRING,
+        allowNull : true
+      },
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE

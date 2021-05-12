@@ -73,6 +73,49 @@ router.post('/', async (req, res) => {
 });
 
 
+// @route PATCH v1/users
+// @desc Update User Info
+// @access Private
+router.patch('/', userAuth,  async (req, res) => {
+
+    const {
+        user_name,
+        user_phone,
+        user_address
+    } = req.body;
+
+    try {
+        // Check user exists
+        let user = await User.findOne({
+            where: {
+                user_id : req.user.id
+            }
+        });
+
+        if(!user) return res.status(400).send('User not exists!')
+
+        await User.update({
+            user_name,
+            user_phone : Number(user_phone),
+            user_address
+        },{
+            where: {
+                user_id : user.user_id
+            }
+        });
+
+       res.json({
+           msg : 'User updated'
+       })
+    }
+    catch (error) {
+        console.log(error)
+        res.status(500).send('Server error')
+    }
+
+
+});
+
 // @route POST v1/users/login
 // @desc Login User
 // @access Public

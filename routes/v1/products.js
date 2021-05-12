@@ -578,7 +578,7 @@ router.get('/search', async (req,res) => {
                         }
                     },
                     {
-                        description_tmt: {
+                        description_tm: {
                             [Op.like]: {
                                 [Op.any]: searchArray
                             }
