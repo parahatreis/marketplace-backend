@@ -58,36 +58,29 @@ router.get('/', async (req, res) => {
                include : [{
                   model : SubCategorie,
                   as : 'subcategorie',
-                  include : [
-                     {
-                        model : Product,
-                        as : 'products',
-                        limit: 10,
-                        where: {
-                           product_status: true 
+                  include: {
+                     model: Product,
+                     as: 'products',
+                     limit: 10,
+                     include: [{
+                           model: Brand,
+                           as: 'brand'
                         },
-                        include: [
-                            {
-                                model: Brand,
-                                as : 'brand'
-                            },
-                            {
-                                model : Stock,
-                                as : 'stocks',
-                                include : [
-                                    {
-                                        model : SizeName,
-                                        as : 'sizeName',
-                                   },
-                                   {
-                                      model: SizeType,
-                                      as: 'sizeType',
-                                   }
-                                ]
-                            }
-                        ]
-                     },
-                  ]
+                        {
+                           model: Stock,
+                           as: 'stocks',
+                           include: [{
+                                 model: SizeName,
+                                 as: 'sizeName',
+                              },
+                              {
+                                 model: SizeType,
+                                 as: 'sizeType',
+                              }
+                           ]
+                        }
+                     ]
+                  }
                }]
          });
       }

@@ -55,11 +55,11 @@ router.post('/', userAuth , async (req, res) => {
                   const stock = await Stock.findOne({ where: { stock_id: val.stock_id } });
                   
                 await OrderProduct.create({
-                    productId : product.id,
-                    orderId : order.id,
-                    sold_price : product.price_tmt,
-                   quantity: val.quantity,
-                    sizeNameId: stock.sizeNameId
+                     productId : product.id,
+                     orderId : order.id,
+                     sold_price : product.price_tmt,
+                     quantity: val.quantity,
+                     sizeNameId: stock.sizeNameId
                 });
 
                 // Mukdar sany azalya

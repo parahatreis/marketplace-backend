@@ -177,6 +177,8 @@ router.post('/check-user',async (req, res) => {
         user_phone,
     } = req.body;
 
+   console.log(req.body)
+
     try {
         // Check user exists
         let user = await User.findOne({
