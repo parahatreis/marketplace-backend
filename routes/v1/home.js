@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Home, SubCategorie, Product, Brand } = require('../../models');
+const { Home, SubCategorie, Product, Brand, Stock, SizeName, SizeType } = require('../../models');
 
 
 // @route POST v1/home_subcategories
@@ -66,10 +66,26 @@ router.get('/', async (req, res) => {
                         where: {
                            product_status: true 
                         },
-                        include: {
-                           model: Brand,
-                           as : 'brand'
-                        }
+                        include: [
+                            {
+                                model: Brand,
+                                as : 'brand'
+                            },
+                            {
+                                model : Stock,
+                                as : 'stocks',
+                                include : [
+                                    {
+                                        model : SizeName,
+                                        as : 'sizeName',
+                                   },
+                                   {
+                                      model: SizeType,
+                                      as: 'sizeType',
+                                   }
+                                ]
+                            }
+                        ]
                      },
                   ]
                }]

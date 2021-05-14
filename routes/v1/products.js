@@ -273,19 +273,26 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
                                 }
                             ]
                     },
-                    include: [
+                    include : [
                         {
-                            model: Stock,
-                            as: 'stocks',
-                            where: {
-                                sizeNameId: sizeNameId.id
-                            }
+                            model : Brand,
+                            as : 'brand'
                         },
                         {
-                            model: Brand,
-                            as: 'brand',
+                            model : Stock,
+                            as : 'stocks',
+                            include : [
+                                {
+                                    model : SizeName,
+                                    as : 'sizeName',
+                               },
+                               {
+                                  model: SizeType,
+                                  as: 'sizeType',
+                               }
+                            ]
                         }
-                        ]
+                     ]
                     }
                 ]
         });
@@ -313,12 +320,26 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
                                 }
                             ]
                         },
-                        include: [
-                        {
-                            model: Brand,
-                            as: 'brand',
-                        }
-                        ]
+                        include : [
+                            {
+                                model : Brand,
+                                as : 'brand'
+                            },
+                            {
+                                model : Stock,
+                                as : 'stocks',
+                                include : [
+                                    {
+                                        model : SizeName,
+                                        as : 'sizeName',
+                                   },
+                                   {
+                                      model: SizeType,
+                                      as: 'sizeType',
+                                   }
+                                ]
+                            }
+                         ]
                     }
                 ]
             });
@@ -340,19 +361,26 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
                         [Op.between]: range
                     }
                 },
-                include: [
+                include : [
                     {
-                        model: Stock,
-                        as: 'stocks',
-                        where: {
-                        sizeNameId: sizeNameId.id
-                        }
+                        model : Brand,
+                        as : 'brand'
                     },
                     {
-                        model: Brand,
-                        as: 'brand',
+                        model : Stock,
+                        as : 'stocks',
+                        include : [
+                            {
+                                model : SizeName,
+                                as : 'sizeName',
+                           },
+                           {
+                              model: SizeType,
+                              as: 'sizeType',
+                           }
+                        ]
                     }
-                ]
+                 ]
             }]
             });
         }
@@ -374,12 +402,26 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
                                 [Op.between] : range
                             }
                         },
-                        include: [
+                        include : [
                             {
-                                model: Brand,
-                                as: 'brand',
+                                model : Brand,
+                                as : 'brand'
+                            },
+                            {
+                                model : Stock,
+                                as : 'stocks',
+                                include : [
+                                    {
+                                        model : SizeName,
+                                        as : 'sizeName',
+                                   },
+                                   {
+                                      model: SizeType,
+                                      as: 'sizeType',
+                                   }
+                                ]
                             }
-                        ]
+                         ]
                     }
                 ]
             });
@@ -460,10 +502,26 @@ if (req.query.sortBy) {
                      where : {
                         subcategorieId : subcategorie
                      },
-                     include :{
-                        model : Brand,
-                        as : 'brand'
-                    }
+                     include : [
+                        {
+                            model : Brand,
+                            as : 'brand'
+                        },
+                        {
+                            model : Stock,
+                            as : 'stocks',
+                            include : [
+                                {
+                                    model : SizeName,
+                                    as : 'sizeName',
+                               },
+                               {
+                                  model: SizeType,
+                                  as: 'sizeType',
+                               }
+                            ]
+                        }
+                     ]
                   }
                ]
          });
@@ -480,10 +538,26 @@ if (req.query.sortBy) {
                      order,
                      limit,
                      offset: page,
-                     include :{
-                         model : Brand,
-                         as : 'brand'
-                     }
+                     include : [
+                        {
+                            model : Brand,
+                            as : 'brand'
+                        },
+                        {
+                            model : Stock,
+                            as : 'stocks',
+                            include : [
+                                {
+                                    model : SizeName,
+                                    as : 'sizeName',
+                               },
+                               {
+                                  model: SizeType,
+                                  as: 'sizeType',
+                               }
+                            ]
+                        }
+                     ]
                   }
                ]
          });
@@ -609,6 +683,20 @@ router.get('/search', async (req,res) => {
                     model : SubCategorie,
                     as : 'subcategorie',
                 },
+                {
+                    model : Stock,
+                    as : 'stocks',
+                    include : [
+                        {
+                            model : SizeName,
+                            as : 'sizeName',
+                       },
+                       {
+                          model: SizeType,
+                          as: 'sizeType',
+                       }
+                    ]
+                }
             ]
         });
         return res.json(products)
