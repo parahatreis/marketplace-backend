@@ -761,6 +761,42 @@ router.get('/:product_id', async (req, res) => {
     }
 });
 
+// @route GET api/products/:product_id
+// @desc Get Product by id
+// @access Public
+router.get('/related-products/:product_id', async (req, res) => {
+
+    try {
+       const product = await Product.findOne({
+          where: {
+             product_id: req.params.product_id
+          },
+       });
+ 
+       if (!product) res.status(404).send('Product not found');
+
+
+       const productArray = await Product.findAll({
+           where : {
+                [Op.and] : [
+                    {
+                        subcategorieId : product.subcategorieId 
+                    },
+                    {
+                        product_id : {[Op.not]: product.product_id},   
+                    },
+                ]
+           }
+       })
+ 
+       res.json(productArray);
+    }
+    catch (error) {
+       console.log(error);
+       res.status(500).send('Server error')
+    }
+});
+
 
 // @route DELETE api/products/:product_id
 // @desc Delete Product
