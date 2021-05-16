@@ -10,31 +10,39 @@ const userAuth = require('../../middleware/userAuth');
 // @access Public(Auth User)
 router.post('/', userAuth , async (req, res) => {
 
-    let total_price = 0;
+   let total_price = 0;
+   let hasEnaughQuantity = true;
 
     const {
         products,
         address,
-       payment_type,
+         payment_type,
     } = req.body;
+
+   
 
     if(!products) return res.status(400).send('Please Choose Products')
     if(products.length === 0) return res.status(400).send('Please Choose Products');
     if(!address) return res.status(400).send('Input address');
 
-    try {
+   try {
 
         // Check stock quantity
         products.forEach(async (val,index) => {
-            const findStock = await Stock.findOne({where : {stock_id : val.stock_id}});
+           const findStock = await Stock.findOne({ where: { stock_id: val.stock_id } });
 
-            if(findStock.stock_quantity <= val.quantity){
+           if (findStock.stock_quantity <= val.quantity) {
+               hasEnaughQuantity = false;
                 return res.status(400).json({msg : 'Ýeterlikli haryt mukdary ýok!'});
             }
             if(index === products.length - 1){
                 createOrder()
             }
         })
+      
+      if (!hasEnaughQuantity) {
+         return res.status(400).json({msg : 'Ýeterlikli haryt mukdary ýok!'});
+      }
 
         async function createOrder(){
             // Get auth user
