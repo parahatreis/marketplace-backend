@@ -951,7 +951,7 @@ router.patch('/:product_id', async (req, res) => {
                 }
                 // If stock id not exists then create
                 else{
-                    await Stock.destroy({where : {productId : product.id}})
+                    console.log
                     stocks.forEach(async (stock) => {
 
                         let sizeType = null;
@@ -969,12 +969,14 @@ router.patch('/:product_id', async (req, res) => {
                             if(!sizeName) return res.status(404).send("Size Name Not found")
                         }
     
-                        await Stock.create({
+                        await Stock.update({
                             stock_quantity : stock.stock_quantity,
                             sizeTypeId : sizeType ? sizeType.id : null,
                             sizeNameId : sizeName ? sizeName.id : null,
                             productId : product.id
-                        });
+                        }, {where : {
+                            stock_id : stock.stock_id
+                        }});
                     })
                 }
             }
@@ -1122,7 +1124,35 @@ router.patch('/status/:product_id', async (req, res) => {
  });
 
 
- 
+router.get('/home/top-products', async (req,res) => {
+
+    try {
+        const newProducts = await Product.findAll({
+            order : [['createdAt','DESC']],
+            limit : 4
+         });
+  
+         const discountProducts = await Product.findAll({
+            where: {
+               [Op.or] : {
+                  old_price_tmt: {
+                      [Op.not] : null
+                  }
+               }
+            },
+            limit : 4
+         });
+   
+         res.json({
+             newProducts,
+             discountProducts
+         });    
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send('Server error')
+    }
+})
  
 
 

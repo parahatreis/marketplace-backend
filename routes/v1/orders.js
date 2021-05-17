@@ -31,7 +31,7 @@ router.post('/', userAuth , async (req, res) => {
         products.forEach(async (val,index) => {
            const findStock = await Stock.findOne({ where: { stock_id: val.stock_id } });
 
-           if (findStock.stock_quantity <= val.quantity) {
+           if (findStock.stock_quantity < val.quantity) {
                hasEnaughQuantity = false;
                 return res.status(400).json({msg : 'Ýeterlikli haryt mukdary ýok!'});
             }
@@ -94,6 +94,59 @@ router.post('/', userAuth , async (req, res) => {
 });
 
 
+// @route POST v1/orders/check-stocks
+// @desc Check Product Stocks
+// @access Public
+router.post('/check-stocks' , async (req, res) => {
+
+   let lessStockProducts = [];
+
+    const {
+        products,
+    } = req.body;
+
+   
+
+    if(!products) return res.status(400).send('Please Choose Products');
+    if(products.length === 0) return res.status(400).send('Please Choose Products');
+
+   try {
+
+        // Check stock quantity
+        await products.forEach(async (product,index) => {
+            const findStock = await Stock.findOne({ 
+                where: { stock_id: product.stock_id },
+                include : {
+                    model : SizeName,
+                    as : 'sizeName'
+                } 
+            });
+            if (findStock.stock_quantity < product.quantity) {
+                if(findStock.sizeName){
+                    lessStockProducts.push({
+                        ...product,
+                        sizeNameId : findStock.sizeName.size_name_id
+                    })
+                }
+                else{
+                    lessStockProducts.push(product)
+                }
+            }
+            if(index === products.length - 1){
+                return res.send(lessStockProducts)
+            }
+        });
+
+        
+
+    } catch (error) {
+        console.log(error);
+        res.status(400).send('Server error')
+    }
+});
+
+
+
 // @route GET v1/orders
 // @desc Get all orders
 // @access Private
@@ -123,6 +176,57 @@ router.get('/' , async (req, res) => {
             ]
         });
         
+        return res.json(orders)
+ 
+    } catch (error) {
+       console.log(error);
+       res.status(400).send('Server error')
+    }
+});
+
+// @route GET v1/orders
+// @desc Get all orders
+// @access Private
+router.get('/user' , userAuth ,async (req, res) => {
+
+    try {
+
+        // Get auth user
+        const user = await User.findOne({
+            where: {
+                user_id : req.user.id
+            }
+        });
+
+        const orders = await Order.findAll({
+            order : [['createdAt', 'DESC']], 
+            include : [
+                {
+                    model : OrderProduct,
+                    as : 'order_products',
+                    include: [
+                        {
+                            model: Product,
+                            as: 'product',
+                            attributes: ['product_id', 'product_name_tm', 'product_name_ru', 'product_name_en'],
+                        },
+                        {
+                            model: SizeName,
+                            as: 'size_name',
+                         },
+                    ]
+                },
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['user_id', 'user_name', 'user_phone']
+                }
+            ],
+            where : {
+                userId : user.id
+            }
+        });
+
         return res.json(orders)
  
     } catch (error) {

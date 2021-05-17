@@ -21,9 +21,6 @@ router.post('/', async (req, res) => {
         user_password,
         user_email
     } = req.body;
-
-    console.log(req.body)
-
     try {
         // Check user exists
         let user = await User.findOne({
@@ -33,7 +30,9 @@ router.post('/', async (req, res) => {
             }
         });
 
-        if(user) return res.status(400).send('User already exists!')
+        if(user) return res.status(400).send({
+            msg : 'User already exists!'
+        })
 
 
         // Encrypt password
@@ -50,7 +49,7 @@ router.post('/', async (req, res) => {
         // Set token(JWT)
         const payload = {
             user: {
-            id: newUser.user_id
+                id: newUser.user_id
             }
         };
 
@@ -59,14 +58,16 @@ router.post('/', async (req, res) => {
         }, (err, token) => {
             if (err) throw err;
             res.json({
-            newUser,
-            token
+                msg: 'Successfully registered',
+                token
             });
         })
     }
     catch (error) {
         console.log(error)
-        res.status(500).send('Server error')
+        res.status(500).json({
+            msg : 'Server error'
+        })
     }
 
 
@@ -92,7 +93,9 @@ router.patch('/', userAuth,  async (req, res) => {
             }
         });
 
-        if(!user) return res.status(400).send('User not exists!')
+        if(!user) return res.status(400).json({
+            msg : 'User not exists!'
+        })
 
         await User.update({
             user_name,
@@ -136,12 +139,16 @@ router.post('/login',async (req, res) => {
         });
         // user checking
         if (!user) {
-            return res.status(404).send("User not found!")
+            return res.status(404).json({
+                msg : "User not found!"
+            })
         }
         const isMatch = await bcrypt.compareSync(user_password, user.user_password);
 
         if (!isMatch) {
-            return res.status(400).send("Password fail");
+            return res.status(400).json({
+                msg : "Password fail"
+            });
         }
 
 
@@ -157,14 +164,16 @@ router.post('/login',async (req, res) => {
         }, (err, token) => {
             if (err) throw err;
             res.json({
-            token
+                token,
+                msg : 'Login success'
             });
         })
 
 
     } catch (error) {
-        console.error(error.message);
-        res.status(500).send('Server error')
+        res.status(500).json({
+            msg : 'Server error'
+        })
     }
 });
 
@@ -177,8 +186,6 @@ router.post('/check-user',async (req, res) => {
         user_phone,
     } = req.body;
 
-   console.log(req.body)
-
     try {
         // Check user exists
         let user = await User.findOne({
@@ -188,14 +195,17 @@ router.post('/check-user',async (req, res) => {
         });
         // user checking
         if (user) {
-            return res.status(400).send("User already exists!")
+            return res.status(400).json({
+                msg : "User already exists!"
+            })
         }
 
         res.status(200).send()
 
     } catch (error) {
-        console.error(error.message);
-        res.status(500).send('Server error')
+        res.status(500).json({
+            msg : 'Server error'
+        })
     }
 });
 
