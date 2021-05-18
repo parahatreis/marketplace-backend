@@ -54,7 +54,7 @@ router.post('/', async (req, res) => {
         };
 
         jwt.sign(payload, config.get('jwtSecret'), {
-            expiresIn: '21600s'
+            expiresIn: '7d'
         }, (err, token) => {
             if (err) throw err;
             res.json({
@@ -160,7 +160,7 @@ router.post('/login',async (req, res) => {
         };
 
         jwt.sign(payload, config.get('jwtSecret'), {
-            expiresIn: '21600s'
+            expiresIn: '7d'
         }, (err, token) => {
             if (err) throw err;
             res.json({
