@@ -1129,7 +1129,25 @@ router.get('/home/top-products', async (req,res) => {
     try {
         const newProducts = await Product.findAll({
             order : [['createdAt','DESC']],
-            limit : 4
+           limit: 4,
+            include: [{
+                  model: Brand,
+                  as: 'brand'
+               },
+               {
+                  model: Stock,
+                  as: 'stocks',
+                  include: [{
+                        model: SizeName,
+                        as: 'sizeName',
+                     },
+                     {
+                        model: SizeType,
+                        as: 'sizeType',
+                     }
+                  ]
+               }
+            ]
          });
   
          const discountProducts = await Product.findAll({
@@ -1140,7 +1158,27 @@ router.get('/home/top-products', async (req,res) => {
                   }
                }
             },
-            limit : 4
+            limit : 4,
+            include : [
+               {
+                     model : Brand,
+                     as : 'brand'
+               },
+               {
+                     model : Stock,
+                     as : 'stocks',
+                     include : [
+                        {
+                           model : SizeName,
+                           as : 'sizeName',
+                        },
+                        {
+                           model: SizeType,
+                           as: 'sizeType',
+                        }
+                     ]
+               }
+            ]
          });
    
          res.json({
