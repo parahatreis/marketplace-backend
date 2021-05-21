@@ -180,7 +180,7 @@ router.get('/', async (req,res) => {
         });
         return res.json({
             rows : products,
-            count :  products.length,
+            count :  products.length + page,
         })
     }
     catch (error) {
@@ -251,8 +251,7 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
             brand = findBrand.id
         }
         if(brand && sizeNameId){
-            console.log(1)
-            products = await SubCategorie.findOne({
+            products = await Product.findAndCountAll({
                 where : {
                     subcategorie_id : req.params.subcategorie_id
                 },
@@ -429,7 +428,7 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
         console.log(products)
         return res.json({
             products: products.products,
-            count : products.products.length
+            count : products.products.length + page
         })
     }
     catch (error) {
@@ -458,8 +457,9 @@ router.get('/brand/:brand_id', async (req,res) => {
 
    let order = [];
    let page = 0;
-   let limit = 10;
+   let limit = 5;
    let subcategorie = null;
+   let brand = null;
    // 
    let products = [];
 
@@ -486,85 +486,45 @@ if (req.query.sortBy) {
          if(!findSubcategorie) return res.status(404).json({msg : 'Subcategorie not found!'})
          subcategorie = findSubcategorie.id
       }
+      // if brand
+      if(req.params.brand_id){
+        const findBrand = await Brand.findOne({ where: { brand_id: req.params.brand_id } });
+        if(!findBrand) return res.status(404).json({msg : 'Brand not found!'})
+        brand = findBrand.id
+     }
 
-      if(subcategorie){
-         products = await Brand.findOne({
-               where : {
-                  brand_id : req.params.brand_id
-               },
-               include : [
-                  {
-                     model : Product,
-                     as : 'products',
-                     order,
-                     limit,
-                     offset: page,
-                     where : {
-                        subcategorieId : subcategorie
-                     },
-                     include : [
-                        {
-                            model : Brand,
-                            as : 'brand'
-                        },
-                        {
-                            model : Stock,
-                            as : 'stocks',
-                            include : [
-                                {
-                                    model : SizeName,
-                                    as : 'sizeName',
-                               },
-                               {
-                                  model: SizeType,
-                                  as: 'sizeType',
-                               }
-                            ]
-                        }
-                     ]
-                  }
-               ]
-         });
-      }
-      else{
-         products = await Brand.findOne({
-               where : {
-                  brand_id : req.params.brand_id
-               },
-               include : [
-                  {
-                     model : Product,
-                     as : 'products',
-                     order,
-                     limit,
-                     offset: page,
-                     include : [
-                        {
-                            model : Brand,
-                            as : 'brand'
-                        },
-                        {
-                            model : Stock,
-                            as : 'stocks',
-                            include : [
-                                {
-                                    model : SizeName,
-                                    as : 'sizeName',
-                               },
-                               {
-                                  model: SizeType,
-                                  as: 'sizeType',
-                               }
-                            ]
-                        }
-                     ]
-                  }
-               ]
-         });
-      }
+     products = await Product.findAndCountAll({
+        where : {
+            brandId : brand
+        },
+        distinct : true,
+        order,
+        limit,
+        offset: page,
+        include : [
+            {
+                model : Brand,
+                as : 'brand'
+            },
+            {
+                model : Stock,
+                as : 'stocks',
+                include : [
+                    {
+                        model : SizeName,
+                        as : 'sizeName',
+                    },
+                    {
+                        model: SizeType,
+                        as: 'sizeType',
+                    }
+                ]
+            }
+        ]
+     });
       return res.json({
-        products: products.products,
-        count : products.products.length
+        products: products.rows,
+        count : products.count
     })
    }
    catch (error) {
@@ -593,7 +553,7 @@ router.get('/search', async (req,res) => {
 
     let order = [];
     let page = 0;
-    let limit = 10;
+    let limit = 5;
     let searchArray = ['', '', '',''];
     // 
     let products = [];
@@ -628,6 +588,7 @@ router.get('/search', async (req,res) => {
             order,
             limit,
             offset: page,
+            distinct : true,
             where : {
                 [Op.or]: [
                     {
@@ -699,7 +660,10 @@ router.get('/search', async (req,res) => {
                 }
             ]
         });
-        return res.json(products)
+        return res.json({
+            products: products.rows,
+            count : products.count
+        })
     }
     catch (error) {
         console.log(error);
