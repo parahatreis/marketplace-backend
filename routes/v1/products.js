@@ -212,8 +212,9 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
     let range = [0, Number.POSITIVE_INFINITY];
     let page = 0;
     let limit = 10;
-    let brand = null;
-    let sizeNameId = null
+    let brandId = null;
+    let sizeNameId = null;
+    let subcategorieId = null;
     // 
     let products = [];
 
@@ -242,117 +243,119 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
         // page
         if (req.query.size) {
             let size = req.query.size;
-            sizeNameId = await SizeName.findOne({where : {size_name_id : size }})
+            const findSize = await SizeName.findOne({where : {size_name_id : size }});
+            sizeNameId = findSize.id
         }
 
         // if brand
         if(req.query.brand){
             const findBrand = await Brand.findOne({where : {brand_id : req.query.brand}});
-            brand = findBrand.id
+            brandId = findBrand.id
         }
-        if(brand && sizeNameId){
+
+        // if brand
+        if(req.params.subcategorie_id){
+            const findSubcategorie = await SubCategorie.findOne({where : {subcategorie_id : req.params.subcategorie_id}});
+            subcategorieId = findSubcategorie.id
+        }
+
+
+        if(brandId && sizeNameId){
+            console.log(1)
             products = await Product.findAndCountAll({
                 where : {
-                    subcategorie_id : req.params.subcategorie_id
+                    subcategorieId
                 },
-                include : [
-                    {
-                    model : Product,
-                    as : 'products',
-                    order,
-                    limit,
-                    offset: page,
-                    where : {
-                            [Op.and] : [
-                                {brandId : brand},
-                                {
-                                price_tmt : {
-                                        [Op.between] : range
-                                }
-                                }
-                            ]
-                    },
-                    include : [
-                        {
-                            model : Brand,
-                            as : 'brand'
-                        },
-                        {
-                            model : Stock,
-                            as : 'stocks',
-                            include : [
-                                {
-                                    model : SizeName,
-                                    as : 'sizeName',
-                               },
-                               {
-                                  model: SizeType,
-                                  as: 'sizeType',
-                               }
-                            ]
-                        }
-                     ]
-                    }
-                ]
-        });
-        }
-        else if(brand){
-            console.log(2)
-            products = await SubCategorie.findOne({
+                order,
+                distinct : true,
+                limit,
+                offset: page,
                 where : {
-                    subcategorie_id : req.params.subcategorie_id
+                        [Op.and] : [
+                            {brandId},
+                            {
+                            price_tmt : {
+                                    [Op.between] : range
+                            }
+                            }
+                        ]
                 },
                 include : [
                     {
-                        model : Product,
-                        as : 'products',
-                        order,
-                        limit,
-                        offset: page,
+                        model : Brand,
+                        as : 'brand'
+                    },
+                    {
+                        model : Stock,
+                        as : 'stocks',
                         where : {
-                            [Op.and] : [
-                                {brandId : brand},
-                                {
-                                    price_tmt : {
-                                        [Op.between] : range
-                                    }
-                                }
-                            ]
+                            sizeNameId          
                         },
                         include : [
                             {
-                                model : Brand,
-                                as : 'brand'
+                                model : SizeName,
+                                as : 'sizeName',
                             },
                             {
-                                model : Stock,
-                                as : 'stocks',
-                                include : [
-                                    {
-                                        model : SizeName,
-                                        as : 'sizeName',
-                                   },
-                                   {
-                                      model: SizeType,
-                                      as: 'sizeType',
-                                   }
-                                ]
+                                model: SizeType,
+                                as: 'sizeType',
                             }
-                         ]
+                        ]
+                    }
+                ]
+            });
+        }
+        else if(brandId){
+            console.log(2)
+            products = await Product.findAndCountAll({
+                where : {
+                    subcategorieId
+                },
+                order,
+                distinct : true,
+                limit,
+                offset: page,
+                where : {
+                    [Op.and] : [
+                        {brandId},
+                        {
+                            price_tmt : {
+                                [Op.between] : range
+                            }
+                        }
+                    ]
+                },
+                include : [
+                    {
+                        model : Brand,
+                        as : 'brand'
+                    },
+                    {
+                        model : Stock,
+                        as : 'stocks',
+                        include : [
+                            {
+                                model : SizeName,
+                                as : 'sizeName',
+                            },
+                            {
+                                model: SizeType,
+                                as: 'sizeType',
+                            }
+                        ]
                     }
                 ]
             });
         }
         else if (sizeNameId) {
+            console.log('SS',sizeNameId)
             console.log(3)
-            products = await SubCategorie.findOne({
-            where: {
-                subcategorie_id: req.params.subcategorie_id
-            },
-            include: [{
-                model: Product,
-                as: 'products',
+            products = await Product.findAndCountAll({
+                where: {
+                    subcategorieId
+                },
                 order,
+                distinct : true,
                 limit,
                 offset: page,
                 where: {
@@ -368,67 +371,63 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
                     {
                         model : Stock,
                         as : 'stocks',
+                        where : {
+                            sizeNameId          
+                        },
                         include : [
                             {
                                 model : SizeName,
                                 as : 'sizeName',
-                           },
-                           {
-                              model: SizeType,
-                              as: 'sizeType',
-                           }
-                        ]
-                    }
-                 ]
-            }]
-            });
-        }
-        else{
-            console.log(4)
-            products = await SubCategorie.findOne({
-                where : {
-                    subcategorie_id : req.params.subcategorie_id
-                },
-                include : [
-                    {
-                        model : Product,
-                        as : 'products',
-                        order,
-                        limit,
-                        offset: page,
-                        where : {
-                            price_tmt : {
-                                [Op.between] : range
-                            }
-                        },
-                        include : [
-                            {
-                                model : Brand,
-                                as : 'brand'
                             },
                             {
-                                model : Stock,
-                                as : 'stocks',
-                                include : [
-                                    {
-                                        model : SizeName,
-                                        as : 'sizeName',
-                                   },
-                                   {
-                                      model: SizeType,
-                                      as: 'sizeType',
-                                   }
-                                ]
+                                model: SizeType,
+                                as: 'sizeType',
                             }
-                         ]
+                        ]
                     }
                 ]
             });
         }
-        console.log(products)
+        else{
+            console.log(4)
+            products = await Product.findAndCountAll({
+                where : {
+                    subcategorieId
+                },
+                order,
+                distinct : true,
+                limit,
+                offset: page,
+                where : {
+                    price_tmt : {
+                        [Op.between] : range
+                    }
+                },
+                include : [
+                    {
+                        model : Brand,
+                        as : 'brand'
+                    },
+                    {
+                        model : Stock,
+                        as : 'stocks',
+                        include : [
+                            {
+                                model : SizeName,
+                                as : 'sizeName',
+                            },
+                            {
+                                model: SizeType,
+                                as: 'sizeType',
+                            }
+                        ]
+                    }
+                ]
+            });
+        }
         return res.json({
-            products: products.products,
-            count : products.products.length + page
+            products: products.rows,
+            count : products.count
         })
     }
     catch (error) {
