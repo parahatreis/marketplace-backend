@@ -261,7 +261,6 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
 
 
         if(brandId && sizeNameId){
-            console.log(1)
             products = await Product.findAndCountAll({
                 where : {
                     subcategorieId
@@ -306,7 +305,6 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
             });
         }
         else if(brandId){
-            console.log(2)
             products = await Product.findAndCountAll({
                 where : {
                     subcategorieId
@@ -348,8 +346,6 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
             });
         }
         else if (sizeNameId) {
-            console.log('SS',sizeNameId)
-            console.log(3)
             products = await Product.findAndCountAll({
                 where: {
                     subcategorieId
@@ -389,7 +385,6 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
             });
         }
         else{
-            console.log(4)
             products = await Product.findAndCountAll({
                 where : {
                     subcategorieId
@@ -914,7 +909,6 @@ router.patch('/:product_id', async (req, res) => {
                 }
                 // If stock id not exists then create
                 else{
-                    console.log
                     stocks.forEach(async (stock) => {
 
                         let sizeType = null;
@@ -1058,8 +1052,6 @@ router.post('/image/:product_id', upload.array('images'), async (req, res) => {
 router.patch('/status/:product_id', async (req, res) => {
 
    let status = req.body.product_status ? 1 : 0;
-
-   console.log(status)
 
 
    try {

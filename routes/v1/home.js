@@ -23,9 +23,19 @@ router.post('/', async (req, res) => {
 
         if(!subcategorie) return res.status(404).send('Subcategorie not found!');
 
-        const home_subcategorie = await Home.create({
+        const newHome = await Home.create({
             subcategorieId : subcategorie.id
         });
+
+        const home_subcategorie = await Home.findOne({
+            where : {   
+                home_subcategorie_id : newHome.home_subcategorie_id
+            },
+            include : [{
+               model : SubCategorie,
+               as : 'subcategorie',
+            }]
+      });
 
         res.send(home_subcategorie);
 
@@ -100,6 +110,8 @@ router.get('/', async (req, res) => {
 // TODO AUTH
 router.patch('/:home_subcategorie_id', async (req, res) => {
 
+    let newObj = null;
+
     const {
         subcategorie_id,
     } = req.body;
@@ -124,9 +136,14 @@ router.patch('/:home_subcategorie_id', async (req, res) => {
 
         home_subcategorie.subcategorieId = subcategorie.id
 
-        home_subcategorie.save()
+        home_subcategorie.save();
 
-        res.send("Updated");
+        newObj = {
+            ...home_subcategorie.dataValues,
+            subcategorie
+        }
+
+        return res.send(newObj);
 
     } catch (error) {
         console.log(error);
