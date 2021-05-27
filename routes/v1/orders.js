@@ -207,8 +207,7 @@ router.get('/user' , userAuth ,async (req, res) => {
                     include: [
                         {
                             model: Product,
-                            as: 'product',
-                            attributes: ['product_id', 'product_name_tm', 'product_name_ru', 'product_name_en'],
+                            as: 'product'
                         },
                         {
                             model: SizeName,

@@ -49,13 +49,19 @@ module.exports = (sequelize, DataTypes) => {
       type : DataTypes.STRING,
       allowNull : false
     },
+    price: {
+      type : DataTypes.DOUBLE
+    },
+    old_price: {
+      type : DataTypes.DOUBLE
+    },
     price_tmt: {
       type : DataTypes.DOUBLE
     },
-    price_usd : {
+    old_price_tmt: {
       type : DataTypes.DOUBLE
     },
-    old_price_tmt: {
+    price_usd : {
       type : DataTypes.DOUBLE
     },
     old_price_usd : {

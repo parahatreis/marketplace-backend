@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Product, Store, Brand,SubCategorie, Stock, SizeName, SizeType} = require('../../models');
+const { Product, Store, Brand,SubCategorie, Stock, SizeName, SizeType, Currency} = require('../../models');
 const {Op} = require('sequelize')
 // File Upload Multer
 const multer = require('multer');
@@ -29,7 +29,7 @@ router.post('/', async (req, res) => {
         description_en,
         price_tmt,
         price_usd,
-       old_price_tmt,
+        old_price_tmt,
         old_price_usd,
         subcategorie_id,
         brand_id,
@@ -57,7 +57,7 @@ router.post('/', async (req, res) => {
     if(price_usd) newObj.price_usd = price_usd;
     if (old_price_tmt) newObj.old_price_tmt = old_price_tmt;
     if (old_price_usd) newObj.old_price_usd = old_price_usd;
-    if(price_usd) newObj.isProductUsd = true;
+    if(price_usd) newObj.isPriceUsd = true;
 
     try {
 
@@ -81,6 +81,21 @@ router.post('/', async (req, res) => {
             const store = await Store.findOne({where : {store_id} });
             if(!store) return res.status(404).send('Store not found!');
             newObj.storeId = store.id;
+        }
+        // Price settings
+        if(price_usd){
+            const currencies = await Currency.findAll();
+            const currency = currencies[currencies.length - 1];
+            newObj.price = currency.currency_price * price_usd;
+            if(old_price_usd){
+                newObj.old_price = currency.currency_price * old_price_usd;
+            }
+        }
+        if(price_tmt){
+            newObj.price = price_tmt;
+            if(old_price_tmt){
+                newObj.old_price = old_price_tmt;
+            }
         }
         // Create Product
         const product = await Product.create(newObj);
@@ -836,7 +851,7 @@ router.patch('/:product_id', async (req, res) => {
     if (price_usd) newObj.price_usd = price_usd;
     if (old_price_tmt) newObj.old_price_tmt = old_price_tmt;
     if (old_price_usd) newObj.old_price_usd = old_price_usd;
-      if (price_usd) newObj.isProductUsd = true;
+      if (price_usd) newObj.isPriceUsd = true;
    
 
     try {
@@ -862,6 +877,24 @@ router.patch('/:product_id', async (req, res) => {
             if(!store) return res.status(404).send('Store not found!');
             newObj.storeId = store.id;
         }
+
+
+        // Price settings
+        if(price_usd){
+            const currencies = await Currency.findAll();
+            const currency = currencies[currencies.length - 1];
+            newObj.price = currency.currency_price * price_usd;
+            if(old_price_usd){
+                newObj.old_price = currency.currency_price * old_price_usd;
+            }
+        }
+        if(price_tmt){
+            newObj.price = price_tmt;
+            if(old_price_tmt){
+                newObj.old_price = old_price_tmt;
+            }
+        }
+
 
         const product = await Product.findOne({where : {product_id : req.params.product_id}});
         await Product.update(newObj, {where : {product_id : req.params.product_id}});
