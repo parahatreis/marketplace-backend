@@ -175,39 +175,39 @@ router.delete('/:store_id', async (req, res) => {
 // @desc Get all Stores
 // @access Private (both)  ((((NOW IT IS ONLY FOR StoreAdmin))))
 // TODO
-router.patch('/change/currency', async (req, res) => {
+// router.patch('/change/currency', async (req, res) => {
 
-   let new_currency = req.body.store_currency;
+//    let new_currency = req.body.store_currency;
 
-   try {
+//    try {
 
-      const store = await Store.findOne({where: { store_id: req.user.store_id }});
-      if(!store) return res.status(404).send('Store not found')
+//       const store = await Store.findOne({where: { store_id: req.user.store_id }});
+//       if(!store) return res.status(404).send('Store not found')
 
-      const products = await Product.findAll({
-         where: { store_id: req.user.store_id },
-         attributes: ['price_usd', 'product_id']
-      });
+//       const products = await Product.findAll({
+//          where: { store_id: req.user.store_id },
+//          attributes: ['price_usd', 'product_id']
+//       });
 
 
-      products.forEach(async (product) => {
+//       products.forEach(async (product) => {
 
-         const findProduct = await Product.findOne({where : {product_id : product.product_id}})
+//          const findProduct = await Product.findOne({where : {product_id : product.product_id}})
 
-         findProduct.price_tmt  =  Number(product.price_usd) * Number(new_currency);
+//          findProduct.price_tmt  =  Number(product.price_usd) * Number(new_currency);
 
-         await findProduct.save()
+//          await findProduct.save()
 
-      })
+//       })
 
-      res.send('Updated')
+//       res.send('Updated')
 
-   }
-   catch (error) {
-      console.log(error);
-      res.status(500).send('Server error')
-   }
-});
+//    }
+//    catch (error) {
+//       console.log(error);
+//       res.status(500).send('Server error')
+//    }
+// });
  
 
 

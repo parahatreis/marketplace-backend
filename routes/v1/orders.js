@@ -65,7 +65,7 @@ router.post('/', userAuth , async (req, res) => {
                 await OrderProduct.create({
                      productId : product.id,
                      orderId : order.id,
-                     sold_price : product.price_tmt,
+                     sold_price : product.price,
                      quantity: val.quantity,
                      sizeNameId: stock.sizeNameId
                 });
@@ -74,7 +74,7 @@ router.post('/', userAuth , async (req, res) => {
                 stock.stock_quantity = Number(stock.stock_quantity) - val.quantity
                 stock.save()
                 
-                total_price = total_price + (product.price_tmt * val.quantity);
+                total_price = total_price + (product.price * val.quantity);
                 
                 if(index === products.length - 1){
                     order.subtotal = total_price;
@@ -197,7 +197,7 @@ router.get('/user' , userAuth ,async (req, res) => {
                 user_id : req.user.id
             }
         });
-
+        
         const orders = await Order.findAll({
             order : [['createdAt', 'DESC']], 
             include : [

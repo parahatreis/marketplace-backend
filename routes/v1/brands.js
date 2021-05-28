@@ -26,8 +26,6 @@ router.post('/', async (req, res) => {
    if(!subcategories) return res.status(400).send("Input Subcategories");
    if(subcategories.length === 0) return res.status(400).send("Input Subcategories");
 
-   console.log(req.body)
-
    try {      
       // create brand 
       const brand = await Brand.create({

@@ -209,7 +209,7 @@ router.post('/check-user',async (req, res) => {
     }
 });
 
-// @route GET v1/auth
+// @route GET v1/users/auth
 // @desc Get auht user
 // @access Public
 router.get('/auth',userAuth, async (req, res) => {
@@ -233,7 +233,21 @@ router.get('/auth',userAuth, async (req, res) => {
    }
 });
 
-
+// @route GET v1/users
+// @desc Get users
+// @access Private
+router.get('/', async (req, res) => {
+    try {
+       const users = await User.findAll()
+       
+       res.json(users)
+ 
+    } catch (error) {
+       console.log(error);
+       res.status(400).send('Server error')
+    }
+ });
+ 
 
 
 module.exports = router;

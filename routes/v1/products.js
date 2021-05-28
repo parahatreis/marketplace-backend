@@ -277,22 +277,27 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
 
         if(brandId && sizeNameId){
             products = await Product.findAndCountAll({
-                where : {
-                    subcategorieId
-                },
                 order,
                 distinct : true,
                 limit,
                 offset: page,
                 where : {
-                        [Op.and] : [
-                            {brandId},
-                            {
-                            price_tmt : {
-                                    [Op.between] : range
+                    [Op.and] : [
+                        {
+                            subcategorieId
+                        },
+                        {
+                            brandId
+                        },
+                        {
+                            price : {
+                                [Op.between] : range
                             }
-                            }
-                        ]
+                        },
+                        {
+                            product_status : true
+                        }
+                    ]
                 },
                 include : [
                     {
@@ -321,20 +326,25 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
         }
         else if(brandId){
             products = await Product.findAndCountAll({
-                where : {
-                    subcategorieId
-                },
                 order,
                 distinct : true,
                 limit,
                 offset: page,
                 where : {
                     [Op.and] : [
-                        {brandId},
                         {
-                            price_tmt : {
+                            subcategorieId
+                        },
+                        {
+                            brandId
+                        },
+                        {
+                            price : {
                                 [Op.between] : range
                             }
+                        },
+                        {
+                            product_status : true
                         }
                     ]
                 },
@@ -362,17 +372,24 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
         }
         else if (sizeNameId) {
             products = await Product.findAndCountAll({
-                where: {
-                    subcategorieId
-                },
                 order,
                 distinct : true,
                 limit,
                 offset: page,
-                where: {
-                    price_tmt: {
-                        [Op.between]: range
-                    }
+                where : {
+                    [Op.and] : [
+                        {
+                            subcategorieId
+                        },
+                        {
+                            price : {
+                                [Op.between] : range
+                            }
+                        },
+                        {
+                            product_status : true
+                        }
+                    ]
                 },
                 include : [
                     {
@@ -401,17 +418,24 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
         }
         else{
             products = await Product.findAndCountAll({
-                where : {
-                    subcategorieId
-                },
                 order,
                 distinct : true,
                 limit,
                 offset: page,
                 where : {
-                    price_tmt : {
-                        [Op.between] : range
-                    }
+                    [Op.and] : [
+                        {
+                            subcategorieId
+                        },
+                        {
+                            price : {
+                                [Op.between] : range
+                            }
+                        },
+                        {
+                            product_status : true
+                        }
+                    ]
                 },
                 include : [
                     {
@@ -504,7 +528,14 @@ if (req.query.sortBy) {
 
      products = await Product.findAndCountAll({
         where : {
-            brandId : brand
+            [Op.and] : [
+                {
+                    brandId : brand
+                },
+                {
+                    product_status : true
+                }
+            ]
         },
         distinct : true,
         order,
@@ -594,53 +625,63 @@ router.get('/search', async (req,res) => {
     try {
 
         products = await Product.findAndCountAll({
+            where : {
+                product_status: true
+            },
             order,
             limit,
             offset: page,
             distinct : true,
             where : {
-                [Op.or]: [
+                [Op.and] : [
                     {
-                        product_name_tm: {
-                            [Op.like]: {
-                                [Op.any]: searchArray
-                            }
-                        }
+                        [Op.or]: [
+                            {
+                                product_name_tm: {
+                                    [Op.like]: {
+                                        [Op.any]: searchArray
+                                    }
+                                }
+                            },
+                            {
+                                product_name_ru: {
+                                    [Op.like]: {
+                                        [Op.any]: searchArray
+                                    }
+                                }
+                            },
+                            {
+                                product_name_en: {
+                                    [Op.like]: {
+                                        [Op.any]: searchArray
+                                    }
+                                }
+                            },
+                            {
+                                description_tm: {
+                                    [Op.like]: {
+                                        [Op.any]: searchArray
+                                    }
+                                }
+                            },
+                            {
+                                description_ru: {
+                                    [Op.like]: {
+                                        [Op.any]: searchArray
+                                    }
+                                }
+                            },
+                            {
+                                description_en: {
+                                    [Op.like]: {
+                                        [Op.any]: searchArray
+                                    }
+                                }
+                            },
+                        ]
                     },
                     {
-                        product_name_ru: {
-                            [Op.like]: {
-                                [Op.any]: searchArray
-                            }
-                        }
-                    },
-                    {
-                        product_name_en: {
-                            [Op.like]: {
-                                [Op.any]: searchArray
-                            }
-                        }
-                    },
-                    {
-                        description_tm: {
-                            [Op.like]: {
-                                [Op.any]: searchArray
-                            }
-                        }
-                    },
-                    {
-                        description_ru: {
-                            [Op.like]: {
-                                [Op.any]: searchArray
-                            }
-                        }
-                    },
-                    {
-                        description_en: {
-                            [Op.like]: {
-                                [Op.any]: searchArray
-                            }
-                        }
+                        product_status: true
                     },
                 ]
             },
@@ -758,6 +799,9 @@ router.get('/related-products/:product_id', async (req, res) => {
                     {
                         product_id : {[Op.not]: product.product_id},   
                     },
+                    {
+                        product_status : true
+                    }
                 ]
            }
        })
@@ -942,6 +986,7 @@ router.patch('/:product_id', async (req, res) => {
                 }
                 // If stock id not exists then create
                 else{
+                    await Stock.destroy({where : {productId : product.id}});
                     stocks.forEach(async (stock) => {
 
                         let sizeType = null;
@@ -959,14 +1004,24 @@ router.patch('/:product_id', async (req, res) => {
                             if(!sizeName) return res.status(404).send("Size Name Not found")
                         }
     
-                        await Stock.update({
-                            stock_quantity : stock.stock_quantity,
-                            sizeTypeId : sizeType ? sizeType.id : null,
-                            sizeNameId : sizeName ? sizeName.id : null,
-                            productId : product.id
-                        }, {where : {
-                            stock_id : stock.stock_id
-                        }});
+                        if(stock.stock_id){
+                            await Stock.update({
+                                stock_quantity : stock.stock_quantity,
+                                sizeTypeId : sizeType ? sizeType.id : null,
+                                sizeNameId : sizeName ? sizeName.id : null,
+                                productId : product.id
+                            }, {where : {
+                                stock_id : stock.stock_id
+                            }});
+                        }
+                        else{
+                            await Stock.create({
+                                stock_quantity : stock.stock_quantity,
+                                sizeTypeId : sizeType ? sizeType.id : null,
+                                sizeNameId : sizeName ? sizeName.id : null,
+                                productId : product.id
+                            });
+                        }
                     })
                 }
             }
@@ -1117,7 +1172,10 @@ router.get('/home/top-products', async (req,res) => {
     try {
         const newProducts = await Product.findAll({
             order : [['createdAt','DESC']],
-           limit: 4,
+            where : {
+                product_status : true
+             },
+            limit: 4,
             include: [{
                   model: Brand,
                   as: 'brand'
@@ -1140,11 +1198,16 @@ router.get('/home/top-products', async (req,res) => {
   
          const discountProducts = await Product.findAll({
             where: {
-               [Op.or] : {
-                  old_price_tmt: {
-                      [Op.not] : null
-                  }
-               }
+                [Op.and] : [
+                    {
+                        old_price: {
+                            [Op.not] : null
+                        }
+                    },
+                    {
+                        product_status: true
+                    }
+                ]
             },
             limit : 4,
             include : [

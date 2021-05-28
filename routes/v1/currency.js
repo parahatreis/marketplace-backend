@@ -29,13 +29,35 @@ router.patch('/', async (req, res) => {
 
 
         // UPDATE ALL PRODUCTS
+        const products = await Product.findAll({where : {isPriceUsd : true}});
 
+        async function updateProducts(arr) {
+            arr.forEach(async (product) => {
 
-        await Currency.update(newObj,{
-            where: {currency_id}
+                const price_usd = product.price_usd;
+                const old_price_usd = product.old_price_usd;
+    
+                const new_price = price_usd * currency_price;
+                const new_old_price = old_price_usd * currency_price;
+    
+                await Product.update({
+                    price : new_price,
+                    old_price : new_old_price,
+                },{
+                    where : {product_id : product.product_id}
+                });
+            })
+        } 
+
+        updateProducts(products).then(async (result) => {
+            await Currency.update(newObj,{
+                where: {currency_id}
+            });
+            res.json('Updated!');
+        }).catch((err) => {
+            console.log(err);
+            res.status(500).send('Server error')
         });
-
-        res.json(currency);
 
     } catch (error) {
         console.log(error);

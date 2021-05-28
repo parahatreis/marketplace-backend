@@ -70,6 +70,9 @@ router.get('/', async (req, res) => {
                   as : 'subcategorie',
                   include: {
                      model: Product,
+                     where : {
+                        product_status : true
+                     },
                      as: 'products',
                      limit: 10,
                      include: [{
