@@ -44,6 +44,10 @@ module.exports = {
         type : DataTypes.BOOLEAN,
         defaultValue : false
       },
+      product_discount: {
+        type : DataTypes.INTEGER,
+        allowNull : true
+      },
       product_status: {
         type : DataTypes.BOOLEAN,
         defaultValue : false

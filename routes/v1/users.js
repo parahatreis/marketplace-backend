@@ -21,6 +21,7 @@ router.post('/', async (req, res) => {
         user_password,
         user_email
     } = req.body;
+
     try {
         // Check user exists
         let user = await User.findOne({

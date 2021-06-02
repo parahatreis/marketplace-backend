@@ -97,6 +97,15 @@ router.post('/', async (req, res) => {
                 newObj.old_price = old_price_tmt;
             }
         }
+
+        const calculateDiscount = (val,old_val) => {
+            return Math.floor(100 - (val * 100 / old_val))
+        }
+        if(newObj.old_price){
+            const discount = calculateDiscount(newObj.price,newObj.old_price);
+            newObj.product_discount = discount;
+        }
+
         // Create Product
         const product = await Product.create(newObj);
 
@@ -925,6 +934,8 @@ router.patch('/:product_id', async (req, res) => {
 
         // Price settings
         if(price_usd){
+            newObj.price_tmt = null;
+            newObj.old_price_tmt = null;
             const currencies = await Currency.findAll();
             const currency = currencies[currencies.length - 1];
             newObj.price = currency.currency_price * price_usd;
@@ -938,6 +949,14 @@ router.patch('/:product_id', async (req, res) => {
                 newObj.old_price = old_price_tmt;
             }
         }
+
+        const calculateDiscount = (val,old_val) => {
+            return Math.floor(100 - (val * 100 / old_val))
+        }
+        if(newObj.old_price){
+            const discount = calculateDiscount(newObj.price,newObj.old_price);
+            newObj.product_discount = discount;
+        } 
 
 
         const product = await Product.findOne({where : {product_id : req.params.product_id}});
