@@ -497,89 +497,89 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
 router.get('/brand/:brand_id', async (req,res) => {
 
 
-   let order = [];
-   let page = 0;
-   let limit = 5;
-   let subcategorie = null;
-   let brand = null;
-   // 
-   let products = [];
+    let order = [];
+    let page = 0;
+    let limit = 5;
+    let subcategorie = null;
+    let brand = null;
+    // 
+    let products = [];
 
-   // Sorting
-if (req.query.sortBy) {
-      const parts = req.query.sortBy.split(':');
-      order.push(parts);
-   }
-   // limit
-   if (req.query.limit) {
-      limit = Number(req.query.limit)
-   }
-   // page
-   if (req.query.page) {
-      page = Number(req.query.page)
-   }
+    // Sorting
+    if (req.query.sortBy) {
+        const parts = req.query.sortBy.split(':');
+        order.push(parts);
+    }
+    // limit
+    if (req.query.limit) {
+        limit = Number(req.query.limit)
+    }
+    // page
+    if (req.query.page) {
+        page = Number(req.query.page)
+    }
 
 
-   try {
+    try {
 
-      // if brand
-      if(req.query.subcategorie){
-         const findSubcategorie = await SubCategorie.findOne({ where: { subcategorie_id: req.query.subcategorie } });
-         if(!findSubcategorie) return res.status(404).json({msg : 'Subcategorie not found!'})
-         subcategorie = findSubcategorie.id
-      }
-      // if brand
-      if(req.params.brand_id){
+        // if brand
+        if(req.query.subcategorie){
+            const findSubcategorie = await SubCategorie.findOne({ where: { subcategorie_id: req.query.subcategorie } });
+            if(!findSubcategorie) return res.status(404).json({msg : 'Subcategorie not found!'})
+            subcategorie = findSubcategorie.id
+        }
+        // if brand
+        if(req.params.brand_id){
         const findBrand = await Brand.findOne({ where: { brand_id: req.params.brand_id } });
         if(!findBrand) return res.status(404).json({msg : 'Brand not found!'})
         brand = findBrand.id
-     }
+        }
 
-     products = await Product.findAndCountAll({
-        where : {
-            [Op.and] : [
-                {
-                    brandId : brand
-                },
-                {
-                    product_status : true
-                }
-            ]
-        },
-        distinct : true,
-        order,
-        limit,
-        offset: page,
-        include : [
-            {
-                model : Brand,
-                as : 'brand'
-            },
-            {
-                model : Stock,
-                as : 'stocks',
-                include : [
+        products = await Product.findAndCountAll({
+            where : {
+                [Op.and] : [
                     {
-                        model : SizeName,
-                        as : 'sizeName',
+                        brandId : brand
                     },
                     {
-                        model: SizeType,
-                        as: 'sizeType',
+                        product_status : true
                     }
                 ]
-            }
-        ]
-     });
-      return res.json({
+            },
+            distinct : true,
+            order,
+            limit,
+            offset: page,
+            include : [
+                {
+                    model : Brand,
+                    as : 'brand'
+                },
+                {
+                    model : Stock,
+                    as : 'stocks',
+                    include : [
+                        {
+                            model : SizeName,
+                            as : 'sizeName',
+                        },
+                        {
+                            model: SizeType,
+                            as: 'sizeType',
+                        }
+                    ]
+                }
+            ]
+        });
+        return res.json({
         products: products.rows,
         count : products.count
     })
-   }
-   catch (error) {
-      console.log(error);
-      res.status(500).send('Server error')
-   }
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send('Server error')
+    }
 });
 
 
@@ -1067,7 +1067,7 @@ const upload = multer({
        fileSize: 10000000
     },
     fileFilter(req, file, cb) {
-       if (!file.originalname.match(/\.(png|jpg|jpeg|svg)$/)) {
+       if (!file.originalname.match(/\.(png|jpg|jpeg|svg|webp)$/)) {
           return cb(new Error('Please upload image formats'))
        }
        cb(undefined, true)
@@ -1194,7 +1194,7 @@ router.get('/home/top-products', async (req,res) => {
             where : {
                 product_status : true
              },
-            limit: 4,
+            limit: 5,
             include: [{
                   model: Brand,
                   as: 'brand'
@@ -1228,7 +1228,7 @@ router.get('/home/top-products', async (req,res) => {
                     }
                 ]
             },
-            limit : 4,
+            limit : 5,
             include : [
                {
                      model : Brand,
