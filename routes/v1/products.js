@@ -812,7 +812,31 @@ router.get('/related-products/:product_id', async (req, res) => {
                         product_status : true
                     }
                 ]
-           }
+           },
+           include : [
+            {
+                model : Brand,
+                as : 'brand',
+            },
+            {
+                model : SubCategorie,
+                as : 'subcategorie',
+            },
+            {
+                model : Stock,
+                as : 'stocks',
+                include : [
+                    {
+                        model : SizeName,
+                        as : 'sizeName',
+                   },
+                   {
+                      model: SizeType,
+                      as: 'sizeType',
+                   }
+                ]
+            }
+        ]
        })
  
        res.json(productArray);

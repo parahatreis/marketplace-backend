@@ -9,7 +9,6 @@ const { User, Order, OrderProduct
 // auth
 const userAuth = require('../../middleware/userAuth');
 
-
 // @route POST v1/users
 // @desc Register User
 // @access Public
@@ -248,7 +247,26 @@ router.get('/', async (req, res) => {
        res.status(400).send('Server error')
     }
  });
- 
+
+
+ // @route POST v1/users/login
+// @desc Login User
+// @access Public
+router.post('/verify-code',async (req, res) => {
+
+    const {
+        user_phone,
+    } = req.body;
+
+    console.log(req.body)
+
+    const code = 1234;
+
+    return res.json({
+        code,
+        user_phone
+    })
+});
 
 
 module.exports = router;
