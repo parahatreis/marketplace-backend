@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 // Models
-const { Order , OrderProduct, Product, User, Stock, Store,SizeName } = require('../../models');
+const { Order , OrderProduct, Product, User, Stock, Store,SizeName, Brand, SizeType } = require('../../models');
 // auth
 const userAuth = require('../../middleware/userAuth');
 
@@ -100,6 +100,7 @@ router.post('/', userAuth , async (req, res) => {
 router.post('/check-stocks' , async (req, res) => {
 
    let lessStockProducts = [];
+   let isChanged = false;
 
     const {
         products,
@@ -119,28 +120,88 @@ router.post('/check-stocks' , async (req, res) => {
                 include : {
                     model : SizeName,
                     as : 'sizeName'
-                } 
+                }
             });
+            const findProduct = await Product.findOne({
+                where: {
+                   product_id: product.product_id
+                },
+                include : [
+                  {
+                      model : Brand,
+                      as : 'brand',
+                      attributes : ['brand_id','brand_name']
+                  },
+                  {
+                      model : Stock,
+                      as : 'stocks',
+                      include : [
+                          {
+                              model : SizeName,
+                              as : 'sizeName',
+                         },
+                         {
+                            model: SizeType,
+                            as: 'sizeType',
+                         }
+                      ]
+                  }
+                ]
+             });
+            // Check product has more quantity than database exists, if true then refactor quantity 
             if (findStock.stock_quantity < product.quantity) {
+                isChanged = true;
                 if(findStock.sizeName){
-                    lessStockProducts.push({
-                        ...product,
-                        sizeNameId : findStock.sizeName.size_name_id
-                    })
+                    lessStockProducts = [
+                        ...lessStockProducts,
+                        {
+                            ...findProduct.dataValues,
+                            quantity : findStock.stock_quantity,
+                            sizeNameId : findStock.sizeName.size_name_id
+                        }
+                    ]
                 }
                 else{
-                    lessStockProducts.push(product)
+                    lessStockProducts = [
+                        ...lessStockProducts, 
+                        {
+                            ...findProduct.dataValues,
+                            quantity : findStock.stock_quantity,
+                        }
+                    ]
+                }
+            }
+            else{
+                if(findStock.sizeName){
+                    lessStockProducts = [
+                        ...lessStockProducts,
+                        {
+                            ...findProduct.dataValues,
+                            quantity : product.quantity,
+                            sizeNameId : findStock.sizeName.size_name_id
+                        }
+                    ]
+                }
+                else{
+                    lessStockProducts = [
+                        ...lessStockProducts,
+                        {
+                            ...findProduct.dataValues,
+                            quantity : product.quantity,
+                        }
+                    ]
                 }
             }
             if(index === products.length - 1){
-                return res.send(lessStockProducts)
+                lessStockProducts = lessStockProducts.filter(prod => prod.quantity > 0);
+                return res.json({products : lessStockProducts,isChanged})
             }
         });
 
         
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(400).send('Server error')
     }
 });

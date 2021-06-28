@@ -3,17 +3,17 @@ const http = require('http');
 const { sequelize } = require('./models');
 const path = require('path');
 const cors = require('cors')
-const socketio = require('socket.io');
+// const socketio = require('socket.io');
 
 
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server, { 
-   allowEIO3: true,
-   cors : {
-      origin : ["http://localhost:5050","http://localhost:3000"]
-   }
-});
+// const io = socketio(server, { 
+//    allowEIO3: true,
+//    cors : {
+//       origin : ["http://localhost:5050","http://localhost:3000"]
+//    }
+// });
 
 // Init Middleware
 app.use(express.json({
@@ -48,24 +48,23 @@ app.use('/v1/size_types', require('./routes/v1/size_types'));
 
 
 // Connect to socket
-io.on('connection', (socket) => {
-  console.log('Connected', socket.id);
+// io.on('connection', (socket) => {
+//   console.log('Connected', socket.id);
 
-  socket.on("verify-code", (data) => {
-      if(data.user_phone){  
-          const generated_code = Math.floor(100000 + Math.random() * 900000);
-          socket.broadcast.emit("send-code", {
-              ...data,
-              code : generated_code
-          })
-      }
-  });
+//   socket.on("verify-code", (data) => {
+//       if(data.user_phone){  
+//           const generated_code = Math.floor(100000 + Math.random() * 900000);
+//           socket.broadcast.emit("send-code", {
+//               ...data,
+//               code : generated_code
+//           })
+//       }
+//   });
   
-  io.on('disconnect', () => {
-    console.log('Disconnected');
-  })
-});
-
+//   io.on('disconnect', () => {
+//     console.log('Disconnected');
+//   })
+// });
 
 
 // Start Server
@@ -77,4 +76,3 @@ server.listen(PORT, async () => {
    await sequelize.authenticate();
    console.log('Database Connected')
 });
-

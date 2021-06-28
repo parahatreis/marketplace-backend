@@ -908,6 +908,8 @@ router.patch('/:product_id', async (req, res) => {
        stocks
     } = req.body;
 
+    console.log(req.body)
+
     // Validate
     if (!product_code) return res.status(400).send('Input Product Code');
     if (!product_name_tm) return res.status(400).send('Input Product Name');
@@ -922,13 +924,16 @@ router.patch('/:product_id', async (req, res) => {
     if (product_name_en) newObj.product_name_en = product_name_en;
     if (product_name_ru) newObj.product_name_ru = product_name_ru;
     if (description_tm) newObj.description_tm = description_tm;
+    if (!description_tm) newObj.description_tm = null;
     if (description_ru) newObj.description_ru = description_ru;
+    if (!description_ru) newObj.description_ru = null;
     if (description_en) newObj.description_en = description_en;
+    if (!description_en) newObj.description_en = null;
     if (price_tmt) newObj.price_tmt = price_tmt;
     if (price_usd) newObj.price_usd = price_usd;
     if (old_price_tmt) newObj.old_price_tmt = old_price_tmt;
     if (old_price_usd) newObj.old_price_usd = old_price_usd;
-      if (price_usd) newObj.isPriceUsd = true;
+    if (price_usd) newObj.isPriceUsd = true;
    
 
     try {
@@ -982,8 +987,10 @@ router.patch('/:product_id', async (req, res) => {
             newObj.product_discount = discount;
         } 
 
+        console.log(newObj)
 
         const product = await Product.findOne({where : {product_id : req.params.product_id}});
+
         await Product.update(newObj, {where : {product_id : req.params.product_id}});
 
 

@@ -8,6 +8,7 @@ const { User, Order, OrderProduct
  } = require('../../models');
 // auth
 const userAuth = require('../../middleware/userAuth');
+const pusher = require('../../pusher');
 
 // @route POST v1/users
 // @desc Register User
@@ -253,19 +254,25 @@ router.get('/', async (req, res) => {
 // @desc Login User
 // @access Public
 router.post('/verify-code',async (req, res) => {
-
     const {
-        user_phone,
+        user_phone
     } = req.body;
 
     console.log(req.body)
 
-    const code = 1234;
+    // Generate Random Code
+    const generated_code = Math.floor(100000 + Math.random() * 900000);
 
-    return res.json({
-        code,
-        user_phone
-    })
+    let obj = {
+        phone : user_phone,
+        code : generated_code,
+        status :'Success'
+    }
+
+    // Send user data to verify-app
+    await pusher.trigger('islegtm-channel', 'code-event', obj);
+    
+    return res.json(obj);
 });
 
 
