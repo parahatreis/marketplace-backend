@@ -1217,6 +1217,9 @@ router.patch('/status/:product_id', async (req, res) => {
  });
 
 
+// @route PATCH api/products/home/top-products
+// desc  GET New And Discount Products
+// access Public
 router.get('/home/top-products', async (req,res) => {
 
     try {
@@ -1286,6 +1289,147 @@ router.get('/home/top-products', async (req,res) => {
              newProducts,
              discountProducts
          });    
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send('Server error')
+    }
+})
+
+// @route PATCH api/products/home/top-products/new-products
+// desc  GET  ALl New Products
+// access Public
+router.get('/home/top-products/new-products', async (req,res) => {
+
+    let page = 0;
+    let order = [['createdAt','DESC']];
+    let limit = 5;
+    // 
+    let products = [];
+
+    // Sorting
+    if (req.query.sortBy) {
+        const parts = req.query.sortBy.split(':');
+        order.push(parts);
+    }
+    // limit
+    if (req.query.limit) {
+        limit = Number(req.query.limit)
+    }
+    // page
+    if (req.query.page) {
+        page = Number(req.query.page)
+    }
+
+    try {
+        products = await Product.findAndCountAll({
+            where : {
+                product_status : true
+             },
+            distinct : true,
+            order,
+            limit,
+            offset: page,
+            include : [
+                {
+                    model : Brand,
+                    as : 'brand'
+                },
+                {
+                    model : Stock,
+                    as : 'stocks',
+                    include : [
+                        {
+                            model : SizeName,
+                            as : 'sizeName',
+                        },
+                        {
+                            model: SizeType,
+                            as: 'sizeType',
+                        }
+                    ]
+                }
+            ]
+        });
+        return res.json({
+            products: products.rows,
+            count : products.count
+        })
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send('Server error')
+    }
+});
+
+// @route PATCH api/products/home/top-products/discount-products
+// desc  GET ALL Discount Products
+// access Public
+router.get('/home/top-products/discount-products', async (req,res) => {
+
+    let page = 0;
+    let limit = 5;
+    let order = [];
+    // 
+    let products = [];
+
+    // Sorting
+    if (req.query.sortBy) {
+        const parts = req.query.sortBy.split(':');
+        order.push(parts);
+    }
+    // limit
+    if (req.query.limit) {
+        limit = Number(req.query.limit)
+    }
+    // page
+    if (req.query.page) {
+        page = Number(req.query.page)
+    }
+
+    try {
+        products = await Product.findAndCountAll({
+            where: {
+                [Op.and] : [
+                    {
+                        old_price: {
+                            [Op.not] : null
+                        }
+                    },
+                    {
+                        product_status: true
+                    }
+                ]
+            },
+            distinct : true,
+            order,
+            limit,
+            offset: page,
+            include : [
+                {
+                    model : Brand,
+                    as : 'brand'
+                },
+                {
+                    model : Stock,
+                    as : 'stocks',
+                    include : [
+                        {
+                            model : SizeName,
+                            as : 'sizeName',
+                        },
+                        {
+                            model: SizeType,
+                            as: 'sizeType',
+                        }
+                    ]
+                }
+            ]
+        });
+        return res.json({
+            products: products.rows,
+            count : products.count
+        })
     }
     catch (error) {
         console.log(error);

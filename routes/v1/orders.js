@@ -8,66 +8,85 @@ const userAuth = require('../../middleware/userAuth');
 // @route POST v1/orders
 // @desc Order Products
 // @access Public(Auth User)
-router.post('/', userAuth , async (req, res) => {
+router.post('/' , async (req, res) => {
 
-   let total_price = 0;
-   let hasEnaughQuantity = true;
+    let total_price = 0;
+    let hasEnaughQuantity = true;
+    let user = null;
 
     const {
         products,
-        address,
-         payment_type,
+        user_name,
+        user_phone,
+        user_address,
+        user_note,
+        user_id,
     } = req.body;
 
-   
 
     if(!products) return res.status(400).send('Please Choose Products')
     if(products.length === 0) return res.status(400).send('Please Choose Products');
-    if(!address) return res.status(400).send('Input address');
+    if(!user_name) return res.status(400).send('Input name');
+    if(!user_phone) return res.status(400).send('Input phone');
+    if(!user_address) return res.status(400).send('Input address');
 
-   try {
+    try {
 
         // Check stock quantity
         products.forEach(async (val,index) => {
-           const findStock = await Stock.findOne({ where: { stock_id: val.stock_id } });
+            const findStock = await Stock.findOne({ where: { stock_id: val.stock_id } });
 
-           if (findStock.stock_quantity < val.quantity) {
-               hasEnaughQuantity = false;
+            if (findStock.stock_quantity < val.quantity) {
+                hasEnaughQuantity = false;
                 return res.status(400).json({msg : 'Ýeterlikli haryt mukdary ýok!'});
             }
             if(index === products.length - 1){
                 createOrder()
             }
         })
-      
-      if (!hasEnaughQuantity) {
-         return res.status(400).json({msg : 'Ýeterlikli haryt mukdary ýok!'});
-      }
+        
+        if (!hasEnaughQuantity) {
+            return res.status(400).json({msg : 'Ýeterlikli haryt mukdary ýok!'});
+        }
 
+        // Create ORDER
         async function createOrder(){
-            // Get auth user
-            const user = await User.findOne({
-                where: {
-                    user_id : req.user.id
-                }
-            });
+            
+            if(user_id){
+                // Get auth user Info
+                user = await User.findOne({
+                    where: {
+                        user_id
+                    }
+                });
+            }
 
             const order = await Order.create({
-                userId : user.id,
-                address : req.body.address,
+                userId : user ? user.id : null,
+                userAuth : user ? true : false,
+                user_name : user ? user.user_name : user_name,
+                user_phone : user ? user.user_phone : user_phone,
+                user_address : user ? user.user_address : user_address,
+                user_note,
                 payment_type : req.body.payment_type
             })
 
-           await products.forEach(async (val, index) => {
-                const product = await Product.findOne({where : {product_id : val.product_id}}); 
-                  const stock = await Stock.findOne({ where: { stock_id: val.stock_id } });
-                  
+            await products.forEach(async (val, index) => {
+                // Find Product
+                const product = await Product.findOne({where : {product_id : val.product_id}});
+                // Find Stock
+                const stock = await Stock.findOne({ where: { stock_id: val.stock_id } });
+                    
                 await OrderProduct.create({
-                     productId : product.id,
-                     orderId : order.id,
-                     sold_price : product.price,
-                     quantity: val.quantity,
-                     sizeNameId: stock.sizeNameId
+                    productId : product.id,
+                    product_code: product.product_code,
+                    product_name_tm: product.product_name_tm,
+                    product_name_ru: product.product_name_ru,
+                    product_name_en: product.product_name_en,
+                    orderId : order.id,
+                    sold_price : product.price,
+                    sizeNameId: stock.sizeNameId,
+                    quantity: val.quantity,
                 });
 
                 // Mukdar sany azalya
@@ -79,7 +98,7 @@ router.post('/', userAuth , async (req, res) => {
                 if(index === products.length - 1){
                     order.subtotal = total_price;
                     await order.save();
-                    return res.json({msg : 'Sargyt ugradyldy!'})
+                    return res.status(200).json({msg : 'Sargyt ugradyldy!'})
                 }
             });
         }
@@ -105,6 +124,8 @@ router.post('/check-stocks' , async (req, res) => {
     const {
         products,
     } = req.body;
+
+    console.log(req.body)
 
    
 

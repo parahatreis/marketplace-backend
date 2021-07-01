@@ -2,18 +2,10 @@ const express = require('express');
 const http = require('http');
 const { sequelize } = require('./models');
 const path = require('path');
-const cors = require('cors')
-// const socketio = require('socket.io');
-
+const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
-// const io = socketio(server, { 
-//    allowEIO3: true,
-//    cors : {
-//       origin : ["http://localhost:5050","http://localhost:3000"]
-//    }
-// });
 
 // Init Middleware
 app.use(express.json({
@@ -23,7 +15,7 @@ app.use(express.json({
 app.use(cors()) // Use this after the variable declaration
 
 app.get('/', (req, res) => {
-   res.send('SM APIs Running!')
+    res.send('SM APIs Running!')
 });
 
 // root path
@@ -47,32 +39,15 @@ app.use('/v1/currency', require('./routes/v1/currency'));
 app.use('/v1/size_types', require('./routes/v1/size_types'));
 
 
-// Connect to socket
-// io.on('connection', (socket) => {
-//   console.log('Connected', socket.id);
-
-//   socket.on("verify-code", (data) => {
-//       if(data.user_phone){  
-//           const generated_code = Math.floor(100000 + Math.random() * 900000);
-//           socket.broadcast.emit("send-code", {
-//               ...data,
-//               code : generated_code
-//           })
-//       }
-//   });
-  
-//   io.on('disconnect', () => {
-//     console.log('Disconnected');
-//   })
-// });
-
 
 // Start Server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, async () => {
-   console.log(`Server started on ${PORT}`);
-   // Sync database
-   // to update model in db .sync({force : false})
-   await sequelize.authenticate();
-   console.log('Database Connected')
+    console.log(`Server started on ${PORT}`);
+    // Sync database
+    // to update model in db .sync({force : false})
+    await sequelize.authenticate();
+    console.log('Database Connected');   
+    //    Connect PUSHER
+    require('./pusher')
 });

@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 const router = express.Router();
 // Models
-const { User, Order, OrderProduct
+const { User, Order
  } = require('../../models');
 // auth
 const userAuth = require('../../middleware/userAuth');
@@ -178,7 +178,7 @@ router.post('/login',async (req, res) => {
     }
 });
 
-// @route POST v1/users/login
+// @route POST v1/users/check-user
 // @desc Login User
 // @access Public
 router.post('/check-user',async (req, res) => {
@@ -257,9 +257,6 @@ router.post('/verify-code',async (req, res) => {
     const {
         user_phone
     } = req.body;
-
-    console.log(req.body)
-
     // Generate Random Code
     const generated_code = Math.floor(100000 + Math.random() * 900000);
 
