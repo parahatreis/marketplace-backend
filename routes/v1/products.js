@@ -290,6 +290,9 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
                 distinct : true,
                 limit,
                 offset: page,
+                attributes : {
+                    exclude : ['price_usd','price_tmt','old_price_usd','old_price_tmt','isPriceUsd']
+                },
                 where : {
                     [Op.and] : [
                         {
@@ -339,6 +342,9 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
                 distinct : true,
                 limit,
                 offset: page,
+                attributes : {
+                    exclude : ['price_usd','price_tmt','old_price_usd','old_price_tmt','isPriceUsd']
+                },
                 where : {
                     [Op.and] : [
                         {
@@ -385,6 +391,9 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
                 distinct : true,
                 limit,
                 offset: page,
+                attributes : {
+                    exclude : ['price_usd','price_tmt','old_price_usd','old_price_tmt','isPriceUsd']
+                },
                 where : {
                     [Op.and] : [
                         {
@@ -431,6 +440,9 @@ router.get('/subcategorie/:subcategorie_id', async (req,res) => {
                 distinct : true,
                 limit,
                 offset: page,
+                attributes : {
+                    exclude : ['price_usd','price_tmt','old_price_usd','old_price_tmt','isPriceUsd']
+                },
                 where : {
                     [Op.and] : [
                         {
@@ -550,6 +562,9 @@ router.get('/brand/:brand_id', async (req,res) => {
             order,
             limit,
             offset: page,
+            attributes : {
+                exclude : ['price_usd','price_tmt','old_price_usd','old_price_tmt','isPriceUsd']
+            },
             include : [
                 {
                     model : Brand,
@@ -641,6 +656,9 @@ router.get('/search', async (req,res) => {
             limit,
             offset: page,
             distinct : true,
+            attributes : {
+                exclude : ['price_usd','price_tmt','old_price_usd','old_price_tmt','isPriceUsd']
+            },
             where : {
                 [Op.and] : [
                     {
@@ -742,6 +760,9 @@ router.get('/:product_id', async (req, res) => {
           where: {
              product_id: req.params.product_id
           },
+        //   attributes : {
+        //     exclude : ['price_usd','price_tmt','old_price_usd','old_price_tmt','isPriceUsd']
+        // },
           include : [
             {
                 model : Brand,
@@ -813,6 +834,9 @@ router.get('/related-products/:product_id', async (req, res) => {
                     }
                 ]
            },
+           attributes : {
+                exclude : ['price_usd','price_tmt','old_price_usd','old_price_tmt','isPriceUsd']
+            },
            include : [
             {
                 model : Brand,

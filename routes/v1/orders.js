@@ -66,7 +66,7 @@ router.post('/' , async (req, res) => {
                 userAuth : user ? true : false,
                 user_name : user ? user.user_name : user_name,
                 user_phone : user ? user.user_phone : user_phone,
-                user_address : user ? user.user_address : user_address,
+                user_address : user && user.user_address ? user.user_address : user_address,
                 user_note,
                 payment_type : req.body.payment_type
             })
@@ -125,100 +125,101 @@ router.post('/check-stocks' , async (req, res) => {
         products,
     } = req.body;
 
-    console.log(req.body)
-
-   
-
     if(!products) return res.status(400).send('Please Choose Products');
     if(products.length === 0) return res.status(400).send('Please Choose Products');
 
    try {
 
         // Check stock quantity
-        await products.forEach(async (product,index) => {
-            const findStock = await Stock.findOne({ 
-                where: { stock_id: product.stock_id },
-                include : {
-                    model : SizeName,
-                    as : 'sizeName'
-                }
-            });
-            const findProduct = await Product.findOne({
-                where: {
-                   product_id: product.product_id
-                },
-                include : [
-                  {
-                      model : Brand,
-                      as : 'brand',
-                      attributes : ['brand_id','brand_name']
-                  },
-                  {
-                      model : Stock,
-                      as : 'stocks',
-                      include : [
-                          {
-                              model : SizeName,
-                              as : 'sizeName',
-                         },
-                         {
-                            model: SizeType,
-                            as: 'sizeType',
-                         }
-                      ]
-                  }
-                ]
-             });
-            // Check product has more quantity than database exists, if true then refactor quantity 
-            if (findStock.stock_quantity < product.quantity) {
-                isChanged = true;
-                if(findStock.sizeName){
-                    lessStockProducts = [
-                        ...lessStockProducts,
-                        {
-                            ...findProduct.dataValues,
-                            quantity : findStock.stock_quantity,
-                            sizeNameId : findStock.sizeName.size_name_id
-                        }
+        async function checkStocks (){
+            for(const product of products){
+                const findStock = await Stock.findOne({ 
+                    where: { stock_id: product.stock_id },
+                    include : {
+                        model : SizeName,
+                        as : 'sizeName'
+                    }
+                });
+                const findProduct = await Product.findOne({
+                    where: {
+                    product_id: product.product_id
+                    },
+                    attributes : {
+                        exclude : ['price_usd','price_tmt','old_price_usd','old_price_tmt','isPriceUsd']
+                    },
+                    include : [
+                    {
+                        model : Brand,
+                        as : 'brand',
+                        attributes : ['brand_id','brand_name']
+                    },
+                    {
+                        model : Stock,
+                        as : 'stocks',
+                        include : [
+                            {
+                                model : SizeName,
+                                as : 'sizeName',
+                            },
+                            {
+                                model: SizeType,
+                                as: 'sizeType',
+                            }
+                        ]
+                    }
                     ]
+                });
+                // Check product has more quantity than database exists, if true then refactor quantity 
+                if (findStock.stock_quantity < product.quantity) {
+                    isChanged = true;
+                    if(findStock.sizeName){
+                        lessStockProducts = [
+                            ...lessStockProducts,
+                            {
+                                ...findProduct.dataValues,
+                                quantity : findStock.stock_quantity,
+                                sizeNameId : findStock.sizeName.size_name_id
+                            }
+                        ]
+                    }
+                    else{
+                        lessStockProducts = [
+                            ...lessStockProducts, 
+                            {
+                                ...findProduct.dataValues,
+                                quantity : findStock.stock_quantity,
+                            }
+                        ]
+                    }
                 }
                 else{
-                    lessStockProducts = [
-                        ...lessStockProducts, 
-                        {
-                            ...findProduct.dataValues,
-                            quantity : findStock.stock_quantity,
-                        }
-                    ]
+                    if(findStock.sizeName){
+                        lessStockProducts = [
+                            ...lessStockProducts,
+                            {
+                                ...findProduct.dataValues,
+                                quantity : product.quantity,
+                                sizeNameId : findStock.sizeName.size_name_id
+                            }
+                        ]
+                    }
+                    else{
+                        lessStockProducts = [
+                            ...lessStockProducts,
+                            {
+                                ...findProduct.dataValues,
+                                quantity : product.quantity,
+                            }
+                        ]
+                    }
                 }
             }
-            else{
-                if(findStock.sizeName){
-                    lessStockProducts = [
-                        ...lessStockProducts,
-                        {
-                            ...findProduct.dataValues,
-                            quantity : product.quantity,
-                            sizeNameId : findStock.sizeName.size_name_id
-                        }
-                    ]
-                }
-                else{
-                    lessStockProducts = [
-                        ...lessStockProducts,
-                        {
-                            ...findProduct.dataValues,
-                            quantity : product.quantity,
-                        }
-                    ]
-                }
-            }
-            if(index === products.length - 1){
-                lessStockProducts = lessStockProducts.filter(prod => prod.quantity > 0);
-                return res.json({products : lessStockProducts,isChanged})
-            }
-        });
+        }
 
+        await checkStocks();
+
+        lessStockProducts = lessStockProducts.filter(prod => prod.quantity > 0);
+        return res.json({products : lessStockProducts,isChanged})
         
 
     } catch (error) {
@@ -374,23 +375,25 @@ router.post('/status/:order_id' , async (req, res) => {
         order_status
     } = req.body;
 
-    if(!order_status) return res.status(400).send('Select Status')
+    if(order_status === null) return res.status(400).send('Select Status');
+    const validStatus = order_status >= 0 && order_status <= 3; 
+    if(!validStatus) return res.status(400).send('Select Valid Status');
 
     try {
         
         const order = await Order.findOne({
             order_id : req.params.order_id
         })
-        
-       if (!order) return res.status(404).send('Order not found!');
 
-       await Order.update({order_status}, {where : {order_id : req.params.order_id}});
-        
+        if (!order) return res.status(404).send('Order not found!');
+
+        await Order.update({order_status}, {where : {order_id : req.params.order_id}});
+
         return res.send(`Order Status Changed to ' ${order_status} '`)
- 
+
     } catch (error) {
-       console.log(error);
-       res.status(400).send('Server error')
+        console.log(error);
+        res.status(400).send('Server error')
     }
 });
 

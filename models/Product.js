@@ -25,11 +25,11 @@ module.exports = (sequelize, DataTypes) => {
         subcategorieId : undefined,
         brandId : undefined,
         storeId : undefined,
-        price_tmt : undefined,
-        old_price_tmt : undefined,
-        price_usd : undefined,
-        old_price_usd : undefined,
-        isPriceUsd : undefined
+        // price_tmt : undefined,
+        // old_price_tmt : undefined,
+        // price_usd : undefined,
+        // old_price_usd : undefined,
+        // isPriceUsd : undefined
       }
     }
   };
