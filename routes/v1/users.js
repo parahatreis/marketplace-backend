@@ -70,8 +70,6 @@ router.post('/', async (req, res) => {
             msg : 'Server error'
         })
     }
-
-
 });
 
 
@@ -250,7 +248,7 @@ router.get('/', async (req, res) => {
  });
 
 
- // @route POST v1/users/login
+ // @route POST v1/users/verify-code
 // @desc Login User
 // @access Public
 router.post('/verify-code',async (req, res) => {
@@ -271,6 +269,67 @@ router.post('/verify-code',async (req, res) => {
     
     return res.json(obj);
 });
+
+// @route POST v1/users/change
+// @desc Change User Password
+// @access Public
+router.post('/change-password', async (req, res) => {
+
+   const {
+      user_phone,
+      user_password,
+   } = req.body;
+
+   try {
+      // Check user exists
+      let user = await User.findOne({
+         attributes: ['user_password'],
+         where: {
+            user_phone
+         }
+      });
+
+      // user checking
+        if (!user) {
+            return res.status(404).json({
+                msg : "User not found!"
+            })
+        }
+
+      // Encrypt password
+      const salt = await bcrypt.genSalt(10);
+      generated_password = await bcrypt.hash(user_password, salt);
+
+      const updatedUser = await User.update({
+         user_password: generated_password
+      }, {
+         where : {user_phone}
+      });
+
+      // Set token(JWT)
+      const payload = {
+         user: {
+            id: updatedUser.user_id
+         }
+      };
+
+      jwt.sign(payload, config.get('jwtSecret'), {
+         expiresIn: '7d'
+      }, (err, token) => {
+         if (err) throw err;
+         res.json({
+            msg: 'Successfully Updated',
+            token
+         });
+      })
+   } catch (error) {
+      console.log(error)
+      res.status(500).json({
+         msg: 'Server error'
+      })
+   }
+});
+
 
 
 module.exports = router;
