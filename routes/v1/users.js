@@ -38,7 +38,7 @@ router.post('/', async (req, res) => {
 
         // Encrypt password
         const salt = await bcrypt.genSalt(10);
-        generated_password = await bcrypt.hash(user_password, salt);
+        const generated_password = await bcrypt.hash(user_password, salt);
 
         const newUser = await User.create({
             user_name,
@@ -181,31 +181,61 @@ router.post('/login',async (req, res) => {
 // @access Public
 router.post('/check-user',async (req, res) => {
 
-    const {
-        user_phone,
-    } = req.body;
+   const {
+      user_phone,
+   } = req.body;
 
-    try {
-        // Check user exists
-        let user = await User.findOne({
-            where: {
-                user_phone : Number(user_phone)
-            }
-        });
-        // user checking
-        if (user) {
-            return res.status(400).json({
-                msg : "User already exists!"
-            })
-        }
+   try {
+      // Check user exists
+      let user = await User.findOne({
+         where: {
+               user_phone : Number(user_phone)
+         }
+      });
+      // user checking
+      if (user) {
+         return res.status(400).json({
+               msg : "User already exists!"
+         })
+      }
+      return res.status(200).send()
 
-        res.status(200).send()
+   } catch (error) {
+      res.status(500).json({
+         msg : 'Server error'
+      })
+   }
+});
 
-    } catch (error) {
-        res.status(500).json({
-            msg : 'Server error'
-        })
-    }
+// @route POST v1/users/check-user
+// @desc Login User
+// @access Public
+router.post('/forgot-password/check-user', async (req, res) => {
+
+   const {
+      user_phone,
+   } = req.body;
+
+   try {
+      // Check user exists
+      let user = await User.findOne({
+         where: {
+            user_phone: Number(user_phone)
+         }
+      });
+      // user checking
+      if (!user) {
+         return res.status(400).json({
+            msg: "User not found!"
+         })
+      }
+      return res.status(200).send()
+
+   } catch (error) {
+      res.status(500).json({
+         msg: 'Server error'
+      })
+   }
 });
 
 // @route GET v1/users/auth
@@ -252,76 +282,85 @@ router.get('/', async (req, res) => {
 // @desc Login User
 // @access Public
 router.post('/verify-code',async (req, res) => {
-    const {
-        user_phone
-    } = req.body;
-    // Generate Random Code
-    const generated_code = Math.floor(100000 + Math.random() * 900000);
+   const {
+      user_phone
+   } = req.body;
+   // Generate Random Code
+   const generated_code = Math.floor(100000 + Math.random() * 900000);
 
-    let obj = {
-        phone : user_phone,
-        code : generated_code,
-        status :'Success'
-    }
+   // Encrypt password
+   const salt = await bcrypt.genSalt(10);
+   const hashed_code = await bcrypt.hash(String(generated_code), salt);
 
-    // Send user data to verify-app
-    await pusher.trigger('islegtm-channel', 'code-event', obj);
-    
-    return res.json(obj);
+   let obj = {
+      phone : user_phone,
+      code : generated_code,
+      status :'Success'
+   }
+
+   // Send user data to verify-app
+   await pusher.trigger('islegtm-channel', 'code-event', obj);
+
+   return res.json({
+      ...obj,
+      code: hashed_code
+   });
 });
 
 // @route POST v1/users/change
 // @desc Change User Password
 // @access Public
-router.post('/change-password', async (req, res) => {
+router.patch('/change-password', async (req, res) => {
 
    const {
       user_phone,
-      user_password,
+      user_password
    } = req.body;
+
+   console.log(req.body)
 
    try {
       // Check user exists
-      let user = await User.findOne({
-         attributes: ['user_password'],
-         where: {
-            user_phone
-         }
-      });
+      let user = await User.findOne({where : {user_phone : Number(user_phone)}});
 
       // user checking
-        if (!user) {
-            return res.status(404).json({
-                msg : "User not found!"
-            })
-        }
+      if (!user) {
+         return res.status(404).json({
+               msg : "User not found!"
+         })
+      }
 
       // Encrypt password
       const salt = await bcrypt.genSalt(10);
-      generated_password = await bcrypt.hash(user_password, salt);
+      const generated_password = await bcrypt.hash(user_password, salt);
 
-      const updatedUser = await User.update({
+      console.log(generated_password)
+
+      await User.update({
          user_password: generated_password
       }, {
-         where : {user_phone}
+         where : {user_phone : Number(user_phone)}
       });
 
       // Set token(JWT)
       const payload = {
          user: {
-            id: updatedUser.user_id
+            id: user.user_id
          }
       };
 
+      console.log(payload)
+
       jwt.sign(payload, config.get('jwtSecret'), {
-         expiresIn: '7d'
-      }, (err, token) => {
-         if (err) throw err;
-         res.json({
-            msg: 'Successfully Updated',
-            token
-         });
+            expiresIn: '7d'
+         }, (err, token) => {
+            if (err) throw err;
+            res.json({
+               msg: 'Successfully Updated',
+               token
+            });
       })
+      
    } catch (error) {
       console.log(error)
       res.status(500).json({
