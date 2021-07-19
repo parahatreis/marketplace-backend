@@ -126,93 +126,109 @@ router.post('/check-stocks' , async (req, res) => {
         products,
     } = req.body;
 
-    if(!products) return res.status(400).send('Please Choose Products');
-    if(products.length === 0) return res.status(400).send('Please Choose Products');
+   if (!products) return res.status(400).json({
+       msg: 'Please Choose Products'
+    });
+   if (products.length === 0) return res.status(400).json({
+       msg: 'Products List length must be bigger than 0'
+    });
 
    try {
 
         // Check stock quantity
-        for (const product of products) {
-           const findStock = await Stock.findOne({
-              where: {
-                 stock_id: product.stock_id
-              },
-              include: {
-                 model: SizeName,
-                 as: 'sizeName'
-              }
-           });
-           if(!findStock) return res.status(404).json({msg : "Stock Not found"})
-           const findProduct = await Product.findOne({
-              where: {
-                 product_id: product.product_id
-              },
-              attributes: {
-                 exclude: ['price_usd', 'price_tmt', 'old_price_usd', 'old_price_tmt', 'isPriceUsd']
-              },
-              include: [{
-                    model: Brand,
-                    as: 'brand',
-                    attributes: ['brand_id', 'brand_name']
-                 },
-                 {
-                    model: Stock,
-                    as: 'stocks',
-                    include: [{
-                          model: SizeName,
-                          as: 'sizeName',
-                       },
-                       {
-                          model: SizeType,
-                          as: 'sizeType',
-                       }
-                    ]
-                 }
-              ]
-           });
-           if(!findProduct) return res.status(404).json({msg : "Product Not found"})
+      for (const product of products) {
+            
+         // Validation
+         if (!product.quantity) return res.status(400).json({
+            msg : "Select product quantity"
+         });
+         if (!product.stock_id) return res.status(400).json({
+            msg: "Select product stock_id"
+         });
+         if (!product.product_id) return res.status(400).json({
+            msg: "Select product product_id"
+         });
 
-           // Check product has more quantity than database exists, if true then refactor quantity 
-           if (findStock.stock_quantity < product.quantity) {
-              isChanged = true;
-              if (findStock.sizeName) {
-                 lessStockProducts = [
-                    ...lessStockProducts,
-                    {
-                       ...findProduct.dataValues,
-                       quantity: findStock.stock_quantity,
-                       sizeNameId: findStock.sizeName.size_name_id
-                    }
-                 ]
-              } else {
-                 lessStockProducts = [
-                    ...lessStockProducts,
-                    {
-                       ...findProduct.dataValues,
-                       quantity: findStock.stock_quantity,
-                    }
-                 ]
-              }
-           } else {
-              if (findStock.sizeName) {
-                 lessStockProducts = [
-                    ...lessStockProducts,
-                    {
-                       ...findProduct.dataValues,
-                       quantity: product.quantity,
-                       sizeNameId: findStock.sizeName.size_name_id
-                    }
-                 ]
-              } else {
-                 lessStockProducts = [
-                    ...lessStockProducts,
-                    {
-                       ...findProduct.dataValues,
-                       quantity: product.quantity,
-                    }
-                 ]
-              }
-           }
+         const findStock = await Stock.findOne({
+            where: {
+               stock_id: product.stock_id
+            },
+            include: {
+               model: SizeName,
+               as: 'sizeName'
+            }
+         });
+         if (!findStock) return res.status(404).json({ msg: "Stock Not found" });
+         const findProduct = await Product.findOne({
+            where: {
+               product_id: product.product_id
+            },
+            attributes: {
+               exclude: ['price_usd', 'price_tmt', 'old_price_usd', 'old_price_tmt', 'isPriceUsd']
+            },
+            include: [{
+                  model: Brand,
+                  as: 'brand',
+                  attributes: ['brand_id', 'brand_name']
+               },
+               {
+                  model: Stock,
+                  as: 'stocks',
+                  include: [{
+                        model: SizeName,
+                        as: 'sizeName',
+                     },
+                     {
+                        model: SizeType,
+                        as: 'sizeType',
+                     }
+                  ]
+               }
+            ]
+         });
+         if(!findProduct) return res.status(404).json({msg : "Product Not found"})
+
+         // Check product has more quantity than database exists, if true then refactor quantity
+         if (findStock.stock_quantity < product.quantity) {
+            isChanged = true;
+            if (findStock.sizeName) {
+               lessStockProducts = [
+                  ...lessStockProducts,
+                  {
+                     ...findProduct.dataValues,
+                     quantity: findStock.stock_quantity,
+                     sizeNameId: findStock.sizeName.size_name_id
+                  }
+               ]
+            } else {
+               lessStockProducts = [
+                  ...lessStockProducts,
+                  {
+                     ...findProduct.dataValues,
+                     quantity: findStock.stock_quantity,
+                  }
+               ]
+            }
+         } else {
+            if (findStock.sizeName) {
+               lessStockProducts = [
+                  ...lessStockProducts,
+                  {
+                     ...findProduct.dataValues,
+                     quantity: product.quantity,
+                     sizeNameId: findStock.sizeName.size_name_id
+                  }
+               ]
+            } else {
+               lessStockProducts = [
+                  ...lessStockProducts,
+                  {
+                     ...findProduct.dataValues,
+                     quantity: product.quantity,
+                  }
+               ]
+            }
+         }
         }
 
         lessStockProducts = lessStockProducts.filter(prod => prod.quantity > 0);

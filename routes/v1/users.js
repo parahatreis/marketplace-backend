@@ -317,8 +317,6 @@ router.patch('/change-password', async (req, res) => {
       user_password
    } = req.body;
 
-   console.log(req.body)
-
    try {
       // Check user exists
       let user = await User.findOne({where : {user_phone : Number(user_phone)}});
@@ -334,8 +332,6 @@ router.patch('/change-password', async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       const generated_password = await bcrypt.hash(user_password, salt);
 
-      console.log(generated_password)
-
       await User.update({
          user_password: generated_password
       }, {
@@ -349,7 +345,6 @@ router.patch('/change-password', async (req, res) => {
          }
       };
 
-      console.log(payload)
 
       jwt.sign(payload, config.get('jwtSecret'), {
             expiresIn: '7d'
