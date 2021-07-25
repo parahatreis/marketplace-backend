@@ -1327,14 +1327,14 @@ router.get('/home/top-products/new-products', async (req,res) => {
 
     let page = 0;
     let order = [['createdAt','DESC']];
-    let limit = 5;
+    let limit = 10;
     // 
     let products = [];
 
     // Sorting
     if (req.query.sortBy) {
         const parts = req.query.sortBy.split(':');
-        order.push(parts);
+        order = [parts];
     }
     // limit
     if (req.query.limit) {
@@ -1342,14 +1342,17 @@ router.get('/home/top-products/new-products', async (req,res) => {
     }
     // page
     if (req.query.page) {
-        page = Number(req.query.page)
+       page = Number(req.query.page)
     }
 
     try {
         products = await Product.findAndCountAll({
-            where : {
-                product_status : true
-             },
+               where : {
+                  product_status : true
+            },
+            attributes: {
+               exclude: ['price_usd', 'price_tmt', 'old_price_usd', 'old_price_tmt', 'isPriceUsd']
+            },
             distinct : true,
             order,
             limit,
