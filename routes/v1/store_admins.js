@@ -11,7 +11,7 @@ const storeAdminAuth = require('../../middleware/storeAdminAuth')
 // @route POST v1/store_admins
 // @desc Register StoreAdmin
 // @access Private(Admin)
-// TODO AUTH
+// TODO SUPERADMIN
 router.post('/', async (req, res) => {
 
     const {
@@ -83,6 +83,7 @@ router.post('/', async (req, res) => {
 // @route POST api/store_admins/login
 // @desc Login StoreAdmin
 // @access Public
+// TODO PUBLIC
 router.post('/login', async (req, res) => {
     
     const { store_admin_username, store_admin_password } = req.body;
@@ -126,6 +127,7 @@ router.post('/login', async (req, res) => {
 // @route GET v1/store_admins/auth
 // @desc Get auth store_admin
 // @access Private(store_admin)
+// TODO ADMIN
 router.get('/auth', storeAdminAuth , async (req, res) => {
     try {
         const admin = await StoreAdmin.findOne({
@@ -150,7 +152,7 @@ router.get('/auth', storeAdminAuth , async (req, res) => {
 });
 
 
-
+// TODO SUPERADMIN
 // @route GET api/store_admins
 // @desc Get store_admins
 // @access Public
@@ -180,7 +182,7 @@ router.get('/', async (req, res) => {
 // @route GET api/store_admins/:store_admin_id
 // @desc Get store_admin by id
 // @access Public
-// TODO Auth
+// TODO SUPERADMIN
 router.get('/:store_admin_id', async (req, res) => {
     try {
         const store_admin = await StoreAdmin.findOne({
@@ -209,7 +211,7 @@ router.get('/:store_admin_id', async (req, res) => {
 // @route DELETE api/store_admins/:store_admin_id
 // @desc DELETE store_admin by id
 // @access Private
-// TODO Auth
+// TODO SUPERADMIN
 router.delete('/:store_admin_id', async (req, res) => {
     try {
         const store_admin = await StoreAdmin.destroy({
@@ -233,7 +235,7 @@ router.delete('/:store_admin_id', async (req, res) => {
 // @route UPDATE api/store_admins/:store_admin_id
 // @desc UPDATE store_admin by id
 // @access Public
-// TODO Auth
+// TODO SUPERADMIN
 router.patch('/:store_admin_id', async (req, res) => {
 
     const newObj = {};
@@ -245,8 +247,6 @@ router.patch('/:store_admin_id', async (req, res) => {
        store_admin_username,
        storeId,
    } = req.body;
-   
-   console.log(req.body)
 
     if(!store_admin_name) return res.status(400).send('Input store admin name!');
     if(!store_admin_phone) return res.status(400).send('Input store_admin_phone!');
@@ -284,7 +284,62 @@ router.patch('/:store_admin_id', async (req, res) => {
        console.log(error)
        res.status(500).send('Server error')
     }
- });
+});
+ 
+// @route UPDATE api/store_admins/change_password
+// @desc UPDATE store_admin password
+// @access Private
+// TODO ADMIN
+router.patch('/password/change', storeAdminAuth, async (req, res) => {
+
+    const newObj = {};
+
+    const {
+        new_store_admin_password,
+        old_store_admin_password,
+    } = req.body;
+
+    if (!new_store_admin_password) return res.status(400).send('Input new_store_admin_password!');
+    if (!old_store_admin_password) return res.status(400).send('Input old_store_admin_password!');
+
+    try {
+        const admin = await StoreAdmin.findOne({
+            where: {
+                store_admin_id: req.store_admin.id
+            }
+        });
+
+        if (!admin) return res.status(404).send('Admin not found');
+        //    Check password
+        const isMatch = await bcrypt.compare(old_store_admin_password, admin.store_admin_password);
+        if (!isMatch) {
+            return res.status(400).json({
+                errors: [{
+                    msg: 'Invalid password!'
+                }]
+            });
+        }
+
+        // Encrypt password
+        const salt = await bcrypt.genSalt(10);
+        const generated_password = await bcrypt.hash(new_store_admin_password, salt);
+        newObj.store_admin_password = generated_password
+
+        await StoreAdmin.update(newObj, {
+            where: {
+                store_admin_id: req.store_admin.id
+            }
+        });
+
+        res.json({
+            msg : 'Successfully updated!'
+        });
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).send('Server error')
+    }
+});
  
 
 
