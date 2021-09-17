@@ -400,6 +400,83 @@ router.get('/', async (req, res) => {
 });
 
 
+// @route GET v1/products
+// @desc Get all products
+// @access Public(for admin)
+router.get('/store',storeAdminAuth, async (req, res) => {
+
+  let order = [];
+  let page = 0;
+  let limit = 10;
+
+  // Sorting
+  if (req.query.sortBy) {
+    const parts = req.query.sortBy.split(':');
+    order.push(parts);
+  }
+  // limit
+  if (req.query.limit) {
+    limit = Number(req.query.limit)
+  }
+  // page
+  if (req.query.page) {
+    page = Number(req.query.page)
+  }
+
+  try {
+    // StoreAdmin
+    const admin = await StoreAdmin.findOne({
+      where: {
+        store_admin_id: req.store_admin.id
+      },
+      include: {
+        model: Store,
+        as: 'store',
+        attributes: ['store_id', 'store_name', 'id']
+      }
+    });
+    
+    const products = await Product.findAll({
+      where : {storeId : admin.store.id},
+      order,
+      limit,
+      offset: page,
+      include: [{
+          model: SubCategorie,
+          as: 'subcategorie',
+          attributes: ['subcategorie_id', 'subcategorie_name_tm', 'subcategorie_name_ru', 'subcategorie_name_en']
+        },
+        {
+          model: Brand,
+          as: 'brand',
+          attributes: ['brand_id', 'brand_name']
+        },
+        {
+          model: Store,
+          as: 'store',
+          attributes: ['store_id', 'store_name']
+        },
+        {
+          model: Stock,
+          as: 'stocks',
+          include: {
+            model: SizeName,
+            as: 'sizeName'
+          }
+        }
+      ]
+    });
+    return res.json({
+      rows: products,
+      count: products.length + page,
+    })
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Server error')
+  }
+});
+
+
 // @route POST v1/products/subcategorie/:subcategorie_id
 // @desc Get all products by subcategorie
 /* @sortBy: 

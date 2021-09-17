@@ -92,13 +92,15 @@ router.post('/login', async (req, res) => {
        // Check user exists
        let store_admin = await StoreAdmin.findOne({where : {store_admin_username}});
        if (!store_admin) {
-          return res.status(400).json({ errors: [{ msg: 'Invalid creadentials' }] });
+          return res.status(400).json({errors: "Admin not found" });
        }
        
     //    Check password
        const isMatch = await bcrypt.compare(store_admin_password, store_admin.store_admin_password);
        if (!isMatch) {
-          return res.status(400).json({ errors: [{ msg: 'Invalid creadentials' }] });
+          return res.status(400).json({
+            errors: "Password fail"
+          });
        }
  
  
