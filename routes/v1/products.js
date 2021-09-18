@@ -9,7 +9,11 @@ const {
   SizeName,
   SizeType,
   Currency,
-  StoreAdmin
+  StoreAdmin,
+  Order,
+  OrderProduct,
+  Admin,
+  User
 } = require('../../models');
 const {
   Op
@@ -21,13 +25,13 @@ const sharp = require('sharp');
 const fs = require('fs');
 const config = require('config');
 const storeAdminAuth = require('../../middleware/storeAdminAuth')
+const adminAuth = require('../../middleware/adminAuth');
 
 
-// TODO SUPERADMIN
 // @route POST v1/products
 // @desc Create Product
 // @access Private(admin)
-router.post('/', async (req, res) => {
+router.post('/',adminAuth, async (req, res) => {
 
   let newObj = {};
 
@@ -403,7 +407,7 @@ router.get('/', async (req, res) => {
 // @route GET v1/products
 // @desc Get all products
 // @access Public(for admin)
-router.get('/store',storeAdminAuth, async (req, res) => {
+router.get('/store', storeAdminAuth, async (req, res) => {
 
   let order = [];
   let page = 0;
@@ -435,9 +439,11 @@ router.get('/store',storeAdminAuth, async (req, res) => {
         attributes: ['store_id', 'store_name', 'id']
       }
     });
-    
+
     const products = await Product.findAll({
-      where : {storeId : admin.store.id},
+      where: {
+        storeId: admin.store.id
+      },
       order,
       limit,
       offset: page,
@@ -1010,12 +1016,96 @@ router.get('/search', async (req, res) => {
 });
 
 
+// @route GET v1/products/store/stats
+// @desc Get Stats for store
+// @access private
+router.get('/store/stats', storeAdminAuth, async (req, res) => {
+  try {
+    // StoreAdmin
+    const admin = await StoreAdmin.findOne({
+      where: {
+        store_admin_id: req.store_admin.id
+      },
+      include: {
+        model: Store,
+        as: 'store',
+        attributes: ['store_id', 'store_name', 'id']
+      }
+    });
+    if (!admin) return res.status(400).json({
+      msg: "Admin not found!"
+    })
+    const products = await Product.findAndCountAll({
+      where: {
+        storeId: admin.store.id
+      },
+      attributes: ['product_id'],
+    });
+
+    const orders = await Order.findAndCountAll({
+      attributes: ['order_id'],
+      include: {
+        model: OrderProduct,
+        as: 'order_products',
+        where: {
+          storeId: admin.store.id
+        },
+      }
+    });
+
+    return res.json({
+      order_count: orders.count,
+      product_count: products.count
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Server error')
+  }
+})
+
+// @route GET v1/products/admin/stats
+// @desc Get Stats for ADMIN
+// @access private
+router.get('/admin/stats', adminAuth, async (req, res) => {
+  try {
+    // StoreAdmin
+    const admin = await Admin.findOne({
+      where: {
+        admin_id: req.admin.id
+      },
+    });
+    console.log(admin)
+    if (!admin) return res.status(400).json({
+      msg: "Admin not found!"
+    })
+    const products = await Product.findAndCountAll({
+      attributes: ['product_id'],
+    });
+
+    const orders = await Order.findAndCountAll({
+      attributes: ['order_id'],
+    });
+
+    const users = await User.findAndCountAll({
+      attributes: ['user_id'],
+    });
+
+    return res.json({
+      order_count: orders.count,
+      product_count: products.count,
+      user_count :users.count
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Server error')
+  }
+})
+
 
 // @route GET api/products/:product_id
-// @desc Get Product by id
+// @desc Get Product by id for ADMIN
 // @access Public
-// TODO SUPERADMIN
-router.get('/:product_id', async (req, res) => {
+router.get('/admin/:product_id', storeAdminAuth, async (req, res) => {
 
   try {
     const product = await Product.findOne({
@@ -1039,6 +1129,107 @@ router.get('/:product_id', async (req, res) => {
           model: Store,
           as: 'store',
           attributes: ['store_id', 'store_name']
+        },
+        {
+          model: Stock,
+          as: 'stocks',
+          include: [{
+              model: SizeName,
+              as: 'sizeName',
+            },
+            {
+              model: SizeType,
+              as: 'sizeType',
+            }
+          ]
+        }
+      ]
+    });
+
+    if (!product) res.status(404).send('Product not found');
+
+    res.json(product);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Server error')
+  }
+});
+
+// @route GET api/products/:product_id
+// @desc Get Product by id for ADMIN
+// @access Public
+router.get('/store/:product_id',storeAdminAuth, async (req, res) => {
+
+  try {
+    const product = await Product.findOne({
+      where: {
+        product_id: req.params.product_id
+      },
+      //   attributes : {
+      //     exclude : ['price_usd','price_tmt','old_price_usd','old_price_tmt','isPriceUsd']
+      // },
+      include: [{
+          model: Brand,
+          as: 'brand',
+          attributes: ['brand_id', 'brand_name']
+        },
+        {
+          model: SubCategorie,
+          as: 'subcategorie',
+          attributes: ['subcategorie_id', 'subcategorie_name_tm', 'subcategorie_name_ru', 'subcategorie_name_en']
+        },
+        {
+          model: Store,
+          as: 'store',
+          attributes: ['store_id', 'store_name']
+        },
+        {
+          model: Stock,
+          as: 'stocks',
+          include: [{
+              model: SizeName,
+              as: 'sizeName',
+            },
+            {
+              model: SizeType,
+              as: 'sizeType',
+            }
+          ]
+        }
+      ]
+    });
+
+    if (!product) res.status(404).send('Product not found');
+
+    res.json(product);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Server error')
+  }
+});
+
+// @route GET api/products/:product_id
+// @desc Get Product by id for ADMIN
+// @access Public
+router.get('/:product_id', async (req, res) => {
+
+  try {
+    const product = await Product.findOne({
+      where: {
+        product_id: req.params.product_id
+      },
+        attributes : {
+          exclude : ['price_usd','price_tmt','old_price_usd','old_price_tmt','isPriceUsd','store_id']
+      },
+      include: [{
+          model: Brand,
+          as: 'brand',
+          attributes: ['brand_id', 'brand_name']
+        },
+        {
+          model: SubCategorie,
+          as: 'subcategorie',
+          attributes: ['subcategorie_id', 'subcategorie_name_tm', 'subcategorie_name_ru', 'subcategorie_name_en']
         },
         {
           model: Stock,
@@ -1193,8 +1384,6 @@ router.patch('/:product_id', async (req, res) => {
     stocks
   } = req.body;
 
-  console.log(req.body)
-
   // Validate
   if (!product_code) return res.status(400).send('Input Product Code');
   if (!product_name_tm) return res.status(400).send('Input Product Name');
@@ -1282,8 +1471,6 @@ router.patch('/:product_id', async (req, res) => {
       const discount = calculateDiscount(newObj.price, newObj.old_price);
       newObj.product_discount = discount;
     }
-
-    console.log(newObj)
 
     const product = await Product.findOne({
       where: {
@@ -1405,7 +1592,7 @@ router.patch('/:product_id', async (req, res) => {
 // @route PATCH v1/products/:product_id
 // @desc Update Product
 // @access Private(admin)
-router.patch('/store/:product_id',storeAdminAuth, async (req, res) => {
+router.patch('/store/:product_id', storeAdminAuth, async (req, res) => {
 
   let newObj = {};
 
@@ -1651,7 +1838,7 @@ const upload = multer({
 });
 
 router.post('/image/:product_id', upload.array('images'), async (req, res) => {
-
+    console.log(req.files);
     try {
       // Check Product if exists
       const product = await Product.findOne({
@@ -1663,7 +1850,7 @@ router.post('/image/:product_id', upload.array('images'), async (req, res) => {
       if (!product) {
         return res.status(404).send('Product not found')
       }
-
+      console.log(product.product_images);
       // Delete product images already exists 
       if (product.product_images) {
         product.product_images.forEach((image) => {
@@ -1680,41 +1867,36 @@ router.post('/image/:product_id', upload.array('images'), async (req, res) => {
       let buffers = req.files;
 
       // Convert image to png with sharp 
-      for (let index = 0; index < buffers.length; index++ ) {
+      for (let index = 0; index < buffers.length; index++) {
         // Create images path for db
         pr_images.push(`/product-images/${buffers[index].originalname + '-' + product.id}.webp`)
 
         if (index === 0) {
-
           // Create imagepath for db
           prev_image = `/product-images/preview-image-${buffers[index].originalname + '-' + product.id}.webp`;
-
+          console.log(buffers[index]);
           // product preview image
-          await sharp(buffers[index]).resize({
+          await sharp(buffers[index].buffer).resize({
             width: 500,
             height: 500
           }).webp().toFile(`./public/product-images/preview-image-${buffers[index].originalname + '-' + product.id}.webp`);
 
           // 
-          await sharp(buffers[index])
+          await sharp(buffers[index].buffer)
             .webp()
             .toFile(`./public/product-images/${buffers[index].originalname + '-' + product.id}.webp`);
         } else {
-          await sharp(buffers[index])
+          await sharp(buffers[index].buffer)
             .webp()
             .toFile(`./public/product-images/${buffers[index].originalname + '-' + product.id}.webp`)
         }
       };
 
-
       product.product_images = pr_images;
       if (!prev_image !== '') {
         product.preview_image = prev_image;
       }
-
       product.save();
-
-
 
       return res.json({
         prev_image,
@@ -1985,7 +2167,5 @@ router.get('/home/top-products/discount-products', async (req, res) => {
     res.status(500).send('Server error')
   }
 })
-
-
 
 module.exports = router;
