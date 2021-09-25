@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const { Home, SubCategorie, Product, Brand, Stock, SizeName, SizeType } = require('../../models');
+const adminAuth = require("../../middleware/adminAuth");
 
 
 // @route POST v1/home_subcategories
 // @desc Create Home Subcategories
 // @access Private (Admin)
-// TODO AUTH
-router.post('/', async (req, res) => {
+router.post('/', adminAuth, async (req, res) => {
 
     const {
         subcategorie_id,
@@ -110,8 +110,7 @@ router.get('/', async (req, res) => {
 // @route PATCH v1/home_subcategories
 // @desc Update Home Subcategories
 // @access Private (Admin)
-// TODO AUTH
-router.patch('/:home_subcategorie_id', async (req, res) => {
+router.patch('/:home_subcategorie_id', adminAuth, async (req, res) => {
 
     let newObj = null;
 
@@ -159,8 +158,7 @@ router.patch('/:home_subcategorie_id', async (req, res) => {
 // @route DELETE v1/home_subcategories/:id
 // @desc Delete Home Subcategories
 // @access Private (Admin)
-// TODO AUTH
-router.delete('/:home_subcategorie_id', async (req, res) => {
+router.delete('/:home_subcategorie_id', adminAuth, async (req, res) => {
     try {
 
         const home_subcategorie = await Home.destroy({where : 

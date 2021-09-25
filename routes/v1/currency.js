@@ -2,13 +2,13 @@ const express = require('express');
 const router = express.Router();
 // 
 const {Currency ,Product} = require('../../models');
+const adminAuth = require("../../middleware/adminAuth");
 
 
 // @route PATCH v1/currency
 // @desc Update Currency
 // @access Private (Admin)
-// TODO AUTH
-router.patch('/', async (req, res) => {
+router.patch('/', adminAuth, async (req, res) => {
 
     const newObj = {};
 
@@ -68,8 +68,7 @@ router.patch('/', async (req, res) => {
 // @route GET v1/stores
 // @desc Get all Currency
 // @access Private
-// TODO AUTH
-router.get('/', async (req, res) => {
+router.get('/', adminAuth, async (req, res) => {
     try {
        const currencies = await Currency.findAll();
 

@@ -6,13 +6,13 @@ const router = express.Router();
 // Models
 const {StoreAdmin,Store} = require('../../models');
 const storeAdminAuth = require('../../middleware/storeAdminAuth')
+const adminAuth = require("../../middleware/adminAuth");
 
 
 // @route POST v1/store_admins
 // @desc Register StoreAdmin
 // @access Private(Admin)
-// TODO SUPERADMIN
-router.post('/', async (req, res) => {
+router.post('/', adminAuth, async(req, res) => {
 
     const {
         store_admin_name,
@@ -83,7 +83,6 @@ router.post('/', async (req, res) => {
 // @route POST api/store_admins/login
 // @desc Login StoreAdmin
 // @access Public
-// TODO PUBLIC
 router.post('/login', async (req, res) => {
     
     const { store_admin_username, store_admin_password } = req.body;
@@ -129,7 +128,6 @@ router.post('/login', async (req, res) => {
 // @route GET v1/store_admins/auth
 // @desc Get auth store_admin
 // @access Private(store_admin)
-// TODO ADMIN
 router.get('/auth', storeAdminAuth , async (req, res) => {
     try {
         const admin = await StoreAdmin.findOne({
@@ -154,11 +152,10 @@ router.get('/auth', storeAdminAuth , async (req, res) => {
 });
 
 
-// TODO SUPERADMIN
 // @route GET api/store_admins
 // @desc Get store_admins
 // @access Public
-router.get('/', async (req, res) => {
+router.get('/', adminAuth, async (req, res) => {
 
     try {
         const store_admins = await StoreAdmin.findAll({
@@ -185,7 +182,7 @@ router.get('/', async (req, res) => {
 // @desc Get store_admin by id
 // @access Public
 // TODO SUPERADMIN
-router.get('/:store_admin_id', async (req, res) => {
+router.get('/:store_admin_id', adminAuth, async (req, res) => {
     try {
         const store_admin = await StoreAdmin.findOne({
             where : {
@@ -213,8 +210,7 @@ router.get('/:store_admin_id', async (req, res) => {
 // @route DELETE api/store_admins/:store_admin_id
 // @desc DELETE store_admin by id
 // @access Private
-// TODO SUPERADMIN
-router.delete('/:store_admin_id', async (req, res) => {
+router.delete('/:store_admin_id', adminAuth, async (req, res) => {
     try {
         const store_admin = await StoreAdmin.destroy({
             where : {
@@ -237,8 +233,7 @@ router.delete('/:store_admin_id', async (req, res) => {
 // @route UPDATE api/store_admins/:store_admin_id
 // @desc UPDATE store_admin by id
 // @access Public
-// TODO SUPERADMIN
-router.patch('/:store_admin_id', async (req, res) => {
+router.patch('/:store_admin_id', adminAuth, async (req, res) => {
 
     const newObj = {};
  
@@ -295,7 +290,7 @@ router.patch('/:store_admin_id', async (req, res) => {
 router.patch('/password/change', storeAdminAuth, async (req, res) => {
 
     const newObj = {};
-
+    console.log(req.body);
     const {
         new_store_admin_password,
         old_store_admin_password,

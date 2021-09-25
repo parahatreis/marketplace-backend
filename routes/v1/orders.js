@@ -16,6 +16,8 @@ const {
 // auth
 const userAuth = require('../../middleware/userAuth');
 const storeAdminAuth = require('../../middleware/storeAdminAuth');
+const adminAuth = require("../../middleware/adminAuth");
+
 
 // @route POST v1/orders
 // @desc Order Products
@@ -269,7 +271,7 @@ router.post('/check-stocks', async (req, res) => {
 // @route GET v1/orders
 // @desc Get all orders
 // @access Private
-router.get('/', async (req, res) => {
+router.get('/',adminAuth, async (req, res) => {
 
 	try {
 
@@ -428,7 +430,7 @@ router.get('/:order_id', async (req, res) => {
 // @desc Change Order Status
 // 'waiting', 'processing', 'delivered', 'rejected'
 // @access Private
-router.post('/status/:order_id', async (req, res) => {
+router.post('/status/:order_id', adminAuth, async (req, res) => {
 
 	const {
 		order_status

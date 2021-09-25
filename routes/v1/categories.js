@@ -7,13 +7,13 @@ const multer = require('multer');
 const sharp = require('sharp');
 const fs = require('fs');
 const config = require('config');
+const adminAuth = require("../../middleware/adminAuth");
 
 
 // @route POST v1/categories
 // @desc Create Categorie
 // @access Private(Admin)
-// TODO AUTH
-router.post('/', async (req, res) => {
+router.post('/', adminAuth, async (req, res) => {
 
    const {
       categorie_name_tm,
@@ -101,8 +101,7 @@ router.get('/:categorie_id', async (req, res) => {
 // @route PATCH v1/categories/:categorie_id
 // @desc Update Categorie
 // @access Private(Admin)
-// TODO AUTH
-router.patch('/:categorie_id', async (req, res) => {
+router.patch('/:categorie_id', adminAuth, async (req, res) => {
 
    const newObj = {};
 
@@ -144,8 +143,7 @@ router.patch('/:categorie_id', async (req, res) => {
 // @route DELETE v1/categories/:categorie_id
 // @desc Delete Categorie
 // @access Private(Admin)
-// TODO AUTH
-router.delete('/:categorie_id', async (req, res) => {
+router.delete('/:categorie_id', adminAuth, async (req, res) => {
    try {
       // Find Categorie
       const categorie = await Categorie.findOne({ where: { categorie_id: req.params.categorie_id } });
@@ -173,7 +171,6 @@ router.delete('/:categorie_id', async (req, res) => {
 // @route Post v1/categories/image/:categorie_id
 // desc  Create Categorie Image
 // access Private(Admin)
-// TODO AUTH
 // Check file with multer
 const upload = multer({
    limits: {
@@ -186,7 +183,7 @@ const upload = multer({
       cb(undefined, true)
    }
 });
-router.post('/image/:categorie_id', upload.single('image'), async (req, res) => {
+router.post('/image/:categorie_id', adminAuth, upload.single('image'), async (req, res) => {
 
    try {
       const categorie = await Categorie.findOne({

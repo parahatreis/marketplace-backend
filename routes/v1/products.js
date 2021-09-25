@@ -339,11 +339,76 @@ router.post('/store', storeAdminAuth, async (req, res) => {
 });
 
 
-// TODO SUPERADMIN
 // @route GET v1/products
 // @desc Get all products
 // @access Public(for admin)
 router.get('/', async (req, res) => {
+
+  let order = [];
+  let page = 0;
+  let limit = 10;
+
+  // Sorting
+  if (req.query.sortBy) {
+    const parts = req.query.sortBy.split(':');
+    order.push(parts);
+  }
+  // limit
+  if (req.query.limit) {
+    limit = Number(req.query.limit)
+  }
+  // page
+  if (req.query.page) {
+    page = Number(req.query.page)
+  }
+
+  try {
+    const products = await Product.findAll({
+      attributes: {
+        exclude: ['price_usd', 'price_tmt', 'old_price_usd', 'old_price_tmt', 'isPriceUsd']
+      },
+      order,
+      limit,
+      offset: page,
+      include: [{
+          model: SubCategorie,
+          as: 'subcategorie',
+          attributes: ['subcategorie_id', 'subcategorie_name_tm', 'subcategorie_name_ru', 'subcategorie_name_en']
+        },
+        {
+          model: Brand,
+          as: 'brand',
+          attributes: ['brand_id', 'brand_name']
+        },
+        {
+          model: Store,
+          as: 'store',
+          attributes: ['store_id', 'store_name']
+        },
+        {
+          model: Stock,
+          as: 'stocks',
+          include: {
+            model: SizeName,
+            as: 'sizeName'
+          }
+        }
+      ]
+    });
+    return res.json({
+      rows: products,
+      count: products.length + page,
+    })
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Server error')
+  }
+});
+
+// @route GET v1/products
+// @desc Get all products
+// @access Private(admin)
+router.get('/admin', adminAuth, async (req, res) => {
 
   let order = [];
   let page = 0;
@@ -1074,7 +1139,6 @@ router.get('/admin/stats', adminAuth, async (req, res) => {
         admin_id: req.admin.id
       },
     });
-    console.log(admin)
     if (!admin) return res.status(400).json({
       msg: "Admin not found!"
     })
@@ -1324,8 +1388,7 @@ router.get('/related-products/:product_id', async (req, res) => {
 // @route DELETE api/products/:product_id
 // @desc Delete Product
 // @access Private (Admin)
-// TODO AUTH
-router.delete('/:product_id', async (req, res) => {
+router.delete('/:product_id', adminAuth, async (req, res) => {
   try {
 
     const product = await Product.findOne({
@@ -1361,8 +1424,7 @@ router.delete('/:product_id', async (req, res) => {
 // @route PATCH v1/products/:product_id
 // @desc Update Product
 // @access Private(admin)
-// TODO SUPERADMIN
-router.patch('/:product_id', async (req, res) => {
+router.patch('/:product_id', adminAuth, async (req, res) => {
 
   let newObj = {};
 
@@ -1823,7 +1885,6 @@ router.patch('/store/:product_id', storeAdminAuth, async (req, res) => {
 // @route Post v1/products/:products_id
 // desc  Create Product Image
 // access Private (Admin)
-// TODO AUTH
 const upload = multer({
 
   limits: {
@@ -1837,8 +1898,7 @@ const upload = multer({
   }
 });
 
-router.post('/image/:product_id', upload.array('images'), async (req, res) => {
-    console.log(req.files);
+router.post('/image/:product_id', adminAuth, upload.array('images'), async (req, res) => {
     try {
       // Check Product if exists
       const product = await Product.findOne({
@@ -1850,7 +1910,6 @@ router.post('/image/:product_id', upload.array('images'), async (req, res) => {
       if (!product) {
         return res.status(404).send('Product not found')
       }
-      console.log(product.product_images);
       // Delete product images already exists 
       if (product.product_images) {
         product.product_images.forEach((image) => {
@@ -1874,7 +1933,6 @@ router.post('/image/:product_id', upload.array('images'), async (req, res) => {
         if (index === 0) {
           // Create imagepath for db
           prev_image = `/product-images/preview-image-${buffers[index].originalname + '-' + product.id}.webp`;
-          console.log(buffers[index]);
           // product preview image
           await sharp(buffers[index].buffer).resize({
             width: 500,
@@ -1918,8 +1976,7 @@ router.post('/image/:product_id', upload.array('images'), async (req, res) => {
 // @route PATCH api/products/status/:product_id
 // desc  Change product status : true / false
 // access Private (Admin) 
-// TODO AUTH
-router.patch('/status/:product_id', async (req, res) => {
+router.patch('/status/:product_id', adminAuth, async (req, res) => {
 
   let status = req.body.product_status ? 1 : 0;
 

@@ -2,13 +2,13 @@ const express = require('express');
 const router = express.Router();
 // 
 const {SizeType, SizeName} = require('../../models');
+const adminAuth = require("../../middleware/adminAuth");
 
 
 // @route POST v1/size_types
 // @desc Create SizeType
 // @access Private (Admin)
-// TODO AUTH
-router.post('/', async (req, res) => {
+router.post('/', adminAuth, async (req, res) => {
 
     const {
         size_type,
@@ -78,8 +78,7 @@ router.get('/', async (req, res) => {
 // @route GET v1/size_types/:size_type_id
 // @desc Get Size Type By id
 // @access Private
-// TODO AUTH
-router.get('/:size_type_id', async (req, res) => {
+router.get('/:size_type_id', adminAuth, async (req, res) => {
     try {
         const sizeType = await SizeType.findOne({
             where : {
@@ -113,8 +112,7 @@ router.get('/:size_type_id', async (req, res) => {
 // @route DELETE api/stores/:store_id
 // @desc Delete Store
 // @access Private (only Admin)
-// TODO AUTH
-router.delete('/:size_type_id', async (req, res) => {
+router.delete('/:size_type_id', adminAuth, async (req, res) => {
     try {
 
         const sizeType = await SizeType.findOne({where : {size_type_id : req.params.size_type_id}})
@@ -141,8 +139,7 @@ router.delete('/:size_type_id', async (req, res) => {
 // @route PATCH v1/size_types/:size_type_id
 // @desc Create SizeType
 // @access Private (Admin)
-// TODO AUTH
-router.patch('/:size_type_id', async (req, res) => {
+router.patch('/:size_type_id', adminAuth, async (req, res) => {
     
     const newObj = {};
     let subcategorie = null;

@@ -7,14 +7,13 @@ const multer = require('multer');
 const sharp = require('sharp');
 const fs = require('fs');
 const config = require('config');
-
+const adminAuth = require("../../middleware/adminAuth");
 
 
 // @route POST v1/subcategories
 // @desc Create Subcategorie
 // @access Private(Admin)
-// TODO AUTH
-router.post('/', async (req, res) => {
+router.post('/', adminAuth, async (req, res) => {
 
    let newObj = {}
 
@@ -199,8 +198,7 @@ router.get('/:subcategorie_id', async (req, res) => {
 // @route PATCH api/subcategories/:subcategorie_id
 // @desc Update Subcategorie
 // @access Private(Admin)
-// TODO AUTH
-router.patch('/:subcategorie_id',  async (req, res) => {
+router.patch('/:subcategorie_id', adminAuth, async (req, res) => {
 
    let newObj = {};
 
@@ -261,8 +259,7 @@ router.patch('/:subcategorie_id',  async (req, res) => {
 // @route DELETE v1/subcategories/:subcategorie_id
 // @desc Delete SubCategorie
 // @access Private(Admin)
-// TODO AUTH
-router.delete('/:subcategorie_id', async (req, res) => {
+router.delete('/:subcategorie_id', adminAuth, async (req, res) => {
    try {
 
       // delete categorie row
@@ -291,7 +288,6 @@ router.delete('/:subcategorie_id', async (req, res) => {
 // @route Post v1/subcategories/:subcategorie_id
 // desc  Create Subcategorie Image
 // access Private(Admin)
-// TODO AUTH
 // Check file with multer
 const upload = multer({
    limits: {
@@ -304,7 +300,7 @@ const upload = multer({
       cb(undefined, true)
    }
 });
-router.post('/image/:subcategorie_id', upload.single('image'), async (req, res) => {
+router.post('/image/:subcategorie_id', adminAuth, upload.single('image'), async (req, res) => {
 
    const subcategorie = await SubCategorie.findOne({ where: { subcategorie_id: req.params.subcategorie_id } });
 

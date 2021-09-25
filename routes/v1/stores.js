@@ -2,13 +2,13 @@ const express = require('express');
 const router = express.Router();
 // 
 const {Store,StoreAdmin ,Product} = require('../../models');
+const adminAuth = require("../../middleware/adminAuth");
 
 
 // @route POST v1/stores
 // @desc Create Store
 // @access Private (Admin)
-// TODO AUTH
-router.post('/', async (req, res) => {
+router.post('/', adminAuth, async (req, res) => {
 
    const newObj = {};
 
@@ -48,8 +48,7 @@ router.post('/', async (req, res) => {
 // @route GET api/stores
 // @desc Get all Stores
 // @access Public
-// TODO AUTH
-router.get('/', async (req, res) => {
+router.get('/', adminAuth, async (req, res) => {
     try {
        const stores = await Store.findAll({
           include: [
@@ -76,8 +75,7 @@ router.get('/', async (req, res) => {
 // @route GET api/stores/:store_id
 // @desc Get Store By id
 // @access Public
-// TODO AUTH
-router.get('/:store_id', async (req, res) => {
+router.get('/:store_id', adminAuth, async (req, res) => {
     try {
         const store = await Store.findOne({
             where : {
@@ -99,8 +97,7 @@ router.get('/:store_id', async (req, res) => {
 // @route PATCH api/stores/:store_id
 // @desc Update Store
 // @access Private (only Admin)
-// TODO AUTH
-router.patch('/:store_id', async (req, res) => {
+router.patch('/:store_id', adminAuth, async (req, res) => {
 
    const newObj = {};
 
@@ -146,8 +143,7 @@ router.patch('/:store_id', async (req, res) => {
 // @route DELETE api/stores/:store_id
 // @desc Delete Store
 // @access Private (only Admin)
-// TODO AUTH
-router.delete('/:store_id', async (req, res) => {
+router.delete('/:store_id', adminAuth, async (req, res) => {
     try {
        const store = await Store.destroy({
           where: {

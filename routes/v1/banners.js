@@ -7,13 +7,13 @@ const multer = require('multer');
 const sharp = require('sharp');
 const fs = require('fs')
 const config = require('config');
+const adminAuth = require("../../middleware/adminAuth");
 
 
 // @route POST v1/banners
 // @desc Create Banner
 // @access Private (Admin)
-// TODO AUTH
-router.post('/', async (req, res) => {
+router.post('/', adminAuth, async (req, res) => {
 
     const {
         banner_name,
@@ -78,8 +78,7 @@ router.get('/:banner_id', async (req, res) => {
 // @route PATCH api/banners/:banner_id
 // @desc Update Banner
 // @access Private (only Admin)
-// TODO AUTH
-router.patch('/:banner_id', async (req, res) => {
+router.patch('/:banner_id', adminAuth, async (req, res) => {
 
     const newObj = {};
 
@@ -121,8 +120,7 @@ router.patch('/:banner_id', async (req, res) => {
 // @route DELETE api/banners/:banner_id
 // @desc Delete Store
 // @access Private (only Admin)
-// TODO AUTH
-router.delete('/:banner_id', async (req, res) => {
+router.delete('/:banner_id', adminAuth, async(req, res) => {
     try {
        const banner = await Banner.destroy({
           where: {
@@ -145,7 +143,6 @@ router.delete('/:banner_id', async (req, res) => {
 // @route Post v1/banner/image/:banner_id
 // desc  Create Banner Image
 // access Private(Admin)
-// TODO AUTH
 // Check file with multer
 const upload = multer({
     limits: {
@@ -158,7 +155,7 @@ const upload = multer({
        cb(undefined, true)
     }
  });
- router.post('/image/:banner_id', upload.single('image'), async (req, res) => {
+ router.post('/image/:banner_id', adminAuth, upload.single('image'), async (req, res) => {
  
     try {
         const banner = await Banner.findOne({

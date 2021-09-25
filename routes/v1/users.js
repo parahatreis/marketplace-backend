@@ -8,6 +8,7 @@ const { User, Order
  } = require('../../models');
 // auth
 const userAuth = require('../../middleware/userAuth');
+const adminAuth = require("../../middleware/adminAuth");
 const pusher = require('../../pusher');
 
 // @route POST v1/users
@@ -265,7 +266,7 @@ router.get('/auth',userAuth, async (req, res) => {
 // @route GET v1/users
 // @desc Get users
 // @access Private
-router.get('/', async (req, res) => {
+router.get('/',adminAuth, async (req, res) => {
     try {
        const users = await User.findAll()
        

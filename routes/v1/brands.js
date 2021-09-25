@@ -7,14 +7,14 @@ const multer = require('multer');
 const sharp = require('sharp');
 const fs = require('fs')
 const config = require('config');
+const adminAuth = require("../../middleware/adminAuth");
 
 
 
 // @route POST v1/brands
 // @desc Create Brand
 // @access Private(Admin)
-// TODO Auth
-router.post('/', async (req, res) => {
+router.post('/', adminAuth, async (req, res) => {
 
    const {
       brand_name,
@@ -128,8 +128,7 @@ router.get('/:brand_id', async (req, res) => {
 // @route DELETE v1/brands/:brand_id
 // @desc Delete Brand
 // @access Private(Admin)
-// TODO AUTH
-router.delete('/:brand_id', async (req, res) => {
+router.delete('/:brand_id', adminAuth, async (req, res) => {
    try {
       
       const brand = await Brand.findOne({ where: { brand_id: req.params.brand_id } });
@@ -153,8 +152,7 @@ router.delete('/:brand_id', async (req, res) => {
 // @route PATCH v1/brands/:brand_id
 // @desc Update Brand
 // @access Private(Admin)
-// TODO AUTH
-router.patch('/:brand_id', async (req, res) => {
+router.patch('/:brand_id', adminAuth, async (req, res) => {
 
    let newObj = {};
 
@@ -215,7 +213,6 @@ router.patch('/:brand_id', async (req, res) => {
 // @route Post v1/brands/:subcategorie_id
 // desc  Create Subcategorie Image
 // access Private (Admin)
-// TODO AUTH
 // Check file with multer
 const upload = multer({
    limits: {
@@ -228,7 +225,7 @@ const upload = multer({
       cb(undefined, true)
    }
 });
-router.post('/image/:brand_id', upload.single('image'), async (req, res) => {
+router.post('/image/:brand_id', adminAuth, upload.single('image'), async (req, res) => {
 
    const brand = await Brand.findOne({ where: { brand_id: req.params.brand_id } });
 
