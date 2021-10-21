@@ -2055,7 +2055,7 @@ router.get('/home/top-products', async (req, res) => {
           }
         ]
       },
-      limit: 5,
+      limit: 4,
       include: [{
           model: Brand,
           as: 'brand'
