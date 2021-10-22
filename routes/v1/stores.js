@@ -23,8 +23,6 @@ router.post('/', adminAuth, async (req, res) => {
 
    if (!store_number) return res.status(400).send("Input store_number");
    if (!store_phone) return res.status(400).send("Input store_phone");
-   if (!store_floor) return res.status(400).send("Input store_floor");
-
 
    if (store_name) newObj.store_name = store_name;
    if (store_number) newObj.store_number = Number(store_number);

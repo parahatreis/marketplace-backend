@@ -35,9 +35,8 @@ app.use('/v1/home_subcategories', require('./routes/v1/home'));
 app.use('/v1/users', require('./routes/v1/users'));
 app.use('/v1/orders', require('./routes/v1/orders'));
 app.use('/v1/currency', require('./routes/v1/currency'));
-// Sizes Stocks
 app.use('/v1/size_types', require('./routes/v1/size_types'));
-
+app.use('/v1/contacts', require('./routes/v1/contacts'));
 
 
 // Start Server

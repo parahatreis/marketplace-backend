@@ -42,10 +42,6 @@ module.exports = (sequelize, DataTypes) => {
       type : DataTypes.TEXT,
       allowNull : true
     },
-    store_floor: {
-      type : DataTypes.INTEGER,
-      allowNull : false
-    },
     store_currency: {
       type : DataTypes.BIGINT,
       allowNull : true

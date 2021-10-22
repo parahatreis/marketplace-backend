@@ -28,6 +28,9 @@ const storeAdminAuth = require('../../middleware/storeAdminAuth')
 const adminAuth = require('../../middleware/adminAuth');
 
 
+const productLimitPerPage__admin = 15;
+const productLimitPerPage__public = 24;
+
 // @route POST v1/products
 // @desc Create Product
 // @access Private(admin)
@@ -346,7 +349,7 @@ router.get('/', async (req, res) => {
 
   let order = [];
   let page = 0;
-  let limit = 10;
+  let limit = productLimitPerPage__admin;
 
   // Sorting
   if (req.query.sortBy) {
@@ -412,7 +415,7 @@ router.get('/admin', adminAuth, async (req, res) => {
 
   let order = [];
   let page = 0;
-  let limit = 10;
+  let limit = productLimitPerPage__admin;
 
   // Sorting
   if (req.query.sortBy) {
@@ -476,7 +479,7 @@ router.get('/store', storeAdminAuth, async (req, res) => {
 
   let order = [];
   let page = 0;
-  let limit = 10;
+  let limit = productLimitPerPage__admin;
 
   // Sorting
   if (req.query.sortBy) {
@@ -568,7 +571,7 @@ router.get('/subcategorie/:subcategorie_id', async (req, res) => {
   let order = [];
   let range = [0, Number.POSITIVE_INFINITY];
   let page = 0;
-  let limit = 10;
+  let limit = productLimitPerPage__public;
   let brandId = null;
   let sizeNameId = null;
   let subcategorieId = null;
@@ -821,7 +824,6 @@ router.get('/subcategorie/:subcategorie_id', async (req, res) => {
 });
 
 
-
 // @route POST v1/products/brand/:brand_id
 // @desc Get all products by brand
 /* @sortBy: 
@@ -836,12 +838,9 @@ router.get('/subcategorie/:subcategorie_id', async (req, res) => {
 
 // @access Public
 router.get('/brand/:brand_id', async (req, res) => {
-
-
   let order = [];
   let page = 0;
-  let limit = 5;
-  let subcategorie = null;
+  let limit = productLimitPerPage__public;
   let brand = null;
   // 
   let products = [];
@@ -950,11 +949,9 @@ router.get('/brand/:brand_id', async (req, res) => {
 
 // @access Public
 router.get('/search', async (req, res) => {
-
-
   let order = [];
   let page = 0;
-  let limit = 5;
+  let limit = productLimitPerPage__public;
   let searchArray = ['', '', '', ''];
   // 
   let products = [];
@@ -1655,7 +1652,6 @@ router.patch('/:product_id', adminAuth, async (req, res) => {
 // @desc Update Product
 // @access Private(admin)
 router.patch('/store/:product_id', storeAdminAuth, async (req, res) => {
-
   let newObj = {};
 
   const {
@@ -1880,8 +1876,6 @@ router.patch('/store/:product_id', storeAdminAuth, async (req, res) => {
   }
 });
 
-
-
 // @route Post v1/products/:products_id
 // desc  Create Product Image
 // access Private (Admin)
@@ -1977,12 +1971,9 @@ router.post('/image/:product_id', adminAuth, upload.array('images'), async (req,
 // desc  Change product status : true / false
 // access Private (Admin) 
 router.patch('/status/:product_id', adminAuth, async (req, res) => {
-
   let status = req.body.product_status ? 1 : 0;
 
-
   try {
-
     const product = await Product.findOne({
       where: {
         product_id: req.params.product_id
@@ -2095,7 +2086,7 @@ router.get('/home/top-products/new-products', async (req, res) => {
   let order = [
     ['createdAt', 'DESC']
   ];
-  let limit = 10;
+  let limit = productLimitPerPage__public;
   // 
   let products = [];
 
@@ -2160,8 +2151,10 @@ router.get('/home/top-products/new-products', async (req, res) => {
 router.get('/home/top-products/discount-products', async (req, res) => {
 
   let page = 0;
-  let limit = 5;
-  let order = [];
+  let limit = productLimitPerPage__public;
+  let order = [
+    ['product_discount', 'DESC']
+  ];
   // 
   let products = [];
 
