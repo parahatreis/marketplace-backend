@@ -28,13 +28,13 @@ router.post('/send-email', async (req, res) => {
   // Send message with nodemailer
   try {
     let transporter = nodemailer.createTransport({
-      service: "gmail",
-      // host: 'mr.parahat28@gmail.com',
-      // port: 587,
-      // secure: false, // true for 465, false for other ports
+      // service: "gmail",
+      host: 'smtp.beget.com',
+      port: 465,
+      secure: true, // true for 465, false for other ports
       auth: {
-        user: '', // generated ethereal user
-        pass: '', // generated ethereal password
+        user: 'admin@islegtm.com', // generated ethereal user
+        pass: 'Islegtmadmin2021', // generated ethereal password
       },
       // tls: {
       //   rejectUnauthorized: false
@@ -43,8 +43,8 @@ router.post('/send-email', async (req, res) => {
 
     // send mail with defined transport object
     await transporter.sendMail({
-      from: '"ISLEGTM" <mr.parahat28@gmail.com>', // sender address
-      to: "msapayev2@gmail.com", // list of receivers
+      from: '"ISLEGTM" <admin@islegtm.com>', // sender address
+      to: "contacts@islegtm.com", // list of receivers
       subject: `Message | ISLEGTM`, // Subject line
       // text: "Bu hat islegtm tarapyndan ugradyldy", // plain text body
       html: `
@@ -54,7 +54,6 @@ router.post('/send-email', async (req, res) => {
           `, // html body
     });
   } catch (error) {
-    console.log(error);
     return res.json({
       status: 500,
       msg: error,
