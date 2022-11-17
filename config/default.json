@@ -1,4 +1,4 @@
 {
-    "jwtSecret" : "sowdamerkezitoken",
-    "rootPath" : "./public"
- }
+  "jwtSecret": "sowdamerkezitoken",
+  "rootPath": "./public"
+}
