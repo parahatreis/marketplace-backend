@@ -16,6 +16,10 @@ module.exports = {
         type : DataTypes.STRING,
         defaultValue : 'waiting'
       },
+      userAuth : {
+        type : DataTypes.BOOLEAN,
+        defaultValue : true
+      },
       userId: {
         type : DataTypes.INTEGER,
         allowNull : false

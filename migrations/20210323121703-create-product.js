@@ -28,6 +28,12 @@ module.exports = {
         type : DataTypes.STRING,
         allowNull : false
       },
+      price: {
+        type : DataTypes.DOUBLE
+      },
+      old_price: {
+        type : DataTypes.DOUBLE
+      },
       price_tmt: {
         type : DataTypes.DOUBLE
       },
