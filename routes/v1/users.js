@@ -9,7 +9,6 @@ const { User, Order
 // auth
 const userAuth = require('../../middleware/userAuth');
 const adminAuth = require("../../middleware/adminAuth");
-const pusher = require('../../pusher');
 
 // @route POST v1/users
 // @desc Register User
@@ -300,7 +299,7 @@ router.post('/verify-code',async (req, res) => {
    }
 
    // Send user data to verify-app
-   await pusher.trigger('islegtm-channel', 'code-event', obj);
+  //  await pusher.trigger('islegtm-channel', 'code-event', obj);
 
    return res.json({
       ...obj,

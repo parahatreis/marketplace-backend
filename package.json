@@ -5,7 +5,6 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js",
     "dev": "nodemon app.js",
     "data:import": "sequelize db:seed:all",
     "migrate": "sequelize db:migrate",
@@ -34,7 +33,7 @@
     "pusher": "^5.0.0",
     "sequelize": "^6.5.1",
     "sequelize-cli": "^6.2.0",
-    "sharp": "^0.26.3",
+    "sharp": "^0.33.2",
     "socket.io": "^4.1.2"
   }
 }

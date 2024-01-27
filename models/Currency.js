@@ -2,29 +2,27 @@
 const {
   Model
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Currency extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
       // define association here
     }
   };
   Currency.init({
     currency_id: {
-      type : DataTypes.UUID,
-      defaultValue : DataTypes.UUIDV4
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4
     },
     currency_price: {
-      type : DataTypes.DOUBLE
+      type: DataTypes.DOUBLE
     }
   }, {
     sequelize,
-    tableName : 'currencies',
+    tableName: 'currencies',
     modelName: 'Currency',
+    timestamps: true,
+    paranoid: true,
   });
   return Currency;
 };

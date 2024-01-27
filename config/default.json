@@ -1,4 +1,4 @@
 {
-  "jwtSecret": "sowdamerkezitoken",
+  "jwtSecret": "waseeamarketplace",
   "rootPath": "./public"
 }

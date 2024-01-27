@@ -1,8 +1,9 @@
 module.exports = {
   apps : [{
+    name : 'backend-marketplace',
     script: 'app.js',
-    instances : 1,
-    exec_mode : 'cluster',
-    name : 'sm-backend'
+    instances: 'max',
+    exec_mode: 'cluster',
+    log_date_format: 'MM-DD-YYYY HH:mm Z',
   }]
 };

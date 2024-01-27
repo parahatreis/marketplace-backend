@@ -2,43 +2,38 @@
 const {
   Model
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Banner extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
-    }
-    toJSON(){
+    toJSON() {
       return {
         ...this.get(),
-        id : undefined
+        id: undefined
       }
     }
   };
   Banner.init({
     banner_id: {
-      type : DataTypes.UUID,
-      defaultValue : DataTypes.UUIDV4
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4
     },
     banner_name: {
-      type : DataTypes.STRING,
-      allowNull : false
+      type: DataTypes.STRING,
+      allowNull: false
     },
     banner_url: {
-      type : DataTypes.STRING,
-      allowNull : false
+      type: DataTypes.STRING,
+      allowNull: false
     },
     banner_image: {
-      type : DataTypes.STRING
+      type: DataTypes.STRING
     }
   }, {
     sequelize,
-    tableName : 'banners',
+    tableName: 'banners',
     modelName: 'Banner',
+    timestamps: true,
+    paranoid: true,
   });
   return Banner;
 };

@@ -2,37 +2,35 @@
 const {
   Model
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Home extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate({SubCategorie}) {
+    static associate({ SubCategorie }) {
       // define association here
-      this.belongsTo(SubCategorie, {foreignKey : 'subcategorieId', as : 'subcategorie'})
+      this.belongsTo(SubCategorie, { foreignKey: 'subcategorieId', as: 'subcategorie' })
     }
-    toJSON(){
+    toJSON() {
       return {
         ...this.get(),
-        id : undefined
+        id: undefined
       }
     }
   };
   Home.init({
-    home_subcategorie_id:{
-      type : DataTypes.UUID,
-      defaultValue : DataTypes.UUIDV4
+    home_subcategorie_id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4
     },
     subcategorieId: {
-      type : DataTypes.INTEGER,
-      allowNull : false
+      type: DataTypes.INTEGER,
+      allowNull: false
     }
   }, {
     sequelize,
-    tableName : 'home_subcategories',
+    tableName: 'home_subcategories',
     modelName: 'Home',
+    timestamps: true,
+    paranoid: true,
   });
   return Home;
 };

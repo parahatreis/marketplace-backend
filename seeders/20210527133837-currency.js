@@ -5,19 +5,7 @@ module.exports = {
   up: async (queryInterface, DataTypes) => {
      await queryInterface.bulkInsert('currencies', [{
       currency_id : uuidv4(),
-      currency_price : 30.50,
-      createdAt : DataTypes.fn('now'),
-      updatedAt : DataTypes.fn('now')
+      currency_price : 19.50,
     }], {});
-   
   },
-
-  down: async (queryInterface, DataTypes) => {
-    /**
-     * Add commands to revert seed here.
-     *
-     * Example:
-     * await queryInterface.bulkDelete('People', null, {});
-     */
-  }
 };
