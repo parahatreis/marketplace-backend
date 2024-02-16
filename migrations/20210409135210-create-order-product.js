@@ -9,28 +9,32 @@ module.exports = {
         type: DataTypes.INTEGER
       },
       order_product_id: {
-        type : DataTypes.UUID,
-        defaultValue : DataTypes.UUIDV4
-      },
-      productId: {
-        type : DataTypes.INTEGER,
-        allowNull : false
-      },
-      orderId: {
-        type : DataTypes.INTEGER,
-        allowNull : false
-      },
-      sizeNameId: {
-         type: DataTypes.INTEGER,
-         allowNull: true
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4
       },
       sold_price: {
-        type : DataTypes.DOUBLE,
-        allowNull : false
+        type: DataTypes.DOUBLE,
+        allowNull: false
       },
-      quantity : {
-        type : DataTypes.INTEGER,
-        allowNull : false
+      quantity: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      productId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      orderId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      sizeNameId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
+      storeId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
       },
       createdAt: {
         allowNull: false,

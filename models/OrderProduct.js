@@ -20,24 +20,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4
     },
-    productId: {
+    sold_price: {
+      type: DataTypes.DOUBLE,
+      allowNull: false
+    },
+    quantity: {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    product_code: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    product_name_tm: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    product_name_ru: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    product_name_en: {
-      type: DataTypes.STRING,
+    productId: {
+      type: DataTypes.INTEGER,
       allowNull: false
     },
     orderId: {
@@ -48,16 +40,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: true
     },
-    sold_price: {
-      type: DataTypes.DOUBLE,
-      allowNull: false
-    },
-    quantity: {
+    storeId: {
       type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    store_name: {
-      type: DataTypes.STRING,
       allowNull: true
     }
   },

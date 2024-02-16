@@ -27,26 +27,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: true
     },
-    userAuth: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true
-    },
-    user_name: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    user_phone: {
-      type: DataTypes.BIGINT,
-      allowNull: true
-    },
-    user_address: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    user_note: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
     subtotal: {
       type: DataTypes.DOUBLE,
       allowNull: true

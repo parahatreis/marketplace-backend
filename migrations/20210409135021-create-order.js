@@ -16,10 +16,6 @@ module.exports = {
         type : DataTypes.STRING,
         defaultValue : 'waiting'
       },
-      userAuth : {
-        type : DataTypes.BOOLEAN,
-        defaultValue : true
-      },
       userId: {
         type : DataTypes.INTEGER,
         allowNull : false
@@ -27,10 +23,6 @@ module.exports = {
       subtotal : {
         type : DataTypes.DOUBLE,
         allowNull : true
-      },
-      address : {
-        type : DataTypes.STRING,
-        allowNull : false    
       },
       payment_type : {
         type : DataTypes.STRING,
